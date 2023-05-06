@@ -1,5 +1,7 @@
 # dim
 
+![extension icon](media/icon.png)
+
 Define rules to reduce opacity of repeating lines or blocks to be able to focus in main logic.
 
 ## Features
