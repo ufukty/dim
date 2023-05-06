@@ -23,10 +23,10 @@ export type Rule = MultilineRule | OnelineRule;
 
 export interface Config {
     rules: Rule[];
-    maxOpacity: number;
-    midOpacity: number;
-    minOpacity: number;
-    maxNumberOfLinesToScan: number;
+    valueForMaxTier: number;
+    valueForMidTier: number;
+    valueForMinTier: number;
+    defaultScanLimit: number;
 }
 
 function marshallRules(
@@ -103,10 +103,10 @@ export function readConfig(editor: vscode.TextEditor): Config {
     const workspaceConfig = vscode.workspace.getConfiguration("dim", editor.document.uri);
     return {
         rules: readRules(editor, workspaceConfig),
-        minOpacity: workspaceConfig.get("valueForMinTier") ?? 0.25,
-        midOpacity: workspaceConfig.get("valueForMidTier") ?? 0.5,
-        maxOpacity: workspaceConfig.get("valueForMaxTier") ?? 0.75,
-        maxNumberOfLinesToScan: workspaceConfig.get("defaultScanLimit") ?? 1000,
+        valueForMinTier: workspaceConfig.get("valueForMinTier") ?? 0.25,
+        valueForMidTier: workspaceConfig.get("valueForMidTier") ?? 0.5,
+        valueForMaxTier: workspaceConfig.get("valueForMaxTier") ?? 0.75,
+        defaultScanLimit: workspaceConfig.get("defaultScanLimit") ?? 1000,
     };
 }
 

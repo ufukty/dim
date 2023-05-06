@@ -6,19 +6,21 @@ export class EditorDecorator {
     _logger: vscode.OutputChannel;
     _decorationTypeMapping: WeakMap<vscode.TextEditor, models.DecorationTypes>;
 
-    constructor() {
-        this._logger = vscode.window.createOutputChannel("dim");
+    constructor(logger: vscode.OutputChannel) {
+        this._logger = logger;
         this._decorationTypeMapping = new WeakMap<vscode.TextEditor, models.DecorationTypes>();
     }
 
-    _getAllVisibleRanges(editor: vscode.TextEditor, config: models.Config): vscode.Range[] {
-        const limitRange = new vscode.Range(
+    _getScanRange(editor: vscode.TextEditor, config: models.Config): vscode.Range {
+        const limitRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(config.defaultScanLimit, 0));
+        const documentRange = new vscode.Range(
             new vscode.Position(0, 0),
-            new vscode.Position(config.maxNumberOfLinesToScan, 0)
+            new vscode.Position(
+                editor.document.lineCount - 1,
+                editor.document.lineAt(new vscode.Position(editor.document.lineCount - 1, 0)).range.end.character
+            )
         );
-        return editor.visibleRanges.map((range) => {
-            return range.intersection(limitRange) ?? limitRange;
-        });
+        return documentRange.intersection(limitRange) ?? documentRange;
     }
 
     _getMatchInLine(lineContentInRange: string, regexp: RegExp): vscode.Range | undefined {
@@ -146,15 +148,15 @@ export class EditorDecorator {
     _prepareDecorationTypes(config: models.Config): models.DecorationTypes {
         return {
             "max": vscode.window.createTextEditorDecorationType({
-                "opacity": config.maxOpacity.toString(),
+                "opacity": config.valueForMaxTier.toString(),
                 "isWholeLine": false,
             }),
             "mid": vscode.window.createTextEditorDecorationType({
-                "opacity": config.midOpacity.toString(),
+                "opacity": config.valueForMidTier.toString(),
                 "isWholeLine": false,
             }),
             "min": vscode.window.createTextEditorDecorationType({
-                "opacity": config.minOpacity.toString(),
+                "opacity": config.valueForMinTier.toString(),
                 "isWholeLine": false,
             }),
         };
@@ -200,23 +202,22 @@ export class EditorDecorator {
 
     decorateEditor(editor: vscode.TextEditor) {
         if (editor.document.uri.scheme !== "file") return;
+        this._logger.appendLine("decorating: " + editor.document.uri.path);
 
         const config = models.readConfig(editor);
         if (config === undefined || config.rules === undefined) return;
 
-        const ranges = this._getAllVisibleRanges(editor, config);
+        const range = this._getScanRange(editor, config);
+        console.log(range);
         const perDecoQueues = this._getPerDecorationTypeQueue();
         for (const rule of config.rules) {
-            for (const range of ranges) {
-                const matches = this._scanRangeForRule(editor, range, rule);
-                for (const match of matches) this._saveMatchToQueue(perDecoQueues, match, rule);
-            }
+            const matches = this._scanRangeForRule(editor, range, rule);
+            for (const match of matches) this._saveMatchToQueue(perDecoQueues, match, rule);
         }
 
         this.disposeLastDecorations(editor);
         this._applyNewDecorations(editor, config, perDecoQueues);
 
-        this._logger.appendLine("Applied all decorations");
-        console.log("finish all decorations");
+        this._logger.appendLine("Done.");
     }
 }
