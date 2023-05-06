@@ -6,6 +6,9 @@
             }
         ]
     },
+    "[http]": {
+        "dim.rules": [{ "rule": ".*\\$.*" }, { "rule": "###", "opacityTier": "min" }]
+    },
     "[go]": {
         "dim.rules": [
             {
