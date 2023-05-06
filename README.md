@@ -83,7 +83,7 @@ Below code demonstrates, 2 per-language rule as well as one per-workspace rule.
 
 ## Contribution
 
--   https://github.com/
+-   Issues and PRs => https://github.com/ufukty/dim
 
 ## License
 
