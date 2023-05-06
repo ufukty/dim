@@ -22,7 +22,6 @@ Define rules to reduce opacity of repeating lines or blocks to be able to focus 
             {
                 "startRule": "if err != nil",
                 "endRule": "}",
-                "opacity": "min"
             }
         ]
     }
