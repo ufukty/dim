@@ -86,7 +86,7 @@ Below code demonstrates, 2 per-language rule as well as one per-workspace rule.
 
 ## License
 
--   See [.LICENSE](.LICENSE) file
+-   See [LICENSE](LICENSE) file
 
 ## See also
 
