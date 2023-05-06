@@ -5,7 +5,6 @@ import { debounce } from "lodash";
 const editorDecorator = new ed.EditorDecorator();
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log("hello world");
     const schedule = debounce(editorDecorator.decorateEditor.bind(editorDecorator));
 
     vscode.window.onDidChangeActiveTextEditor((editor) => {
