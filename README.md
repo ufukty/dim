@@ -77,7 +77,8 @@ Below code demonstrates, 2 per-language rule as well as one per-workspace rule.
 
 ## Todo
 
--   [ ] Option to leave the inner-area of `startRule` and `endRule` matching texts without dimming.
+-   [ ] Option to leave the inner-area of `startRule` and `endRule` matching texts without dimming: `leaveBetween`
+-   [ ] Context like usage with multiline rule property `subRules`
 -   [ ] Performance optimization for extension lifecycle events
 
 ## Contribution
