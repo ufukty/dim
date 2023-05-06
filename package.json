@@ -1,9 +1,9 @@
 {
     "name": "dim",
     "displayName": "dim",
-    "description": " Define rules to reduce opacity of repeating lines or blocks to be able to focus in main logic",
-	"publisher": "ufukty",
-    "version": "1.0",
+    "description": "Define rules to reduce opacity of repeating lines or blocks to be able to focus in main logic",
+    "publisher": "ufukty",
+    "version": "1.0.0",
     "engines": {
         "vscode": "^1.78.0"
     },
