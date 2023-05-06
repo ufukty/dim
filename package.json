@@ -2,6 +2,7 @@
     "name": "dim",
     "displayName": "dim",
     "description": " Define rules to reduce opacity of repeating lines or blocks to be able to focus in main logic",
+	"publisher": "ufukty",
     "version": "1.0",
     "engines": {
         "vscode": "^1.78.0"
@@ -18,123 +19,121 @@
     ],
     "main": "./out/extension.js",
     "contributes": {
-        "configuration": [
-            {
-                "title": "dim",
-                "properties": {
-                    "dim.rules": {
-                        "default": [],
-                        "scope": "language-overridable",
-                        "description": "List of rules that will be used by dim to decide which part of code will be dimmed. A rule can be in one of two types: single-line or multi-line",
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "oneOf": [
-                                {
-                                    "properties": {
-                                        "startRule": {
-                                            "type": "string"
-                                        },
-                                        "endRule": {
-                                            "type": "string"
-                                        },
-                                        "opacityTier": {
-                                            "type": "string",
-                                            "enum": [
-                                                "min",
-                                                "mid",
-                                                "max"
-                                            ]
-                                        },
-                                        "maxLinesBetween": {
-                                            "type": "number",
-                                            "default": 5
-                                        },
-                                        "sameScope": {
-                                            "type": "boolean",
-                                            "description": "Matched strings with startRule and endRule should be in same scope. If the scope of startRule matched text ends before endRule matches or maxLinesBetween exceeds, the search for this rule will be ended.",
-                                            "default": true
-                                        }
+        "configuration": {
+            "title": "dim",
+            "properties": {
+                "dim.rules": {
+                    "default": [],
+                    "scope": "language-overridable",
+                    "description": "List of rules that will be used by dim to decide which part of code will be dimmed. A rule can be in one of two types: single-line or multi-line",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "oneOf": [
+                            {
+                                "properties": {
+                                    "startRule": {
+                                        "type": "string"
                                     },
-                                    "required": [
-                                        "startRule",
-                                        "endRule"
-                                    ]
+                                    "endRule": {
+                                        "type": "string"
+                                    },
+                                    "opacityTier": {
+                                        "type": "string",
+                                        "enum": [
+                                            "min",
+                                            "mid",
+                                            "max"
+                                        ]
+                                    },
+                                    "maxLinesBetween": {
+                                        "type": "number",
+                                        "default": 5
+                                    },
+                                    "sameScope": {
+                                        "type": "boolean",
+                                        "description": "Matched strings with startRule and endRule should be in same scope. If the scope of startRule matched text ends before endRule matches or maxLinesBetween exceeds, the search for this rule will be ended.",
+                                        "default": true
+                                    }
                                 },
-                                {
-                                    "properties": {
-                                        "rule": {
-                                            "type": "string"
-                                        },
-                                        "opacityTier": {
-                                            "type": "string",
-                                            "enum": [
-                                                "min",
-                                                "mid",
-                                                "max"
-                                            ]
-                                        }
+                                "required": [
+                                    "startRule",
+                                    "endRule"
+                                ]
+                            },
+                            {
+                                "properties": {
+                                    "rule": {
+                                        "type": "string"
                                     },
-                                    "required": [
-                                        "rule"
-                                    ]
-                                }
-                            ]
-                        }
-                    },
-                    "dim.valueForMinTier": {
-                        "type": "number",
-                        "default": 0.25,
-                        "scope": "window",
-                        "description": "Actual opacity value for min opacity rules.",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "dim.valueForMidTier": {
-                        "type": "number",
-                        "default": 0.5,
-                        "scope": "window",
-                        "description": "Actual opacity value for mid opacity rules.",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "dim.valueForMaxTier": {
-                        "type": "number",
-                        "default": 0.75,
-                        "scope": "window",
-                        "description": "Actual opacity value for max opacity rules.",
-                        "minimum": 0,
-                        "maximum": 1
-                    },
-                    "dim.defaultOpacityTier": {
-                        "type": "string",
-                        "scope": "window",
-                        "enum": [
-                            "min",
-                            "mid",
-                            "max"
-                        ],
-                        "default": "mid",
-                        "description": "The default opacity will be assumed for rules that doesn't specify"
-                    },
-                    "dim.defaultScanLimit": {
-                        "type": "number",
-                        "default": 1000,
-                        "scope": "language-overridable",
-                        "description": "Only the first 'n' lines will be searched for matches. Exceeding will be ignored."
-                    },
-                    "dim.defaultMaxLinesBetween": {
-                        "type": "number",
-                        "default": 5
-                    },
-                    "dim.defaultSameScope": {
-                        "type": "boolean",
-                        "description": "(Experimental) Matched strings with startRule and endRule should be in same scope. If the scope of startRule matched text ends before endRule matches or maxLinesBetween exceeds, the search for this rule will be ended.",
-                        "default": "false"
+                                    "opacityTier": {
+                                        "type": "string",
+                                        "enum": [
+                                            "min",
+                                            "mid",
+                                            "max"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "rule"
+                                ]
+                            }
+                        ]
                     }
+                },
+                "dim.valueForMinTier": {
+                    "type": "number",
+                    "default": 0.25,
+                    "scope": "window",
+                    "description": "Actual opacity value for min opacity rules.",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "dim.valueForMidTier": {
+                    "type": "number",
+                    "default": 0.5,
+                    "scope": "window",
+                    "description": "Actual opacity value for mid opacity rules.",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "dim.valueForMaxTier": {
+                    "type": "number",
+                    "default": 0.75,
+                    "scope": "window",
+                    "description": "Actual opacity value for max opacity rules.",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "dim.defaultOpacityTier": {
+                    "type": "string",
+                    "scope": "window",
+                    "enum": [
+                        "min",
+                        "mid",
+                        "max"
+                    ],
+                    "default": "mid",
+                    "description": "The default opacity will be assumed for rules that doesn't specify"
+                },
+                "dim.defaultScanLimit": {
+                    "type": "number",
+                    "default": 1000,
+                    "scope": "language-overridable",
+                    "description": "Only the first 'n' lines will be searched for matches. Exceeding will be ignored."
+                },
+                "dim.defaultMaxLinesBetween": {
+                    "type": "number",
+                    "default": 5
+                },
+                "dim.defaultSameScope": {
+                    "type": "boolean",
+                    "description": "(Experimental) Matched strings with startRule and endRule should be in same scope. If the scope of startRule matched text ends before endRule matches or maxLinesBetween exceeds, the search for this rule will be ended.",
+                    "default": "false"
                 }
             }
-        ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
