@@ -1,0 +1,31 @@
+{
+    "[json]": {
+        "dim.rules": [
+            {
+                "rule": ".*\\$.*" // lines like: $schema, $url
+            }
+        ]
+    },
+    "[go]": {
+        "dim.rules": [
+            {
+                "startRule": "if err != nil",
+                "endRule": "}",
+                "opacityTier": "min",
+                "maxLinesBetween": 20
+            }
+        ]
+    },
+    "dim.rules": [
+        {
+            "rule": "//.*", // comment lines
+            "opacityTier": "max"
+        }
+    ],
+    "dim.defaultOpacityTier": "mid",
+    "dim.defaultScanLimit": 500,
+    "dim.defaultMaxLinesBetween": 5,
+    "dim.valueForMinTier": 0.2,
+    "dim.valueForMidTier": 0.3,
+    "dim.valueForMaxTier": 0.4
+}
