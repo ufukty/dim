@@ -6,7 +6,7 @@ Define rules to reduce opacity of repeating lines or blocks to be able to focus 
 
 ## Features
 
--   Use simple regex to describe which part of code will be dimmed.
+-   Use simple **regex** rules to describe which part of the code will be dimmed.
 -   Use `rule` property to make the rule single-line (part of line that matches will be dimmed)
 -   Use `startRule` and `endRule` to make the rule multi-line (matching block of code will be dimmed)
 -   Write per-workspace rules in `.vscode/config.json` under `dim.rules`
@@ -20,8 +20,8 @@ Define rules to reduce opacity of repeating lines or blocks to be able to focus 
     "[go]": {
         "dim.rules": [
             {
-                "startRule": "if err != nil",
-                "endRule": "}",
+                "startRule": ".* err != nil",
+                "endRule": "}"
             }
         ]
     }

@@ -12,10 +12,9 @@
     "[go]": {
         "dim.rules": [
             {
-                "startRule": "if err != nil",
+                "startRule": ".* err != nil",
                 "endRule": "}",
-                "opacityTier": "min",
-                "maxLinesBetween": 20
+                "opacityTier": "min"
             }
         ]
     },

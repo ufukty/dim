@@ -5,3 +5,4 @@ node_modules
 *.vsix
 sketch
 test/private*
+.DS_Store
