@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.2
+
+-   Fix: Misleading examples in readme
+
 ## 1.0.1
 
 -   Fix: Scan range calculation.
