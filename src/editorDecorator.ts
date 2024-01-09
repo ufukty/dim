@@ -3,12 +3,27 @@ import * as models from "./models";
 import * as utilities from "./utilities";
 
 export class EditorDecorator {
+    _editor: vscode.TextEditor;
     _logger: vscode.OutputChannel;
     _decorationTypeMapping: WeakMap<vscode.TextEditor, models.DecorationTypes>;
 
-    constructor(logger: vscode.OutputChannel) {
+    // _lastUpdateTimestamp: number;
+
+    // _scheduleUpdateForEditor: vscode.TextEditor | undefined;
+    // _lastUpdatedEditor: vscode.TextEditor | undefined;
+    // _timeoutForScheduler: NodeJS.Timeout | undefined;
+    // _activeEditor: vscode.TextEditor | undefined;
+
+    constructor(editor: vscode.TextEditor, logger: vscode.OutputChannel) {
+        this._editor = editor;
         this._logger = logger;
         this._decorationTypeMapping = new WeakMap<vscode.TextEditor, models.DecorationTypes>();
+
+        // this._editorInUpdate = undefined;
+        // this._scheduleUpdateForEditor = undefined;
+        // this._lastUpdatedEditor = undefined;
+        // this._lastUpdateTimestamp = Date.now() - 1000 * 1000;
+        // this._activeEditor = undefined;
     }
 
     _getScanRange(editor: vscode.TextEditor, config: models.Config): vscode.Range {
@@ -200,7 +215,7 @@ export class EditorDecorator {
         this._decorationTypeMapping.set(editor, decoTypes);
     }
 
-    decorateEditor(editor: vscode.TextEditor) {
+    _decorateEditor(editor: vscode.TextEditor) {
         if (editor.document.uri.scheme !== "file") return;
         this._logger.appendLine("decorating: " + editor.document.uri.path);
 
@@ -219,5 +234,61 @@ export class EditorDecorator {
         this._applyNewDecorations(editor, config, perDecoQueues);
 
         this._logger.appendLine("Done.");
+    }
+
+    // schedule(editor: vscode.TextEditor) {
+    //     if (editor === undefined) return;
+    //     this._activeEditor = editor;
+
+    //     const period = 2000;
+    //     var isPeriodCompleted = Date.now() - this._lastUpdateTimestamp > period;
+    //     var isFirstRun = this._lastUpdatedEditor === undefined && this._editorInUpdate === undefined;
+    //     var isTabSwitch = this._lastUpdatedEditor !== editor;
+
+    //     var isSchedulingOutdated =
+    //         this._scheduleUpdateForEditor !== undefined && this._scheduleUpdateForEditor !== editor;
+    //     var periodCompletedInSameEditor = this._lastUpdatedEditor === editor && isPeriodCompleted;
+
+    //     var hasEditorSwitched = this._editorInUpdate !== editor || this._lastUpdatedEditor !== editor;
+    //     var isSchedulingNotNecessary = hasEditorSwitched || Date.now() - this._lastUpdateTimestamp > period;
+
+    //     var isResetNecessary = isFirstRun || isTabSwitch
+    //     var isUpdateNecessary =  || hasEditorSwitched;
+    //     var isProcessNecessary = isUpdateNecessary || isResetNecessary
+
+    //     console.log(hasEditorSwitched, isSchedulingNotNecessary);
+    //     if (isUpdateNecessary) {
+    //         if (isSchedulingNotNecessary) {
+    //             this._editorInUpdate = editor;
+    //             this._decorateEditor(editor);
+    //             this._lastUpdateTimestamp = Date.now();
+    //             this._editorInUpdate = undefined;
+    //             this._lastUpdatedEditor = editor;
+    //         } else {
+    //             if (this._timeoutForScheduler !== undefined) {
+    //                 clearTimeout(this._timeoutForScheduler);
+    //                 this._timeoutForScheduler = undefined;
+    //             }
+    //             this._scheduleUpdateForEditor = editor;
+    //             const waitTime = period - (Date.now() - this._lastUpdateTimestamp);
+    //             this._timeoutForScheduler = setTimeout(() => {
+    //                 if (editor === this._activeEditor) {
+    //                     this.schedule(editor);
+    //                 }
+    //             }, waitTime);
+    //         }
+    //     }
+    // }
+
+    blur() {
+        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + " lostFocus");
+    }
+
+    focus() {
+        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + " gotFocus");
+    }
+
+    contentChange() {
+        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + " contentChange");
     }
 }
