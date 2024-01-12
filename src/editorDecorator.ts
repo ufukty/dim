@@ -23,7 +23,7 @@ export class EditorDecorator {
         this._lastUpdateTimestamp = 0;
     }
 
-    schedule() {
+    _schedule() {
         const period = 500;
         var isSchedulingNecessary = Date.now() - this._lastUpdateTimestamp < period;
 
@@ -33,7 +33,7 @@ export class EditorDecorator {
         } else if (this._timeoutForScheduler === undefined) {
             const waitTime = period - (Date.now() - this._lastUpdateTimestamp);
             this._timeoutForScheduler = setTimeout(() => {
-                this.schedule();
+                this._schedule();
                 this._timeoutForScheduler = undefined;
             }, waitTime);
         }
@@ -210,7 +210,6 @@ export class EditorDecorator {
     }
 
     _decorateEditor() {
-        if (this._editor.document.uri.scheme !== "file") return;
         this._logger.appendLine(this._filename + ": decorating...");
 
         const config = models.readConfig(this._editor);
@@ -239,6 +238,6 @@ export class EditorDecorator {
 
     contentChange() {
         this._logger.appendLine(this._editor.document.fileName.split("/").pop() + ": contentChange");
-        this.schedule();
+        this._schedule();
     }
 }
