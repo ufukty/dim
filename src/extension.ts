@@ -15,7 +15,11 @@ function onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): any
 
     // first register change, then return; to ignore onDidChangeTextDocument that will be fired on Output panel
     activeEditor = editor;
-    if (activeEditor.document.uri.scheme !== "file") return;
+    if (
+        activeEditor.document.uri.scheme !== "file" ||
+        activeEditor.document.uri.path.split("/").pop() === "settings.json"
+    )
+        return;
 
     var d = decorators.get(editor);
     if (d === undefined) {
@@ -30,15 +34,8 @@ function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent): any {
 
     var d = decorators.get(activeEditor);
     if (d) {
-        d.contentChange();
+        d.contentChange(event);
     }
-
-    // const activeEditor = vscode.window.activeTextEditor;
-    // if (activeEditor === undefined || event.document !== activeEditor.document) return;
-    // logger.appendLine("onDidChangeTextDocument: " + event.document.uri.path.toString());
-    // editorDecorator.schedule(activeEditor);
-
-    // console.log(event.document, event.reason);
 }
 
 export function activate(context: vscode.ExtensionContext) {

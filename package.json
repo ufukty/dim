@@ -32,13 +32,13 @@
                         "oneOf": [
                             {
                                 "properties": {
-                                    "startRule": {
+                                    "start": {
                                         "type": "string"
                                     },
-                                    "endRule": {
+                                    "end": {
                                         "type": "string"
                                     },
-                                    "opacityTier": {
+                                    "opacity": {
                                         "type": "string",
                                         "enum": [
                                             "min",
@@ -50,15 +50,15 @@
                                         "type": "number",
                                         "default": 5
                                     },
-                                    "sameScope": {
+                                    "ignoreMatchingBraces": {
                                         "type": "boolean",
-                                        "description": "Matched strings with startRule and endRule should be in same scope. If the scope of startRule matched text ends before endRule matches or maxLinesBetween exceeds, the search for this rule will be ended.",
+                                        "description": "(Experimantal) Ignore matching-number of opening and closing braces when searching for multi-line rules contains closing brace as closing pattern.",
                                         "default": true
                                     }
                                 },
                                 "required": [
-                                    "startRule",
-                                    "endRule"
+                                    "start",
+                                    "end"
                                 ]
                             },
                             {
@@ -66,7 +66,7 @@
                                     "rule": {
                                         "type": "string"
                                     },
-                                    "opacityTier": {
+                                    "opacity": {
                                         "type": "string",
                                         "enum": [
                                             "min",
@@ -126,11 +126,6 @@
                 "dim.defaultMaxLinesBetween": {
                     "type": "number",
                     "default": 5
-                },
-                "dim.defaultSameScope": {
-                    "type": "boolean",
-                    "description": "(Experimental) Matched strings with startRule and endRule should be in same scope. If the scope of startRule matched text ends before endRule matches or maxLinesBetween exceeds, the search for this rule will be ended.",
-                    "default": "false"
                 }
             }
         }

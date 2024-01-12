@@ -4,6 +4,7 @@ import * as utilities from "./utilities";
 
 export class EditorDecorator {
     _editor: vscode.TextEditor;
+    _filename: string;
     _logger: vscode.OutputChannel;
     _decorationTypeMapping: WeakMap<vscode.TextEditor, models.DecorationTypes>;
 
@@ -24,15 +25,21 @@ export class EditorDecorator {
         // this._lastUpdatedEditor = undefined;
         // this._lastUpdateTimestamp = Date.now() - 1000 * 1000;
         // this._activeEditor = undefined;
+
+        const filename = editor.document.fileName.split("/").pop();
+        if (filename) this._filename = filename;
+        else this._filename = "";
     }
 
-    _getScanRange(editor: vscode.TextEditor, config: models.Config): vscode.Range {
+    _getScanRange(config: models.Config): vscode.Range {
         const limitRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(config.defaultScanLimit, 0));
         const documentRange = new vscode.Range(
             new vscode.Position(0, 0),
             new vscode.Position(
-                editor.document.lineCount - 1,
-                editor.document.lineAt(new vscode.Position(editor.document.lineCount - 1, 0)).range.end.character
+                this._editor.document.lineCount - 1,
+                this._editor.document.lineAt(
+                    new vscode.Position(this._editor.document.lineCount - 1, 0)
+                ).range.end.character
             )
         );
         return documentRange.intersection(limitRange) ?? documentRange;
@@ -48,15 +55,11 @@ export class EditorDecorator {
         return new vscode.Range(start, end);
     }
 
-    _scanRangeForSinglelineRule(
-        editor: vscode.TextEditor,
-        range: vscode.Range,
-        regex: RegExp
-    ): vscode.Range | undefined {
+    _scanRangeForSinglelineRule(range: vscode.Range, regex: RegExp): vscode.Range | undefined {
         const firstLine = range.start.line;
         const lastLine = range.end.line;
         for (let line = firstLine; line <= lastLine; line++) {
-            var lineContent = utilities.lineAt(editor, line);
+            var lineContent = utilities.lineAt(this._editor, line);
             if (lineContent === undefined) continue;
 
             var lineContentInRange = lineContent.text;
@@ -86,12 +89,8 @@ export class EditorDecorator {
         return [undefined, scopeLevel];
     }
 
-    _restrictRangeToScope(
-        editor: vscode.TextEditor,
-        range: vscode.Range,
-        startMatch: vscode.Range
-    ): vscode.Range | undefined {
-        const startLine = utilities.lineAt(editor, startMatch.end.line);
+    _restrictRangeToScope(range: vscode.Range, startMatch: vscode.Range): vscode.Range | undefined {
+        const startLine = utilities.lineAt(this._editor, startMatch.end.line);
         if (startLine === undefined) return undefined;
         const startLineClipped = startLine.text.substring(startMatch.end.character);
         var [scopeEndChar, scopeElevation] = this._checkScopeElevation(startLineClipped, 0);
@@ -99,7 +98,7 @@ export class EditorDecorator {
 
         var totalScopeElevation = scopeElevation;
         for (var line = range.start.line + 1; line < range.end.line; line++) {
-            const lineContent = utilities.lineAt(editor, line);
+            const lineContent = utilities.lineAt(this._editor, line);
             if (lineContent === undefined) return range;
             [scopeEndChar, scopeElevation] = this._checkScopeElevation(lineContent.text, totalScopeElevation);
             if (scopeEndChar !== undefined)
@@ -110,47 +109,34 @@ export class EditorDecorator {
         return range;
     }
 
-    _restrictRange(
-        editor: vscode.TextEditor,
-        range: vscode.Range,
-        maxLinesBetween: number,
-        startMatch: vscode.Range
-    ): vscode.Range {
+    _restrictRange(range: vscode.Range, maxLinesBetween: number, startMatch: vscode.Range): vscode.Range {
         var restrictedRangeWithLinesBetween = utilities.getRemainingRangeInRange(range, startMatch, maxLinesBetween);
         if (restrictedRangeWithLinesBetween === undefined) return range;
 
-        const restrictedRangeWithScope = this._restrictRangeToScope(
-            editor,
-            restrictedRangeWithLinesBetween,
-            startMatch
-        );
+        const restrictedRangeWithScope = this._restrictRangeToScope(restrictedRangeWithLinesBetween, startMatch);
         if (restrictedRangeWithScope === undefined) return restrictedRangeWithLinesBetween;
 
         return restrictedRangeWithScope;
     }
 
-    _scanRangeForMultilineRule(
-        editor: vscode.TextEditor,
-        range: vscode.Range,
-        rule: models.MultilineRule
-    ): vscode.Range | undefined {
-        const startMatch = this._scanRangeForSinglelineRule(editor, range, rule["startRule"]);
+    _scanRangeForMultilineRule(range: vscode.Range, rule: models.MultilineRule): vscode.Range | undefined {
+        const startMatch = this._scanRangeForSinglelineRule(range, rule["startRule"]);
         if (startMatch === undefined) return undefined;
-        var restrictedRange = this._restrictRange(editor, range, rule.maxLinesBetween, startMatch);
-        const endMatch = this._scanRangeForSinglelineRule(editor, restrictedRange, rule["endRule"]);
+        var restrictedRange = this._restrictRange(range, rule.maxLinesBetween, startMatch);
+        const endMatch = this._scanRangeForSinglelineRule(restrictedRange, rule["endRule"]);
         if (endMatch === undefined) return undefined;
         return utilities.connectTwoRanges(startMatch, endMatch);
     }
 
-    _scanRangeForRule(editor: vscode.TextEditor, range: vscode.Range, rule: models.Rule): vscode.Range[] {
+    _scanRangeForRule(range: vscode.Range, rule: models.Rule): vscode.Range[] {
         var matches: vscode.Range[] = [];
         var match: vscode.Range | undefined;
         while (true) {
             match = undefined;
             if ("rule" in rule) {
-                match = this._scanRangeForSinglelineRule(editor, range, rule["rule"]);
+                match = this._scanRangeForSinglelineRule(range, rule["rule"]);
             } else if ("startRule" in rule && "endRule" in rule) {
-                match = this._scanRangeForMultilineRule(editor, range, rule);
+                match = this._scanRangeForMultilineRule(range, rule);
             }
             if (match === undefined) return matches;
             else {
@@ -199,45 +185,44 @@ export class EditorDecorator {
         }
     }
 
-    disposeLastDecorations(editor: vscode.TextEditor) {
-        const decoTypes = this._decorationTypeMapping.get(editor);
+    disposeLastDecorations() {
+        const decoTypes = this._decorationTypeMapping.get(this._editor);
         if (decoTypes === undefined) return;
         decoTypes.max.dispose();
         decoTypes.mid.dispose();
         decoTypes.min.dispose();
     }
 
-    _applyNewDecorations(editor: vscode.TextEditor, config: models.Config, perDecoQueues: models.PerDecorationQueue) {
+    _applyNewDecorations(config: models.Config, perDecoQueues: models.PerDecorationQueue) {
         const decoTypes = this._prepareDecorationTypes(config);
-        editor.setDecorations(decoTypes.max, perDecoQueues.max);
-        editor.setDecorations(decoTypes.mid, perDecoQueues.mid);
-        editor.setDecorations(decoTypes.min, perDecoQueues.min);
-        this._decorationTypeMapping.set(editor, decoTypes);
+        this._editor.setDecorations(decoTypes.max, perDecoQueues.max);
+        this._editor.setDecorations(decoTypes.mid, perDecoQueues.mid);
+        this._editor.setDecorations(decoTypes.min, perDecoQueues.min);
+        this._decorationTypeMapping.set(this._editor, decoTypes);
     }
 
-    _decorateEditor(editor: vscode.TextEditor) {
-        if (editor.document.uri.scheme !== "file") return;
-        this._logger.appendLine("decorating: " + editor.document.uri.path);
+    _decorateEditor() {
+        if (this._editor.document.uri.scheme !== "file") return;
+        this._logger.appendLine(this._filename + ": decorating...");
 
-        const config = models.readConfig(editor);
+        const config = models.readConfig(this._editor);
         if (config === undefined || config.rules === undefined) return;
 
-        const range = this._getScanRange(editor, config);
-        console.log(range);
+        const range = this._getScanRange(config);
         const perDecoQueues = this._getPerDecorationTypeQueue();
         for (const rule of config.rules) {
-            const matches = this._scanRangeForRule(editor, range, rule);
+            const matches = this._scanRangeForRule(range, rule);
             for (const match of matches) this._saveMatchToQueue(perDecoQueues, match, rule);
         }
 
-        this.disposeLastDecorations(editor);
-        this._applyNewDecorations(editor, config, perDecoQueues);
+        this.disposeLastDecorations();
+        this._applyNewDecorations(config, perDecoQueues);
 
-        this._logger.appendLine("Done.");
+        this._logger.appendLine(this._filename + ": done");
     }
 
-    // schedule(editor: vscode.TextEditor) {
-    //     if (editor === undefined) return;
+    // schedule(this._editor: vscode.TextEditor) {
+    //     if (this._editor === undefined) return;
     //     this._activeEditor = editor;
 
     //     const period = 2000;
@@ -260,7 +245,7 @@ export class EditorDecorator {
     //     if (isUpdateNecessary) {
     //         if (isSchedulingNotNecessary) {
     //             this._editorInUpdate = editor;
-    //             this._decorateEditor(editor);
+    //             this._decorateEditor(this._editor);
     //             this._lastUpdateTimestamp = Date.now();
     //             this._editorInUpdate = undefined;
     //             this._lastUpdatedEditor = editor;
@@ -272,8 +257,8 @@ export class EditorDecorator {
     //             this._scheduleUpdateForEditor = editor;
     //             const waitTime = period - (Date.now() - this._lastUpdateTimestamp);
     //             this._timeoutForScheduler = setTimeout(() => {
-    //                 if (editor === this._activeEditor) {
-    //                     this.schedule(editor);
+    //                 if (this._editor === this._activeEditor) {
+    //                     this.schedule(this._editor);
     //                 }
     //             }, waitTime);
     //         }
@@ -281,14 +266,83 @@ export class EditorDecorator {
     // }
 
     blur() {
-        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + " lostFocus");
+        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + ": blur");
     }
 
     focus() {
-        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + " gotFocus");
+        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + ": focus");
     }
 
-    contentChange() {
-        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + " contentChange");
+    contentChange(event: vscode.TextDocumentChangeEvent) {
+        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + ": contentChange");
+        printTextDocumentChangeEvent(this._logger, event);
+        this._unionRanges(event);
+    }
+
+    _unionRanges(event: vscode.TextDocumentChangeEvent) {
+        var queuedDeletions: boolean = false;
+        var queuedAdditions: boolean = false;
+
+        event.contentChanges.forEach((v) => {
+            const isDeletion = !v.range.isEmpty;
+            const isAddition = v.text.length > 0;
+            const isReplacement = isDeletion && isAddition;
+
+            // adjust the line numbers of ranges previously added to 'changed' that comes after deleted part
+
+            if (isReplacement) {
+                queuedDeletions = true;
+                // queuedDeletions.push(v.range);
+                queuedAdditions = true;
+                // queuedAdditions.push(v.range);
+                // queuedAdditions.push(new vscode.Range(start: v.range.start: end: vscode.position));
+            } else if (isDeletion) {
+                queuedDeletions = true;
+                // queuedDeletions.push(v.range);
+            } else if (isAddition) {
+                queuedAdditions = true;
+                // queuedAdditions.push(v.range);
+            }
+            // for (const r1 of ranges) {
+            //     if (v.range.start.line < r1.start.line) min = v.range.start.line;
+            //     if (v.range.end.line < max) max = v.range.end.line;
+            // }
+        });
+
+        if (queuedAdditions || queuedDeletions) this._decorateEditor();
+        else this._logger.appendLine(this._filename + ": empty content change");
     }
 }
+
+function printTextDocumentChangeEvent(logger: vscode.OutputChannel, event: vscode.TextDocumentChangeEvent) {
+    if (event.reason) logger.appendLine(event.reason.toString());
+    event.contentChanges.forEach((v) => {
+        logger.appendLine(
+            "[" +
+                v.range.start.line +
+                ", " +
+                v.range.start.character +
+                "] => [" +
+                v.range.end.line +
+                ", " +
+                v.range.end.character +
+                "] replaced length = " +
+                v.rangeLength +
+                " (->" +
+                v.rangeOffset +
+                "), text = '" +
+                v.text +
+                "'"
+        );
+    });
+}
+
+// export class Range {
+//     start: number;
+//     end: number;
+//     constructor(start: number, end: number) {
+//         this.start = start;
+//         this.end = end;
+//     }
+//     union(neighbor: Range): boolean {}
+// }

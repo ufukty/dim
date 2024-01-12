@@ -29,25 +29,20 @@ export interface Config {
     defaultScanLimit: number;
 }
 
-function marshallRules(
-    jsonRules: any[],
-    defaultOpacity: Opacity,
-    defaultMaxLinesBetween: number,
-    defaultSameScope: boolean
-): Rule[] {
+function marshallRules(jsonRules: any[], defaultOpacity: Opacity, defaultMaxLinesBetween: number): Rule[] {
     return jsonRules.map((rule) => {
         if ("rule" in rule) {
             return {
                 rule: new RegExp(rule["rule"], "g"),
-                opacity: rule["opacityTier"] ?? defaultOpacity,
+                opacity: rule["opacity"] ?? defaultOpacity,
             };
         } else {
             return {
-                startRule: new RegExp(rule["startRule"], "g"),
-                endRule: new RegExp(rule["endRule"], "g"),
-                opacity: rule["opacityTier"] ?? defaultOpacity,
+                startRule: new RegExp(rule["start"], "g"),
+                endRule: new RegExp(rule["end"], "g"),
+                opacity: rule["opacity"] ?? defaultOpacity,
                 maxLinesBetween: rule["maxLinesBetween"] ?? defaultMaxLinesBetween,
-                sameScope: rule["sameScope"] ?? defaultSameScope,
+                sameScope: rule["ignoreMatchingBraces"],
             };
         }
     });
@@ -86,16 +81,10 @@ function getLanguageSpecificRulesInJSON(editor: vscode.TextEditor): Rule[] {
 function readRules(editor: vscode.TextEditor, workspaceConfig: vscode.WorkspaceConfiguration): Rule[] {
     const defaultOpacity = (workspaceConfig.get("defaultOpacityTier") as Opacity) ?? Opacity.Mid;
     const defaultMaxLinesBetween = (workspaceConfig.get("defaultMaxLinesBetween") as number) ?? 5;
-    const defaultSameScope = (workspaceConfig.get("defaultSameScope") as boolean) ?? true;
 
     const workspaceRules = getWorkspaceRulesInJSON(workspaceConfig);
     const languageSpecificRules = getLanguageSpecificRulesInJSON(editor);
-    const rules = marshallRules(
-        [...workspaceRules, ...languageSpecificRules],
-        defaultOpacity,
-        defaultMaxLinesBetween,
-        defaultSameScope
-    );
+    const rules = marshallRules([...workspaceRules, ...languageSpecificRules], defaultOpacity, defaultMaxLinesBetween);
     return rules;
 }
 
