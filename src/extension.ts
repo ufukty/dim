@@ -4,7 +4,6 @@ import * as ed from "./editorDecorator";
 var decorators: Map<vscode.TextEditor, ed.EditorDecorator>;
 var logger: vscode.OutputChannel;
 var activeEditor: vscode.TextEditor;
-var filenamesToIgnore: RegExp;
 
 export function activate(context: vscode.ExtensionContext) {
     logger = vscode.window.createOutputChannel("dim");
@@ -13,15 +12,16 @@ export function activate(context: vscode.ExtensionContext) {
     decorators = new Map();
 
     vscode.window.onDidChangeActiveTextEditor((editor) => {
-        // logger.appendLine("onDidChangeActiveTextEditor: " + editor.document.uri.path.toString());
-        if (editor === undefined || editor === activeEditor || editor.document.uri.scheme !== "file") return;
-        console.log(activeEditor.document.uri.scheme);
+        if (editor === undefined || editor === activeEditor) return;
 
         var d = decorators.get(activeEditor);
         if (d) {
             d.blur();
         }
+
+        // first register change, then return; to ignore onDidChangeTextDocument that will be fired on Output panel
         activeEditor = editor;
+        if (activeEditor.document.uri.scheme !== "file") return;
 
         var d = decorators.get(editor);
         if (d === undefined) {
@@ -32,9 +32,8 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     vscode.workspace.onDidChangeTextDocument((event) => {
-        if (activeEditor.document.uri.scheme !== "file") return;
-        console.log(activeEditor.document.uri.scheme);
-
+        if (event.document.uri.path !== activeEditor.document.uri.path || event.document.uri.scheme !== "file") return;
+        
         var d = decorators.get(activeEditor);
         if (d) {
             d.contentChange();
