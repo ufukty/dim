@@ -34,7 +34,7 @@ function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent): any {
 
     var d = decorators.get(activeEditor);
     if (d) {
-        d.contentChange(event);
+        d.contentChange();
     }
 }
 

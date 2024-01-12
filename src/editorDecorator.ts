@@ -8,27 +8,35 @@ export class EditorDecorator {
     _logger: vscode.OutputChannel;
     _decorationTypeMapping: WeakMap<vscode.TextEditor, models.DecorationTypes>;
 
-    // _lastUpdateTimestamp: number;
-
-    // _scheduleUpdateForEditor: vscode.TextEditor | undefined;
-    // _lastUpdatedEditor: vscode.TextEditor | undefined;
-    // _timeoutForScheduler: NodeJS.Timeout | undefined;
-    // _activeEditor: vscode.TextEditor | undefined;
+    _lastUpdateTimestamp: number;
+    _timeoutForScheduler: NodeJS.Timeout | undefined;
 
     constructor(editor: vscode.TextEditor, logger: vscode.OutputChannel) {
         this._editor = editor;
         this._logger = logger;
         this._decorationTypeMapping = new WeakMap<vscode.TextEditor, models.DecorationTypes>();
 
-        // this._editorInUpdate = undefined;
-        // this._scheduleUpdateForEditor = undefined;
-        // this._lastUpdatedEditor = undefined;
-        // this._lastUpdateTimestamp = Date.now() - 1000 * 1000;
-        // this._activeEditor = undefined;
-
-        const filename = editor.document.fileName.split("/").pop();
-        if (filename) this._filename = filename;
+        const _filename = editor.document.fileName.split("/").pop();
+        if (_filename) this._filename = _filename;
         else this._filename = "";
+
+        this._lastUpdateTimestamp = 0;
+    }
+
+    schedule() {
+        const period = 500;
+        var isSchedulingNecessary = Date.now() - this._lastUpdateTimestamp < period;
+
+        if (!isSchedulingNecessary) {
+            this._decorateEditor();
+            this._lastUpdateTimestamp = Date.now();
+        } else if (this._timeoutForScheduler === undefined) {
+            const waitTime = period - (Date.now() - this._lastUpdateTimestamp);
+            this._timeoutForScheduler = setTimeout(() => {
+                this.schedule();
+                this._timeoutForScheduler = undefined;
+            }, waitTime);
+        }
     }
 
     _getScanRange(config: models.Config): vscode.Range {
@@ -221,50 +229,6 @@ export class EditorDecorator {
         this._logger.appendLine(this._filename + ": done");
     }
 
-    // schedule(this._editor: vscode.TextEditor) {
-    //     if (this._editor === undefined) return;
-    //     this._activeEditor = editor;
-
-    //     const period = 2000;
-    //     var isPeriodCompleted = Date.now() - this._lastUpdateTimestamp > period;
-    //     var isFirstRun = this._lastUpdatedEditor === undefined && this._editorInUpdate === undefined;
-    //     var isTabSwitch = this._lastUpdatedEditor !== editor;
-
-    //     var isSchedulingOutdated =
-    //         this._scheduleUpdateForEditor !== undefined && this._scheduleUpdateForEditor !== editor;
-    //     var periodCompletedInSameEditor = this._lastUpdatedEditor === editor && isPeriodCompleted;
-
-    //     var hasEditorSwitched = this._editorInUpdate !== editor || this._lastUpdatedEditor !== editor;
-    //     var isSchedulingNotNecessary = hasEditorSwitched || Date.now() - this._lastUpdateTimestamp > period;
-
-    //     var isResetNecessary = isFirstRun || isTabSwitch
-    //     var isUpdateNecessary =  || hasEditorSwitched;
-    //     var isProcessNecessary = isUpdateNecessary || isResetNecessary
-
-    //     console.log(hasEditorSwitched, isSchedulingNotNecessary);
-    //     if (isUpdateNecessary) {
-    //         if (isSchedulingNotNecessary) {
-    //             this._editorInUpdate = editor;
-    //             this._decorateEditor(this._editor);
-    //             this._lastUpdateTimestamp = Date.now();
-    //             this._editorInUpdate = undefined;
-    //             this._lastUpdatedEditor = editor;
-    //         } else {
-    //             if (this._timeoutForScheduler !== undefined) {
-    //                 clearTimeout(this._timeoutForScheduler);
-    //                 this._timeoutForScheduler = undefined;
-    //             }
-    //             this._scheduleUpdateForEditor = editor;
-    //             const waitTime = period - (Date.now() - this._lastUpdateTimestamp);
-    //             this._timeoutForScheduler = setTimeout(() => {
-    //                 if (this._editor === this._activeEditor) {
-    //                     this.schedule(this._editor);
-    //                 }
-    //             }, waitTime);
-    //         }
-    //     }
-    // }
-
     blur() {
         this._logger.appendLine(this._editor.document.fileName.split("/").pop() + ": blur");
     }
@@ -273,76 +237,8 @@ export class EditorDecorator {
         this._logger.appendLine(this._editor.document.fileName.split("/").pop() + ": focus");
     }
 
-    contentChange(event: vscode.TextDocumentChangeEvent) {
+    contentChange() {
         this._logger.appendLine(this._editor.document.fileName.split("/").pop() + ": contentChange");
-        printTextDocumentChangeEvent(this._logger, event);
-        this._unionRanges(event);
-    }
-
-    _unionRanges(event: vscode.TextDocumentChangeEvent) {
-        var queuedDeletions: boolean = false;
-        var queuedAdditions: boolean = false;
-
-        event.contentChanges.forEach((v) => {
-            const isDeletion = !v.range.isEmpty;
-            const isAddition = v.text.length > 0;
-            const isReplacement = isDeletion && isAddition;
-
-            // adjust the line numbers of ranges previously added to 'changed' that comes after deleted part
-
-            if (isReplacement) {
-                queuedDeletions = true;
-                // queuedDeletions.push(v.range);
-                queuedAdditions = true;
-                // queuedAdditions.push(v.range);
-                // queuedAdditions.push(new vscode.Range(start: v.range.start: end: vscode.position));
-            } else if (isDeletion) {
-                queuedDeletions = true;
-                // queuedDeletions.push(v.range);
-            } else if (isAddition) {
-                queuedAdditions = true;
-                // queuedAdditions.push(v.range);
-            }
-            // for (const r1 of ranges) {
-            //     if (v.range.start.line < r1.start.line) min = v.range.start.line;
-            //     if (v.range.end.line < max) max = v.range.end.line;
-            // }
-        });
-
-        if (queuedAdditions || queuedDeletions) this._decorateEditor();
-        else this._logger.appendLine(this._filename + ": empty content change");
+        this.schedule();
     }
 }
-
-function printTextDocumentChangeEvent(logger: vscode.OutputChannel, event: vscode.TextDocumentChangeEvent) {
-    if (event.reason) logger.appendLine(event.reason.toString());
-    event.contentChanges.forEach((v) => {
-        logger.appendLine(
-            "[" +
-                v.range.start.line +
-                ", " +
-                v.range.start.character +
-                "] => [" +
-                v.range.end.line +
-                ", " +
-                v.range.end.character +
-                "] replaced length = " +
-                v.rangeLength +
-                " (->" +
-                v.rangeOffset +
-                "), text = '" +
-                v.text +
-                "'"
-        );
-    });
-}
-
-// export class Range {
-//     start: number;
-//     end: number;
-//     constructor(start: number, end: number) {
-//         this.start = start;
-//         this.end = end;
-//     }
-//     union(neighbor: Range): boolean {}
-// }
