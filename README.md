@@ -8,7 +8,7 @@ Define rules to reduce opacity of repeating lines or blocks to be able to focus 
 
 -   Use simple **regex** rules to describe which part of the code will be dimmed.
 -   Use `rule` property to make the rule single-line (part of line that matches will be dimmed)
--   Use `startRule` and `endRule` to make the rule multi-line (matching block of code will be dimmed)
+-   Use `start` and `end` to make the rule multi-line (matching block of code will be dimmed)
 -   Write per-workspace rules in `.vscode/config.json` under `dim.rules`
 -   Write per-language rules under file tags: `[js]`, `[go]`, `[json]`
 -   3 opacity tier: min, mid, max. Defaulted to 0.25, 0.50, 0.75 opacities.
@@ -20,8 +20,8 @@ Define rules to reduce opacity of repeating lines or blocks to be able to focus 
     "[go]": {
         "dim.rules": [
             {
-                "startRule": ".* err != nil",
-                "endRule": "}"
+                "start": "if err != nil",
+                "end": "}"
             }
         ]
     }
@@ -32,11 +32,11 @@ Define rules to reduce opacity of repeating lines or blocks to be able to focus 
 
 Below code demonstrates, 2 per-language rule as well as one per-workspace rule.
 
--   The rule defined for go is multi-line since it has `startRule` and `endRule` properties.
+-   The rule defined for go is multi-line since it has `start` and `end` properties.
 -   The workspace-wide rule and the rule defined for json are single-line rules since they only have `rule` property.
--   `opacityTier` can be defined per-rule, if another tier then the `defaultOpacityTier` is desired.
+-   `opacity` can be defined per-rule, if another tier then the `defaultOpacity` is desired.
 -   `defaultScanLimit` is to limit **dim** to search only the first `n` lines of codefiles. Higher values can decrease the performance.
--   `maxLinesBetween` is to limit **dim** to search match for the `endRule` only `n` lines after the the text matches with `startRule`
+-   `maxLinesBetween` is to limit **dim** to search match for the `end` only `n` lines after the the text matches with `start`
 
 ```json
 {
@@ -50,9 +50,9 @@ Below code demonstrates, 2 per-language rule as well as one per-workspace rule.
     "[go]": {
         "dim.rules": [
             {
-                "startRule": "if err != nil",
-                "endRule": "}",
-                "opacityTier": "min",
+                "start": "if err != nil",
+                "end": "}",
+                "opacity": "min",
                 "maxLinesBetween": 20
             }
         ]
@@ -60,7 +60,7 @@ Below code demonstrates, 2 per-language rule as well as one per-workspace rule.
     "dim.rules": [
         {
             "rule": "//.*", // comments
-            "opacityTier": "max"
+            "opacity": "max"
         }
     ],
     "dim.defaultOpacityTier": "mid",
@@ -72,15 +72,11 @@ Below code demonstrates, 2 per-language rule as well as one per-workspace rule.
 }
 ```
 
-## Known Issues
-
--   `sameScope` switch for rules is under development, may not work appropriately.
-
 ## Todo
 
--   [ ] Option to leave the inner-area of `startRule` and `endRule` matching texts without dimming: `leaveBetween`
+-   [ ] `ignoreMatchingBraces` is under development
+-   [ ] Option to leave the inner-area of `start` and `end` matching texts without dimming: `leaveBetween`
 -   [ ] Context like usage with multiline rule property `subRules`
--   [ ] Performance optimization for extension lifecycle events
 
 ## Contribution
 
