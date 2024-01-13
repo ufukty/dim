@@ -1,9 +1,12 @@
 import * as vscode from "vscode";
 import * as models from "./models";
 import * as utilities from "./utilities";
+import { ConfigManager } from "./configmanager";
 
 export class EditorDecorator {
     _editor: vscode.TextEditor;
+    _config: models.Config;
+    _configManager: ConfigManager;
     _filename: string;
     _logger: vscode.OutputChannel;
     _decorationTypeMapping: WeakMap<vscode.TextEditor, models.DecorationTypes>;
@@ -11,8 +14,9 @@ export class EditorDecorator {
     _lastUpdateTimestamp: number;
     _timeoutForScheduler: NodeJS.Timeout | undefined;
 
-    constructor(editor: vscode.TextEditor, logger: vscode.OutputChannel) {
+    constructor(editor: vscode.TextEditor, configManager: ConfigManager, logger: vscode.OutputChannel) {
         this._editor = editor;
+        this._configManager = configManager;
         this._logger = logger;
         this._decorationTypeMapping = new WeakMap<vscode.TextEditor, models.DecorationTypes>();
 
@@ -21,6 +25,8 @@ export class EditorDecorator {
         else this._filename = "";
 
         this._lastUpdateTimestamp = 0;
+
+        this._config = this._configManager.readConfig(this._editor);
     }
 
     _schedule() {
@@ -39,8 +45,11 @@ export class EditorDecorator {
         }
     }
 
-    _getScanRange(config: models.Config): vscode.Range {
-        const limitRange = new vscode.Range(new vscode.Position(0, 0), new vscode.Position(config.defaultScanLimit, 0));
+    _getScanRange(): vscode.Range {
+        const limitRange = new vscode.Range(
+            new vscode.Position(0, 0),
+            new vscode.Position(this._config.defaultScanLimit, 0)
+        );
         const documentRange = new vscode.Range(
             new vscode.Position(0, 0),
             new vscode.Position(
@@ -154,18 +163,18 @@ export class EditorDecorator {
         }
     }
 
-    _prepareDecorationTypes(config: models.Config): models.DecorationTypes {
+    _prepareDecorationTypes(): models.DecorationTypes {
         return {
             "max": vscode.window.createTextEditorDecorationType({
-                "opacity": config.valueForMaxTier.toString(),
+                "opacity": this._config.valueForMaxTier.toString(),
                 "isWholeLine": false,
             }),
             "mid": vscode.window.createTextEditorDecorationType({
-                "opacity": config.valueForMidTier.toString(),
+                "opacity": this._config.valueForMidTier.toString(),
                 "isWholeLine": false,
             }),
             "min": vscode.window.createTextEditorDecorationType({
-                "opacity": config.valueForMinTier.toString(),
+                "opacity": this._config.valueForMinTier.toString(),
                 "isWholeLine": false,
             }),
         };
@@ -201,8 +210,8 @@ export class EditorDecorator {
         decoTypes.min.dispose();
     }
 
-    _applyNewDecorations(config: models.Config, perDecoQueues: models.PerDecorationQueue) {
-        const decoTypes = this._prepareDecorationTypes(config);
+    _applyNewDecorations(perDecoQueues: models.PerDecorationQueue) {
+        const decoTypes = this._prepareDecorationTypes();
         this._editor.setDecorations(decoTypes.max, perDecoQueues.max);
         this._editor.setDecorations(decoTypes.mid, perDecoQueues.mid);
         this._editor.setDecorations(decoTypes.min, perDecoQueues.min);
@@ -211,33 +220,38 @@ export class EditorDecorator {
 
     _decorateEditor() {
         this._logger.appendLine(this._filename + ": decorating...");
+        const start = Date.now();
 
-        const config = models.readConfig(this._editor);
-        if (config === undefined || config.rules === undefined) return;
-
-        const range = this._getScanRange(config);
+        const range = this._getScanRange();
         const perDecoQueues = this._getPerDecorationTypeQueue();
-        for (const rule of config.rules) {
+        for (const rule of this._config.rules) {
             const matches = this._scanRangeForRule(range, rule);
             for (const match of matches) this._saveMatchToQueue(perDecoQueues, match, rule);
         }
 
         this.disposeLastDecorations();
-        this._applyNewDecorations(config, perDecoQueues);
+        this._applyNewDecorations(perDecoQueues);
 
-        this._logger.appendLine(this._filename + ": done");
+        this._logger.appendLine(this._filename + ": decorated (" + (Date.now() - start) + "ms)");
     }
 
     blur() {
-        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + ": blur");
+        this._logger.appendLine(this._filename + ": blur");
     }
 
     focus() {
-        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + ": focus");
+        this._logger.appendLine(this._filename + ": focus");
+        this._schedule();
     }
 
     contentChange() {
-        this._logger.appendLine(this._editor.document.fileName.split("/").pop() + ": contentChange");
+        this._logger.appendLine(this._filename + ": content change");
+        this._schedule();
+    }
+
+    onDidChangeConfiguration() {
+        this._logger.appendLine(this._filename + ": configuration change");
+        this._config = this._configManager.readConfig(this._editor);
         this._schedule();
     }
 }

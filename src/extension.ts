@@ -1,9 +1,12 @@
 import * as vscode from "vscode";
-import * as ed from "./editorDecorator";
+import { EditorDecorator } from "./editorDecorator";
+import * as models from "./models";
+import { ConfigManager } from "./configmanager";
 
-var decorators: Map<vscode.TextEditor, ed.EditorDecorator>;
+var decorators: Map<vscode.TextEditor, EditorDecorator>;
 var logger: vscode.OutputChannel;
 var activeEditor: vscode.TextEditor;
+var configManager: ConfigManager;
 
 function onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): any {
     if (editor === undefined || editor === activeEditor) return;
@@ -23,7 +26,7 @@ function onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): any
 
     var d = decorators.get(editor);
     if (d === undefined) {
-        d = new ed.EditorDecorator(editor, logger);
+        d = new EditorDecorator(editor, configManager, logger);
         decorators.set(editor, d);
     }
     d.focus();
@@ -38,22 +41,38 @@ function onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent): any {
     }
 }
 
+function onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
+    if (!e.affectsConfiguration("dim")) return;
+    configManager.clearConfigCache(e);
+    vscode.window.visibleTextEditors.forEach((editor) => {
+        var ad = decorators.get(editor);
+        if (ad) {
+            ad.onDidChangeConfiguration();
+        }
+    });
+}
+
 export function activate(context: vscode.ExtensionContext) {
     logger = vscode.window.createOutputChannel("dim");
     logger.appendLine("init");
 
     decorators = new Map();
+    configManager = new ConfigManager();
+
+    vscode.workspace.onDidChangeConfiguration((e: vscode.ConfigurationChangeEvent) => {
+        onDidChangeConfiguration(e);
+    });
 
     vscode.window.onDidChangeActiveTextEditor((editor) => {
         onDidChangeActiveTextEditor(editor);
     });
 
-    if (vscode.window.activeTextEditor) {
-        onDidChangeActiveTextEditor(vscode.window.activeTextEditor);
-    }
-
     vscode.workspace.onDidChangeTextDocument((event) => {
         onDidChangeTextDocument(event);
+    });
+
+    vscode.window.visibleTextEditors.forEach((editor) => {
+        onDidChangeActiveTextEditor(editor);
     });
 }
 
