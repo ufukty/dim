@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import { EditorDecorator } from "./editorDecorator";
-import * as models from "./models";
 import { ConfigManager } from "./configmanager";
 
 var decorators: Map<vscode.TextEditor, EditorDecorator>;
@@ -52,12 +51,42 @@ function onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
     });
 }
 
+function onCommandReceiveDisableDimForCurrentEditor() {
+    if (!activeEditor) return;
+    var ad = decorators.get(activeEditor);
+    if (ad) {
+        ad.disable();
+    }
+}
+
+function onCommandReceiveEnableDimForCurrentEditor() {
+    if (!activeEditor) return;
+    var ad = decorators.get(activeEditor);
+    if (ad) {
+        ad.enable();
+    }
+}
+
+function onCommandReceiveToggleDimForCurrentEditor() {
+    if (!activeEditor) return;
+    var ad = decorators.get(activeEditor);
+    if (ad) {
+        ad.toggle();
+    }
+}
+
 export function activate(context: vscode.ExtensionContext) {
     logger = vscode.window.createOutputChannel("dim");
     logger.appendLine("init");
 
     decorators = new Map();
     configManager = new ConfigManager();
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand("dim.disableDimForCurrentEditor", onCommandReceiveDisableDimForCurrentEditor),
+        vscode.commands.registerCommand("dim.enableDimForCurrentEditor", onCommandReceiveEnableDimForCurrentEditor),
+        vscode.commands.registerCommand("dim.toggleDimForCurrentEditor", onCommandReceiveToggleDimForCurrentEditor)
+    );
 
     vscode.workspace.onDidChangeConfiguration((e: vscode.ConfigurationChangeEvent) => {
         onDidChangeConfiguration(e);
@@ -78,6 +107,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
     for (const editor of vscode.window.visibleTextEditors) {
-        // editorDecorator.disposeLastDecorations(editor);
+        var ad = decorators.get(editor);
+        if (ad) {
+            ad._disposeLastDecorations();
+        }
     }
 }

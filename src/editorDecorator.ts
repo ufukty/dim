@@ -10,6 +10,7 @@ export class EditorDecorator {
     _filename: string;
     _logger: vscode.OutputChannel;
     _decorationTypeMapping: WeakMap<vscode.TextEditor, models.DecorationTypes>;
+    _enabled: boolean;
 
     _lastUpdateTimestamp: number;
     _timeoutForScheduler: NodeJS.Timeout | undefined;
@@ -19,6 +20,7 @@ export class EditorDecorator {
         this._configManager = configManager;
         this._logger = logger;
         this._decorationTypeMapping = new WeakMap<vscode.TextEditor, models.DecorationTypes>();
+        this._enabled = true;
 
         const _filename = editor.document.fileName.split("/").pop();
         if (_filename) this._filename = _filename;
@@ -202,7 +204,7 @@ export class EditorDecorator {
         }
     }
 
-    disposeLastDecorations() {
+    _disposeLastDecorations() {
         const decoTypes = this._decorationTypeMapping.get(this._editor);
         if (decoTypes === undefined) return;
         decoTypes.max.dispose();
@@ -229,7 +231,7 @@ export class EditorDecorator {
             for (const match of matches) this._saveMatchToQueue(perDecoQueues, match, rule);
         }
 
-        this.disposeLastDecorations();
+        this._disposeLastDecorations();
         this._applyNewDecorations(perDecoQueues);
 
         this._logger.appendLine(this._filename + ": decorated (" + (Date.now() - start) + "ms)");
@@ -253,5 +255,20 @@ export class EditorDecorator {
         this._logger.appendLine(this._filename + ": configuration change");
         this._config = this._configManager.readConfig(this._editor);
         this._schedule();
+    }
+
+    enable() {
+        this._schedule();
+        this._enabled = true;
+    }
+
+    disable() {
+        this._disposeLastDecorations();
+        this._enabled = false;
+    }
+
+    toggle() {
+        if (this._enabled) this.disable();
+        else this.enable();
     }
 }

@@ -19,6 +19,20 @@
     ],
     "main": "./out/extension.js",
     "contributes": {
+        "commands": [
+            {
+                "command": "dim.disableDimForCurrentEditor",
+                "title": "Disable Dim for current editor"
+            },
+            {
+                "command": "dim.enableDimForCurrentEditor",
+                "title": "Enable Dim for current editor"
+            },
+            {
+                "command": "dim.toggleDimForCurrentEditor",
+                "title": "Toggle Dim for current editor"
+            }
+        ],
         "configuration": {
             "title": "dim",
             "properties": {
