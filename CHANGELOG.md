@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.1.1
+
+-   Fixes an issue leads enabling/disabling Dim for current editor becoming unavailable for the editor open before extension gets activated
+
+## 2.1.0
+
+-   new commands for users to enable, disable or toggle Dim for current editor. [Issue](https://github.com/ufukty/dim/issues/2#issuecomment-1932602845)
+
 ## 2.0.0
 
 -   addresses performance issues

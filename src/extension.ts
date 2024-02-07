@@ -103,6 +103,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.visibleTextEditors.forEach((editor) => {
         onDidChangeActiveTextEditor(editor);
     });
+
+    if (vscode.window.activeTextEditor) {
+        activeEditor = vscode.window.activeTextEditor;
+    }
 }
 
 export function deactivate() {

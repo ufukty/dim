@@ -28,10 +28,15 @@ export class EditorDecorator {
 
         this._lastUpdateTimestamp = 0;
 
+        this._logger.appendLine(this._filename + ": constructor");
         this._config = this._configManager.readConfig(this._editor);
     }
 
     _schedule() {
+        if (!this._enabled) {
+            this._logger.appendLine(this._filename + ": skipping update because Dim is disabled for this editor");
+            return;
+        }
         const period = 500;
         var isSchedulingNecessary = Date.now() - this._lastUpdateTimestamp < period;
 
@@ -258,13 +263,15 @@ export class EditorDecorator {
     }
 
     enable() {
-        this._schedule();
+        this._logger.appendLine(this._filename + ": enabling...");
         this._enabled = true;
+        this._schedule();
     }
 
     disable() {
-        this._disposeLastDecorations();
+        this._logger.appendLine(this._filename + ": disabling...");
         this._enabled = false;
+        this._disposeLastDecorations();
     }
 
     toggle() {
