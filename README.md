@@ -78,6 +78,10 @@ Below code demonstrates, 2 per-language rule as well as one per-workspace rule.
 -   [ ] Option to leave the inner-area of `start` and `end` matching texts without dimming: `leaveBetween`
 -   [ ] Context like usage with multiline rule property `subRules`
 
+## Known issues
+
+- Dim rules might not be applied properly when working with TypeScript files. [See issue details and leave feedback](https://github.com/ufukty/dim/issues/3)
+
 ## Contribution
 
 -   Issues and PRs => https://github.com/ufukty/dim
