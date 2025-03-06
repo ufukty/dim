@@ -7,8 +7,8 @@ export enum Opacity {
 }
 
 export interface MultilineRule {
-    endRule: RegExp;
-    startRule: RegExp;
+    end: RegExp;
+    start: RegExp;
     opacity: Opacity | undefined;
     maxLinesBetween: number;
     sameScope: boolean;

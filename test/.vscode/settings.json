@@ -1,33 +1,41 @@
 {
-    "[json]": {
-        "dim.rules": [
-            {
-                "rule": ".*\\$.*" // lines like: $schema, $url
-            }
-        ]
-    },
-    "[http]": {
-        "dim.rules": [{ "rule": ".*\\$.*" }, { "rule": "###", "opacityTier": "min" }]
-    },
-    "[go]": {
-        "dim.rules": [
-            {
-                "startRule": ".* err != nil",
-                "endRule": "}",
-                "opacityTier": "min"
-            }
-        ]
-    },
+  "[json]": {
     "dim.rules": [
-        {
-            "rule": "//.*", // comment lines
-            "opacityTier": "max"
-        }
-    ],
-    "dim.defaultOpacityTier": "mid",
-    "dim.defaultScanLimit": 500,
-    "dim.defaultMaxLinesBetween": 5,
-    "dim.valueForMinTier": 0.2,
-    "dim.valueForMidTier": 0.3,
-    "dim.valueForMaxTier": 0.4
+      {
+        "rule": ".*\\$.*" // lines like: $schema, $url
+      }
+    ]
+  },
+  "[http]": {
+    "dim.rules": [
+      {
+        "rule": ".*\\$.*"
+      },
+      {
+        "rule": "###",
+        "opacity": "min"
+      }
+    ]
+  },
+  "[go]": {
+    "dim.rules": [
+      {
+        "start": ".* err != nil",
+        "end": "}",
+        "opacity": "min"
+      }
+    ]
+  },
+  "dim.rules": [
+    {
+      "rule": "//.*", // comment lines
+      "opacity": "max"
+    }
+  ],
+  "dim.defaultopacity": "mid",
+  "dim.defaultScanLimit": 500,
+  "dim.defaultMaxLinesBetween": 5,
+  "dim.valueForMinTier": 0.2,
+  "dim.valueForMidTier": 0.3,
+  "dim.valueForMaxTier": 0.4
 }

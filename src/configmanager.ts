@@ -13,22 +13,26 @@ export class ConfigManager {
     }
 
     _marshallRules(jsonRules: any[], defaultOpacity: Opacity, defaultMaxLinesBetween: number): Rule[] {
-        return jsonRules.map((rule) => {
-            if ("rule" in rule) {
-                return {
-                    rule: new RegExp(rule["rule"], "g"),
-                    opacity: rule["opacity"] ?? defaultOpacity,
-                };
-            } else {
-                return {
-                    startRule: new RegExp(rule["start"], "g"),
-                    endRule: new RegExp(rule["end"], "g"),
-                    opacity: rule["opacity"] ?? defaultOpacity,
-                    maxLinesBetween: rule["maxLinesBetween"] ?? defaultMaxLinesBetween,
-                    sameScope: rule["ignoreMatchingBraces"] ?? false,
-                };
-            }
-        });
+        return jsonRules
+            .filter((rule) => {
+                return "rule" in rule || ("start" in rule && "end" in rule);
+            })
+            .map((rule) => {
+                if ("rule" in rule) {
+                    return {
+                        rule: new RegExp(rule["rule"], "g"),
+                        opacity: rule["opacity"] ?? defaultOpacity,
+                    };
+                } else {
+                    return {
+                        start: new RegExp(rule["start"], "g"),
+                        end: new RegExp(rule["end"], "g"),
+                        opacity: rule["opacity"] ?? defaultOpacity,
+                        maxLinesBetween: rule["maxLinesBetween"] ?? defaultMaxLinesBetween,
+                        sameScope: rule["ignoreMatchingBraces"] ?? false,
+                    };
+                }
+            });
     }
 
     _getWorkspaceRulesInJSON(workspaceConfig: vscode.WorkspaceConfiguration): any[] {

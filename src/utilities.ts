@@ -12,7 +12,7 @@ export function getRemainingRangeInRange(
     scanned: vscode.Range,
     maxLinesBetween: number
 ): vscode.Range | undefined {
-    if (!(whole.end.line - scanned.end.line > 1)) return undefined;
+    if (whole.end.line - scanned.end.line <= 1) return undefined;
     if (maxLinesBetween === 0) return undefined;
     const start = scanned.end.line + 1;
     return new vscode.Range(

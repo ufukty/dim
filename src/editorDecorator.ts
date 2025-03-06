@@ -3,13 +3,23 @@ import * as models from "./models";
 import * as utilities from "./utilities";
 import { ConfigManager } from "./configmanager";
 
+function logrule(logger: vscode.OutputChannel, filename: string, rule: models.Rule) {
+    if ("rule" in rule) {
+        logger.appendLine(`${filename}: applying one line rule: ${String((rule as models.OnelineRule).rule)}`);
+    } else if ("start" in rule) {
+        const start = String((rule as models.MultilineRule).start);
+        const end = String((rule as models.MultilineRule).end);
+        logger.appendLine(`${filename}: applying multi line rule: from ${start} to ${end}`);
+    }
+}
+
 export class EditorDecorator {
     _editor: vscode.TextEditor;
     _config: models.Config;
     _configManager: ConfigManager;
     _filename: string;
     _logger: vscode.OutputChannel;
-    _decorationTypeMapping: WeakMap<vscode.TextEditor, models.DecorationTypes>;
+    _decoTypes: models.DecorationTypes | undefined;
     _enabled: boolean;
 
     _lastUpdateTimestamp: number;
@@ -19,7 +29,6 @@ export class EditorDecorator {
         this._editor = editor;
         this._configManager = configManager;
         this._logger = logger;
-        this._decorationTypeMapping = new WeakMap<vscode.TextEditor, models.DecorationTypes>();
         this._enabled = true;
 
         const _filename = editor.document.fileName.split("/").pop();
@@ -144,10 +153,10 @@ export class EditorDecorator {
     }
 
     _scanRangeForMultilineRule(range: vscode.Range, rule: models.MultilineRule): vscode.Range | undefined {
-        const startMatch = this._scanRangeForSinglelineRule(range, rule["startRule"]);
+        const startMatch = this._scanRangeForSinglelineRule(range, rule["start"]);
         if (startMatch === undefined) return undefined;
         var restrictedRange = this._restrictRange(range, rule.maxLinesBetween, startMatch);
-        const endMatch = this._scanRangeForSinglelineRule(restrictedRange, rule["endRule"]);
+        const endMatch = this._scanRangeForSinglelineRule(restrictedRange, rule["end"]);
         if (endMatch === undefined) return undefined;
         return utilities.connectTwoRanges(startMatch, endMatch);
     }
@@ -159,7 +168,7 @@ export class EditorDecorator {
             match = undefined;
             if ("rule" in rule) {
                 match = this._scanRangeForSinglelineRule(range, rule["rule"]);
-            } else if ("startRule" in rule && "endRule" in rule) {
+            } else if ("start" in rule && "end" in rule) {
                 match = this._scanRangeForMultilineRule(range, rule);
             }
             if (match === undefined) return matches;
@@ -210,11 +219,11 @@ export class EditorDecorator {
     }
 
     _disposeLastDecorations() {
-        const decoTypes = this._decorationTypeMapping.get(this._editor);
-        if (decoTypes === undefined) return;
-        decoTypes.max.dispose();
-        decoTypes.mid.dispose();
-        decoTypes.min.dispose();
+        this._logger.appendLine(`${this._filename}: disposing previous decorations`);
+        if (this._decoTypes === undefined) return;
+        this._decoTypes.max.dispose();
+        this._decoTypes.mid.dispose();
+        this._decoTypes.min.dispose();
     }
 
     _applyNewDecorations(perDecoQueues: models.PerDecorationQueue) {
@@ -222,7 +231,7 @@ export class EditorDecorator {
         this._editor.setDecorations(decoTypes.max, perDecoQueues.max);
         this._editor.setDecorations(decoTypes.mid, perDecoQueues.mid);
         this._editor.setDecorations(decoTypes.min, perDecoQueues.min);
-        this._decorationTypeMapping.set(this._editor, decoTypes);
+        this._decoTypes = decoTypes;
     }
 
     _decorateEditor() {
@@ -232,6 +241,7 @@ export class EditorDecorator {
         const range = this._getScanRange();
         const perDecoQueues = this._getPerDecorationTypeQueue();
         for (const rule of this._config.rules) {
+            logrule(this._logger, this._filename, rule);
             const matches = this._scanRangeForRule(range, rule);
             for (const match of matches) this._saveMatchToQueue(perDecoQueues, match, rule);
         }
