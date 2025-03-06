@@ -2,10 +2,11 @@ import * as vscode from "vscode";
 import { EditorDecorator } from "./editorDecorator";
 import { ConfigManager } from "./configmanager";
 
-var decorators: Map<vscode.TextEditor, EditorDecorator>; // <vscode.Uri: EditorDecorator>
+var decorators: Map<vscode.TextEditor, EditorDecorator>;
 var logger: vscode.OutputChannel;
 var activeEditor: vscode.TextEditor | undefined;
 var configManager: ConfigManager;
+var documentState: Map<string, boolean>; // <editor.document.uri: boolean>
 
 function onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): any {
     if (activeEditor) {
@@ -32,7 +33,12 @@ function onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): any
     if (activeEditor) {
         d = decorators.get(activeEditor);
         if (!d) {
-            d = new EditorDecorator(activeEditor, configManager, logger);
+            const uri = activeEditor.document.uri.toString(false);
+            let enabled = documentState.get(uri);
+            if (enabled === undefined) {
+                enabled = true;
+            }
+            d = new EditorDecorator(activeEditor, configManager, enabled, logger);
             decorators.set(activeEditor, d);
         }
         d.focus();
@@ -67,6 +73,10 @@ function onCommandReceiveDisableDimForCurrentEditor() {
     const ad = decorators.get(activeEditor);
     if (ad) {
         ad.disable();
+        // needs to store toggle state separately as vscode doesn't necessarily
+        // reuse the same instance of TextEditor for same document when user
+        // returns after switching tabs
+        documentState.set(activeEditor.document.uri.toString(false), ad._enabled);
     }
 }
 
@@ -75,6 +85,7 @@ function onCommandReceiveEnableDimForCurrentEditor() {
     const ad = decorators.get(activeEditor);
     if (ad) {
         ad.enable();
+        documentState.set(activeEditor.document.uri.toString(false), ad._enabled); // read comment above
     }
 }
 
@@ -83,6 +94,7 @@ function onCommandReceiveToggleDimForCurrentEditor() {
     const ad = decorators.get(activeEditor);
     if (ad) {
         ad.toggle();
+        documentState.set(activeEditor.document.uri.toString(false), ad._enabled); // read comment above
     }
 }
 
@@ -92,6 +104,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     decorators = new Map();
     configManager = new ConfigManager();
+    documentState = new Map<string, boolean>();
 
     context.subscriptions.push(
         vscode.commands.registerCommand("dim.disableDimForCurrentEditor", onCommandReceiveDisableDimForCurrentEditor),

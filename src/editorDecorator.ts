@@ -25,11 +25,16 @@ export class EditorDecorator {
     _lastUpdateTimestamp: number;
     _timeoutForScheduler: NodeJS.Timeout | undefined;
 
-    constructor(editor: vscode.TextEditor, configManager: ConfigManager, logger: vscode.OutputChannel) {
+    constructor(
+        editor: vscode.TextEditor,
+        configManager: ConfigManager,
+        enabled: boolean,
+        logger: vscode.OutputChannel
+    ) {
         this._editor = editor;
         this._configManager = configManager;
         this._logger = logger;
-        this._enabled = true;
+        this._enabled = enabled;
 
         const _filename = editor.document.fileName.split("/").pop();
         if (_filename) this._filename = _filename;
@@ -37,7 +42,7 @@ export class EditorDecorator {
 
         this._lastUpdateTimestamp = 0;
 
-        this._logger.appendLine(this._filename + ": constructor");
+        this._logger.appendLine(`${this._filename}: constructor (enabled: ${enabled})`);
         this._config = this._configManager.readConfig(this._editor);
     }
 
