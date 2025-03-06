@@ -8,7 +8,7 @@ var activeEditor: vscode.TextEditor;
 var configManager: ConfigManager;
 
 function onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): any {
-    if (editor === undefined || editor === activeEditor) return;
+    if (!editor || editor === activeEditor) return;
 
     var d = decorators.get(activeEditor);
     if (d) {
@@ -23,8 +23,8 @@ function onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): any
     )
         return;
 
-    var d = decorators.get(editor);
-    if (d === undefined) {
+    d = decorators.get(editor);
+    if (!d) {
         d = new EditorDecorator(editor, configManager, logger);
         decorators.set(editor, d);
     }
