@@ -6,20 +6,10 @@ export enum Opacity {
     Min = "min",
 }
 
-export interface MultilineRule {
-    end: RegExp;
-    start: RegExp;
-    opacity: Opacity | undefined;
-    maxLinesBetween: number;
-    sameScope: boolean;
-}
-
-export interface OnelineRule {
+export interface Rule {
     rule: RegExp;
-    opacity: Opacity | undefined;
+    opacity: Opacity;
 }
-
-export type Rule = MultilineRule | OnelineRule;
 
 export interface Config {
     rules: Rule[];

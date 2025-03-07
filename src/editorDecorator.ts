@@ -3,16 +3,6 @@ import * as models from "./models";
 import * as utilities from "./utilities";
 import { ConfigManager } from "./configmanager";
 
-function logrule(logger: vscode.OutputChannel, filename: string, rule: models.Rule) {
-    if ("rule" in rule) {
-        logger.appendLine(`${filename}: applying one line rule: ${String((rule as models.OnelineRule).rule)}`);
-    } else if ("start" in rule) {
-        const start = String((rule as models.MultilineRule).start);
-        const end = String((rule as models.MultilineRule).end);
-        logger.appendLine(`${filename}: applying multi line rule: from ${start} to ${end}`);
-    }
-}
-
 export class EditorDecorator {
     _editor: vscode.TextEditor;
     _config: models.Config;
@@ -66,122 +56,42 @@ export class EditorDecorator {
         }
     }
 
-    _getScanRange(): vscode.Range {
-        const limitRange = new vscode.Range(
-            new vscode.Position(0, 0),
-            new vscode.Position(this._config.defaultScanLimit, 0)
-        );
-        const documentRange = new vscode.Range(
-            new vscode.Position(0, 0),
-            new vscode.Position(
-                this._editor.document.lineCount - 1,
-                this._editor.document.lineAt(
-                    new vscode.Position(this._editor.document.lineCount - 1, 0)
-                ).range.end.character
-            )
-        );
-        return documentRange.intersection(limitRange) ?? documentRange;
-    }
-
-    _getMatchInLine(lineContentInRange: string, regexp: RegExp): vscode.Range | undefined {
-        const matches = [...lineContentInRange.matchAll(regexp)];
-        if (matches.length === 0) return undefined;
-        const match = matches[0];
-        if (match.index === undefined || match.length === undefined) return undefined;
-        const start = new vscode.Position(0, match.index);
-        const end = new vscode.Position(0, match.index + match[0].length);
-        return new vscode.Range(start, end);
-    }
-
-    _scanRangeForSinglelineRule(range: vscode.Range, regex: RegExp): vscode.Range | undefined {
-        const firstLine = range.start.line;
-        const lastLine = range.end.line;
-        for (let line = firstLine; line <= lastLine; line++) {
-            var lineContent = utilities.lineAt(this._editor, line);
-            if (lineContent === undefined) continue;
-
-            var lineContentInRange = lineContent.text;
-            if (line === firstLine) lineContentInRange = lineContentInRange.substring(range.start.character);
-            if (line === lastLine) lineContentInRange = lineContentInRange.substring(0, range.end.character);
-
-            const foundPos = this._getMatchInLine(lineContentInRange, regex);
-            if (foundPos) return utilities.changeLineInRange(foundPos, line);
+    doBracesMatch(text: string, start: number, end: number): boolean {
+        let balance = 0;
+        for (let i = start; i < Math.min(text.length, end); i++) {
+            if (text[i] === "{") balance++;
+            if (text[i] === "}") balance--;
         }
-        return undefined;
+        return balance === 0;
     }
 
-    /**
-     * first return value is the character index that is visited before exit main scope
-     * second return value is the last scopeLevel
-     */
-    _checkScopeElevation(lineContent: string, scopeLevel: number): [number | undefined, number] {
-        // 1st capture group is in:  { [ (
-        // 2nd capture group is out: } ] )
-        const scopeChangePattern = /([\(|\[|\{]{1})|([\}|\]|\)]{1})/g;
-        const scopeChanges = [...lineContent.matchAll(scopeChangePattern)];
-        for (const scopeChange of scopeChanges) {
-            if (1 in scopeChange && scopeChange[1] !== undefined) scopeLevel++;
-            else if (2 in scopeChange && scopeChange[2] !== undefined) scopeLevel--;
-            if (scopeLevel < 0) return [scopeChange.index, scopeLevel];
-        }
-        return [undefined, scopeLevel];
-    }
-
-    _restrictRangeToScope(range: vscode.Range, startMatch: vscode.Range): vscode.Range | undefined {
-        const startLine = utilities.lineAt(this._editor, startMatch.end.line);
-        if (startLine === undefined) return undefined;
-        const startLineClipped = startLine.text.substring(startMatch.end.character);
-        var [scopeEndChar, scopeElevation] = this._checkScopeElevation(startLineClipped, 0);
-        if (scopeEndChar !== undefined) return new vscode.Range(startMatch.end, new vscode.Position(0, scopeEndChar));
-
-        var totalScopeElevation = scopeElevation;
-        for (var line = range.start.line + 1; line < range.end.line; line++) {
-            const lineContent = utilities.lineAt(this._editor, line);
-            if (lineContent === undefined) return range;
-            [scopeEndChar, scopeElevation] = this._checkScopeElevation(lineContent.text, totalScopeElevation);
-            if (scopeEndChar !== undefined)
-                return new vscode.Range(startMatch.end, new vscode.Position(line, scopeEndChar));
-            totalScopeElevation = scopeElevation;
-        }
-
-        return range;
-    }
-
-    _restrictRange(range: vscode.Range, maxLinesBetween: number, startMatch: vscode.Range): vscode.Range {
-        var restrictedRangeWithLinesBetween = utilities.getRemainingRangeInRange(range, startMatch, maxLinesBetween);
-        if (restrictedRangeWithLinesBetween === undefined) return range;
-
-        const restrictedRangeWithScope = this._restrictRangeToScope(restrictedRangeWithLinesBetween, startMatch);
-        if (restrictedRangeWithScope === undefined) return restrictedRangeWithLinesBetween;
-
-        return restrictedRangeWithScope;
-    }
-
-    _scanRangeForMultilineRule(range: vscode.Range, rule: models.MultilineRule): vscode.Range | undefined {
-        const startMatch = this._scanRangeForSinglelineRule(range, rule["start"]);
-        if (startMatch === undefined) return undefined;
-        var restrictedRange = this._restrictRange(range, rule.maxLinesBetween, startMatch);
-        const endMatch = this._scanRangeForSinglelineRule(restrictedRange, rule["end"]);
-        if (endMatch === undefined) return undefined;
-        return utilities.connectTwoRanges(startMatch, endMatch);
-    }
-
-    _scanRangeForRule(range: vscode.Range, rule: models.Rule): vscode.Range[] {
-        var matches: vscode.Range[] = [];
-        var match: vscode.Range | undefined;
-        while (true) {
-            match = undefined;
-            if ("rule" in rule) {
-                match = this._scanRangeForSinglelineRule(range, rule["rule"]);
-            } else if ("start" in rule && "end" in rule) {
-                match = this._scanRangeForMultilineRule(range, rule);
+    scanForRule(range: vscode.Range, rule: models.Rule): vscode.Range[] {
+        this._logger.appendLine(`${this._filename}: scanning for: ${rule.rule}`);
+        var ranges: vscode.Range[] = [];
+        const text = this._editor.document.getText(range);
+        Array.from(text.matchAll(rule.rule)).forEach((match) => {
+            const start = match.index;
+            const end = start + match[0].length;
+            if (this.doBracesMatch(text, start, end)) {
+                const startPos = this._editor.document.positionAt(start);
+                const endPos = this._editor.document.positionAt(end);
+                this._logger.appendLine(
+                    `${this._filename}: scanning for: ${rule.rule}: found: [` +
+                        `#${startPos.line + 1}:${startPos.character + 1}, ` +
+                        `#${endPos.line + 1}:${endPos.character + 1}]`
+                );
+                ranges.push(new vscode.Range(startPos, endPos));
             }
-            if (match === undefined) return matches;
-            else {
-                matches.push(match);
-                range = new vscode.Range(match.end, range.end);
-            }
-        }
+        });
+        return ranges;
+    }
+
+    _disposeLastDecorations() {
+        this._logger.appendLine(`${this._filename}: disposing previous decorations`);
+        if (this._decoTypes === undefined) return;
+        this._decoTypes.max.dispose();
+        this._decoTypes.mid.dispose();
+        this._decoTypes.min.dispose();
     }
 
     _prepareDecorationTypes(): models.DecorationTypes {
@@ -201,41 +111,50 @@ export class EditorDecorator {
         };
     }
 
-    _getPerDecorationTypeQueue(): models.PerDecorationQueue {
-        return {
-            "max": [] as vscode.Range[],
-            "mid": [] as vscode.Range[],
-            "min": [] as vscode.Range[],
-        };
-    }
-
-    _saveMatchToQueue(queues: models.PerDecorationQueue, match: vscode.Range, rule: models.Rule) {
-        switch (rule.opacity) {
-            case models.Opacity.Max:
-                queues.max.push(match);
-                break;
-            case models.Opacity.Mid:
-                queues.mid.push(match);
-                break;
-            case models.Opacity.Min:
-                queues.min.push(match);
-                break;
+    _mergeIntersecting(queue: vscode.Range[]): vscode.Range[] {
+        if (queue.length <= 1) return queue;
+        const sorted = queue.sort((a, b) => {
+            // no overlap: aa-bb
+            if (a.end.isBeforeOrEqual(b.start)) {
+                return -1;
+            }
+            // no overlap: bb-aa
+            if (b.end.isBeforeOrEqual(a.start)) {
+                return 1;
+            }
+            // partial overlap: ab-ab
+            if (a.start.isBeforeOrEqual(b.start)) {
+                return -1;
+            }
+            // partial overlap: ba-ba
+            if (b.start.isBeforeOrEqual(a.start)) {
+                return 1;
+            }
+            return 0;
+        });
+        var merged = [] as vscode.Range[];
+        var merging = sorted[0];
+        for (let i = 1; i < sorted.length; i++) {
+            if (sorted[i].intersection(merging)) {
+                var m = merging;
+                const a = `[${m.start.line + 1}:${m.start.character + 1}, ${m.end.line + 1}:${m.end.character + 1}]`;
+                m = sorted[i];
+                const b = `[${m.start.line + 1}:${m.start.character + 1}, ${m.end.line + 1}:${m.end.character + 1}]`;
+                merging = merging.with(sorted[i]);
+                this._logger.appendLine(`${this._filename}: merging ${a} with ${b}`);
+            } else {
+                merged.push(merging);
+                merging = sorted[i];
+            }
         }
-    }
-
-    _disposeLastDecorations() {
-        this._logger.appendLine(`${this._filename}: disposing previous decorations`);
-        if (this._decoTypes === undefined) return;
-        this._decoTypes.max.dispose();
-        this._decoTypes.mid.dispose();
-        this._decoTypes.min.dispose();
+        return merged;
     }
 
     _applyNewDecorations(perDecoQueues: models.PerDecorationQueue) {
         const decoTypes = this._prepareDecorationTypes();
-        this._editor.setDecorations(decoTypes.max, perDecoQueues.max);
-        this._editor.setDecorations(decoTypes.mid, perDecoQueues.mid);
-        this._editor.setDecorations(decoTypes.min, perDecoQueues.min);
+        this._editor.setDecorations(decoTypes.max, this._mergeIntersecting(perDecoQueues.max));
+        this._editor.setDecorations(decoTypes.mid, this._mergeIntersecting(perDecoQueues.mid));
+        this._editor.setDecorations(decoTypes.min, this._mergeIntersecting(perDecoQueues.min));
         this._decoTypes = decoTypes;
     }
 
@@ -243,16 +162,25 @@ export class EditorDecorator {
         this._logger.appendLine(this._filename + ": decorating...");
         const start = Date.now();
 
-        const range = this._getScanRange();
-        const perDecoQueues = this._getPerDecorationTypeQueue();
+        var queues = {
+            "max": [] as vscode.Range[],
+            "mid": [] as vscode.Range[],
+            "min": [] as vscode.Range[],
+        };
+        const range = this._editor.document.validateRange(
+            new vscode.Range(new vscode.Position(0, 0), new vscode.Position(2000, 0))
+        );
+        this._logger.appendLine(
+            `${this._filename}: scanning lines: [#${range.start.line + 1}, #${range.end.line + 1}]`
+        );
         for (const rule of this._config.rules) {
-            logrule(this._logger, this._filename, rule);
-            const matches = this._scanRangeForRule(range, rule);
-            for (const match of matches) this._saveMatchToQueue(perDecoQueues, match, rule);
+            for (const match of this.scanForRule(range, rule)) {
+                queues[rule.opacity].push(match);
+            }
         }
 
         this._disposeLastDecorations();
-        this._applyNewDecorations(perDecoQueues);
+        this._applyNewDecorations(queues);
 
         this._logger.appendLine(this._filename + ": decorated (" + (Date.now() - start) + "ms)");
     }

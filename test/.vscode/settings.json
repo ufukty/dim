@@ -20,15 +20,27 @@
   "[go]": {
     "dim.rules": [
       {
-        "start": ".* err != nil",
-        "end": "}",
+        "rule": "if\\s+err != nil\\s*{(?:(?:[^{}]|\\n)*{(?:[^}]|\\n)*})?(?:[^}]|\\n)*}",
         "opacity": "min"
-      }
+      },
+    ]
+  },
+  "[js]": {
+    "dim.rules": [
+      {
+        "rule": "announce\\(.*?\\);?",
+      },
+      {
+        "rule": "logger.verbose\\([^\\n]*\\);?",
+      },
+      {
+        "rule": "logger",
+      },
     ]
   },
   "dim.rules": [
     {
-      "rule": "//.*", // comment lines
+      "rule": "//[^\\n]*", // comment lines
       "opacity": "max"
     }
   ],

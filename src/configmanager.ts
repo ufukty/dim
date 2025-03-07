@@ -12,26 +12,16 @@ export class ConfigManager {
         this._configCache.clear();
     }
 
-    _marshallRules(jsonRules: any[], defaultOpacity: Opacity, defaultMaxLinesBetween: number): Rule[] {
+    _marshallRules(jsonRules: any[], defaultOpacity: Opacity): Rule[] {
         return jsonRules
             .filter((rule) => {
-                return "rule" in rule || ("start" in rule && "end" in rule);
+                return "rule" in rule;
             })
             .map((rule) => {
-                if ("rule" in rule) {
-                    return {
-                        rule: new RegExp(rule["rule"], "g"),
-                        opacity: rule["opacity"] ?? defaultOpacity,
-                    };
-                } else {
-                    return {
-                        start: new RegExp(rule["start"], "g"),
-                        end: new RegExp(rule["end"], "g"),
-                        opacity: rule["opacity"] ?? defaultOpacity,
-                        maxLinesBetween: rule["maxLinesBetween"] ?? defaultMaxLinesBetween,
-                        sameScope: rule["ignoreMatchingBraces"] ?? false,
-                    };
-                }
+                return {
+                    rule: new RegExp(rule["rule"], "gs"),
+                    opacity: rule["opacity"] ?? defaultOpacity,
+                };
             });
     }
 
@@ -67,15 +57,9 @@ export class ConfigManager {
 
     _readRules(editor: vscode.TextEditor, workspaceConfig: vscode.WorkspaceConfiguration): Rule[] {
         const defaultOpacity = (workspaceConfig.get("defaultOpacityTier") as Opacity) ?? Opacity.Mid;
-        const defaultMaxLinesBetween = (workspaceConfig.get("defaultMaxLinesBetween") as number) ?? 5;
-
         const workspaceRules = this._getWorkspaceRulesInJSON(workspaceConfig);
         const languageSpecificRules = this._getLanguageSpecificRulesInJSON(editor);
-        const rules = this._marshallRules(
-            [...workspaceRules, ...languageSpecificRules],
-            defaultOpacity,
-            defaultMaxLinesBetween
-        );
+        const rules = this._marshallRules([...workspaceRules, ...languageSpecificRules], defaultOpacity);
         return rules;
     }
 
