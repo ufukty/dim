@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.0.2
+
+- Fixes decorations are not applied on the last match of every pattern due to the mishandled looping on merging intersecting matches.
+
 ## 3.0.1
 
 - New logo
