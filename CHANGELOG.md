@@ -1,5 +1,29 @@
 # Change Log
 
+## 3.0.1
+
+- New logo
+
+## 3.0.0
+
+Biggest change since the previous version. Please read the readme for more.
+
+**New**
+
+- Full support to regex patterns.
+- Set regex flag defaults for workspace and override it per rule.
+
+**Performance improvements**
+
+- Switches to standard regex matching from previous line-by-line scanning which contributes a lot to overall performance and stability.
+- Thighter lifecycle management for reusing text editor instances and migrating from one to another for same document.
+- More checks against infinite loops.
+- Merging intersection regions for avoiding applying same decoration multiple times at one part.
+
+**Breaking changes**
+
+- `rule`, `start` and `end` are no longer supported. Migrate your rules to use `pattern` property. Which requires no additional value alterations most of the time. One exception is when you use different flags such as `s` for block dimming. Also for block dimming, use `"pattern"` value of `"<start>.*<end>"` instead.
+
 ## 2.1.3
 
 - This version is only for updating the changelog, oops. Please read the log for previous version.
