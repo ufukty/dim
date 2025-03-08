@@ -1,8 +1,10 @@
 {
-  "[json]": {
+  "[go]": {
     "dim.rules": [
       {
-        "pattern": ".*\\$.*" // lines like: $schema, $url
+        "flags": "gs",
+        "opacity": "mid",
+        "pattern": "if\\s+err != nil\\s*{(?:(?:[^{}]|\\n)*{(?:[^}]|\\n)*})?(?:[^}]|\\n)*}"
       }
     ]
   },
@@ -12,41 +14,36 @@
         "pattern": ".*\\$.*"
       },
       {
-        "pattern": "###",
-        "opacity": "min"
+        "pattern": "###"
       }
-    ]
-  },
-  "[go]": {
-    "dim.rules": [
-      {
-        "pattern": "if\\s+err != nil\\s*{(?:(?:[^{}]|\\n)*{(?:[^}]|\\n)*})?(?:[^}]|\\n)*}",
-        "flags": "gs",
-        "opacity": "min"
-      },
     ]
   },
   "[js]": {
     "dim.rules": [
       {
-        "pattern": "announce\\(.*?\\);?",
+        "pattern": "announce\\(.*\\);?"
       },
       {
-        "pattern": "logger.verbose\\([^\\n]*\\);?",
-      },
-      {
-        "pattern": "logger",
-      },
+        "pattern": "logger\\.verbose\\([^\\n]*\\);?"
+      }
     ]
   },
+  "[json]": {
+    "dim.rules": [
+      {
+        "pattern": ".*\\$.*" // lines like: $schema, $url
+      }
+    ]
+  },
+  "dim.defaultFlags": "g",
+  "dim.defaultOpacityTier": "min",
   "dim.rules": [
     {
-      "pattern": "//[^\\n]*", // comment lines
-      "opacity": "max"
+      "opacity": "max",
+      "pattern": "//.*" // comment lines
     }
   ],
-  "dim.defaultOpacityTier": "min",
-  "dim.valueForMinTier": 0.2,
+  "dim.valueForMaxTier": 0.4,
   "dim.valueForMidTier": 0.3,
-  "dim.valueForMaxTier": 0.4
+  "dim.valueForMinTier": 0.2
 }
