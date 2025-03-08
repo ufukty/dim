@@ -22,15 +22,18 @@
     "commands": [
       {
         "command": "dim.disableDimForCurrentEditor",
-        "title": "Disable Dim for current editor"
+        "title": "Disable extension for current document",
+        "category": "Dim"
       },
       {
         "command": "dim.enableDimForCurrentEditor",
-        "title": "Enable Dim for current editor"
+        "title": "Enable extension for current document",
+        "category": "Dim"
       },
       {
         "command": "dim.toggleDimForCurrentEditor",
-        "title": "Toggle Dim for current editor"
+        "title": "Toggle extension for current document",
+        "category": "Dim"
       }
     ],
     "configuration": {
