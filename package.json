@@ -122,13 +122,13 @@
         },
         "dim.defaultScanLimit": {
           "type": "number",
-          "default": 1000,
-          "scope": "language-overridable",
-          "description": "Only the first 'n' lines will be searched for matches. Exceeding will be ignored."
+          "deprecated": true,
+          "description": "This property is deprecated. Dim now scans only the first 2000 lines of document."
         },
         "dim.defaultMaxLinesBetween": {
           "type": "number",
-          "default": 5
+          "deprecated": true,
+          "description": "This property is deprecated. If desired, regex quantifiers (such as `{0,n}`) can be considered instead."
         }
       }
     }

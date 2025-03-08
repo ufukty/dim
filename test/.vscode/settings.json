@@ -45,9 +45,7 @@
       "opacity": "max"
     }
   ],
-  "dim.defaultopacity": "mid",
-  "dim.defaultScanLimit": 500,
-  "dim.defaultMaxLinesBetween": 5,
+  "dim.defaultOpacityTier": "min",
   "dim.valueForMinTier": 0.2,
   "dim.valueForMidTier": 0.3,
   "dim.valueForMaxTier": 0.4

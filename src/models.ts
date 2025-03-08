@@ -16,7 +16,6 @@ export interface Config {
     valueForMaxTier: number;
     valueForMidTier: number;
     valueForMinTier: number;
-    defaultScanLimit: number;
 }
 
 export interface PerDecorationQueue {
