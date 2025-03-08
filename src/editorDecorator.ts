@@ -148,6 +148,7 @@ export class EditorDecorator {
                 merging = sorted[i];
             }
         }
+        merged.push(merging);
         return merged;
     }
 
