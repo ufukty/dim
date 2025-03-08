@@ -70,6 +70,7 @@ export class EditorDecorator {
         var ranges: vscode.Range[] = [];
         const text = this._editor.document.getText(range);
         Array.from(text.matchAll(rule.regex)).forEach((match) => {
+            if (!match.index || !match[0]) return;
             const start = match.index;
             const end = start + match[0].length;
             if (this.doBracesMatch(text, start, end)) {
