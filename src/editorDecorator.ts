@@ -66,17 +66,17 @@ export class EditorDecorator {
     }
 
     scanForRule(range: vscode.Range, rule: models.Rule): vscode.Range[] {
-        this._logger.appendLine(`${this._filename}: scanning for: ${rule.rule}`);
+        this._logger.appendLine(`${this._filename}: scanning for: ${rule.regex}`);
         var ranges: vscode.Range[] = [];
         const text = this._editor.document.getText(range);
-        Array.from(text.matchAll(rule.rule)).forEach((match) => {
+        Array.from(text.matchAll(rule.regex)).forEach((match) => {
             const start = match.index;
             const end = start + match[0].length;
             if (this.doBracesMatch(text, start, end)) {
                 const startPos = this._editor.document.positionAt(start);
                 const endPos = this._editor.document.positionAt(end);
                 this._logger.appendLine(
-                    `${this._filename}: scanning for: ${rule.rule}: found: [` +
+                    `${this._filename}: scanning for: ${rule.regex}: found: [` +
                         `#${startPos.line + 1}:${startPos.character + 1}, ` +
                         `#${endPos.line + 1}:${endPos.character + 1}]`
                 );
@@ -88,7 +88,7 @@ export class EditorDecorator {
 
     _disposeLastDecorations() {
         this._logger.appendLine(`${this._filename}: disposing previous decorations`);
-        if (this._decoTypes === undefined) return;
+        if (!this._decoTypes) return;
         this._decoTypes.max.dispose();
         this._decoTypes.mid.dispose();
         this._decoTypes.min.dispose();

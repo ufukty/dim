@@ -2,17 +2,17 @@
   "[json]": {
     "dim.rules": [
       {
-        "rule": ".*\\$.*" // lines like: $schema, $url
+        "pattern": ".*\\$.*" // lines like: $schema, $url
       }
     ]
   },
   "[http]": {
     "dim.rules": [
       {
-        "rule": ".*\\$.*"
+        "pattern": ".*\\$.*"
       },
       {
-        "rule": "###",
+        "pattern": "###",
         "opacity": "min"
       }
     ]
@@ -20,7 +20,8 @@
   "[go]": {
     "dim.rules": [
       {
-        "rule": "if\\s+err != nil\\s*{(?:(?:[^{}]|\\n)*{(?:[^}]|\\n)*})?(?:[^}]|\\n)*}",
+        "pattern": "if\\s+err != nil\\s*{(?:(?:[^{}]|\\n)*{(?:[^}]|\\n)*})?(?:[^}]|\\n)*}",
+        "flags": "gs",
         "opacity": "min"
       },
     ]
@@ -28,19 +29,19 @@
   "[js]": {
     "dim.rules": [
       {
-        "rule": "announce\\(.*?\\);?",
+        "pattern": "announce\\(.*?\\);?",
       },
       {
-        "rule": "logger.verbose\\([^\\n]*\\);?",
+        "pattern": "logger.verbose\\([^\\n]*\\);?",
       },
       {
-        "rule": "logger",
+        "pattern": "logger",
       },
     ]
   },
   "dim.rules": [
     {
-      "rule": "//[^\\n]*", // comment lines
+      "pattern": "//[^\\n]*", // comment lines
       "opacity": "max"
     }
   ],

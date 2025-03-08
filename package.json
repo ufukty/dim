@@ -39,60 +39,43 @@
         "dim.rules": {
           "default": [],
           "scope": "language-overridable",
-          "description": "List of rules that will be used by dim to decide which part of code will be dimmed. A rule can be in one of two types: single-line or multi-line",
+          "description": "List of rules that will be used by dim to decide which part of code will be dimmed.",
           "type": "array",
           "items": {
             "type": "object",
-            "oneOf": [
-              {
-                "properties": {
-                  "start": {
-                    "type": "string"
-                  },
-                  "end": {
-                    "type": "string"
-                  },
-                  "opacity": {
-                    "type": "string",
-                    "enum": [
-                      "min",
-                      "mid",
-                      "max"
-                    ]
-                  },
-                  "maxLinesBetween": {
-                    "type": "number",
-                    "default": 5
-                  },
-                  "ignoreMatchingBraces": {
-                    "type": "boolean",
-                    "description": "(Experimantal) Ignore matching-number of opening and closing braces when searching for multi-line rules contains closing brace as closing pattern.",
-                    "default": true
-                  }
-                },
-                "required": [
-                  "start",
-                  "end"
+            "properties": {
+              "pattern": {
+                "type": "string",
+                "description": "The pattern that will be used to generate regex. Don't forget proper escaping. Eg. \"[^\\n]\" means any character other than the new line. For dimming blocks (rather than parts in single line) it is possible to use dot operator for newlines. See the description for \"flags\" property."
+              },
+              "flags": {
+                "type": "string",
+                "description": "Flag suffix that will be used for generating the regex for given pattern. Dim sets \"g\" flag by default which matches all instances (rather than the first) of pattern. Consider adding \"s\" for block dimming rules which makes the dot match with newlines. Don't use a separator between flags. Eg. \"gs\"",
+                "default": "g"
+              },
+              "opacity": {
+                "type": "string",
+                "enum": [
+                  "min",
+                  "mid",
+                  "max"
                 ]
               },
-              {
-                "properties": {
-                  "rule": {
-                    "type": "string"
-                  },
-                  "opacity": {
-                    "type": "string",
-                    "enum": [
-                      "min",
-                      "mid",
-                      "max"
-                    ]
-                  }
-                },
-                "required": [
-                  "rule"
-                ]
+              "rule": {
+                "deprecated": true,
+                "description": "This property is deprecated. Please migrate to using \"pattern\" property."
+              },
+              "start": {
+                "deprecated": true,
+                "description": "This property is deprecated. Please migrate to using \"pattern\" property. Consider the use of \"s\" flag for block dimming rules to make dots match newlines. "
+              },
+              "end": {
+                "deprecated": true,
+                "description": "This property is deprecated. Please migrate to using \"pattern\" property. Consider the use of \"s\" flag for block dimming rules to make dots match newlines. "
               }
+            },
+            "required": [
+              "pattern"
             ]
           }
         },
@@ -129,7 +112,13 @@
             "max"
           ],
           "default": "mid",
-          "description": "The default opacity will be assumed for rules that doesn't specify"
+          "description": "The default opacity will be assumed for rules that doesn't specify. Overridable in rules."
+        },
+        "dim.defaultFlags": {
+          "type": "string",
+          "scope": "window",
+          "default": "g",
+          "description": "The default flags that will be used to generate regexes out of patterns given in rules. Overridable in rules."
         },
         "dim.defaultScanLimit": {
           "type": "number",

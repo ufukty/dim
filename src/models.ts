@@ -7,7 +7,7 @@ export enum Opacity {
 }
 
 export interface Rule {
-    rule: RegExp;
+    regex: RegExp;
     opacity: Opacity;
 }
 
@@ -29,10 +29,4 @@ export interface DecorationTypes {
     "max": vscode.TextEditorDecorationType;
     "mid": vscode.TextEditorDecorationType;
     "min": vscode.TextEditorDecorationType;
-}
-
-export interface RuleMatch {
-    rule: Rule;
-    range: vscode.Range;
-    scopeLevelBefore: number;
 }

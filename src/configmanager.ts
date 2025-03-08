@@ -12,14 +12,14 @@ export class ConfigManager {
         this._configCache.clear();
     }
 
-    _marshallRules(jsonRules: any[], defaultOpacity: Opacity): Rule[] {
+    _marshallRules(jsonRules: any[], defaultOpacity: Opacity, defaultFlags: string): Rule[] {
         return jsonRules
             .filter((rule) => {
-                return "rule" in rule;
+                return "pattern" in rule;
             })
             .map((rule) => {
                 return {
-                    rule: new RegExp(rule["rule"], "gs"),
+                    regex: new RegExp(rule["pattern"], rule["flags"] ?? defaultFlags),
                     opacity: rule["opacity"] ?? defaultOpacity,
                 };
             });
@@ -57,9 +57,10 @@ export class ConfigManager {
 
     _readRules(editor: vscode.TextEditor, workspaceConfig: vscode.WorkspaceConfiguration): Rule[] {
         const defaultOpacity = (workspaceConfig.get("defaultOpacityTier") as Opacity) ?? Opacity.Mid;
+        const defaultFlags = (workspaceConfig.get("defaultFlags") as string) ?? "gs";
         const workspaceRules = this._getWorkspaceRulesInJSON(workspaceConfig);
         const languageSpecificRules = this._getLanguageSpecificRulesInJSON(editor);
-        const rules = this._marshallRules([...workspaceRules, ...languageSpecificRules], defaultOpacity);
+        const rules = this._marshallRules([...workspaceRules, ...languageSpecificRules], defaultOpacity, defaultFlags);
         return rules;
     }
 
