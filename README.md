@@ -20,7 +20,7 @@ Dim designed to work with high performance even in lower end machines.
 
 - No scroll hook: some alternative extensions use scroll hook to apply decorations in visible ranges actually reduces the scroll performance in lower end machines. Dim performs scanning and applying decorations at document's first open, and after each content change with some delay.
 - Uses regex match on whole document rather than walking the document line by line to invoke regex engine at each line.
-- Robust editor lifecycle tracking. Dim detects decoration update requiring lifecycle changes precisely and ignores rest.
+- Robust editor lifecycle tracking. Dim tracks lifecycle updates that requires decoration updates or reusing same or different TextEditor instances for the document; does the needed and ignores the rest.
 - Dim is field tested for Code extension gotchas eg. constant feedback on applying decorations on log pane leads to infinite loop.
 
 ## Usage
