@@ -86,10 +86,7 @@ export class EditorDecorator {
                 this._editor.document.positionAt(start),
                 this._editor.document.positionAt(end)
             );
-            if (
-                this.doBracesMatch(text, start, end) &&
-                (!this._config.disableForSelected || !this.isInOneOfSelectedAreas(range))
-            ) {
+            if (this.doBracesMatch(text, start, end) && !this.isInOneOfSelectedAreas(range)) {
                 this._logger.appendLine(
                     `${this._filename}: scanning for: ${rule.regex}: found: ${utilities.SprintRange(range)}`
                 );

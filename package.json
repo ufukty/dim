@@ -117,12 +117,6 @@
           "default": "mid",
           "description": "The default opacity will be assumed for rules that doesn't specify. Overridable in rules."
         },
-        "dim.disableForSelected": {
-          "type": "boolean",
-          "default": false,
-          "scope": "window",
-          "description": "When \"true\" Dim will skip the matched regions that intersect with any of selected areas. Selected areas are where a caret is placed. Consider using lower values for \"updatePeriod\" property, if Dim is not fast enough for your caret moving pace."
-        },
         "dim.updatePeriod": {
           "type": "number",
           "default": 500,

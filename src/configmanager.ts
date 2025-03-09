@@ -76,7 +76,6 @@ export class ConfigManager {
             valueForMidTier: workspaceConfig.get("valueForMidTier") ?? 0.5,
             valueForMaxTier: workspaceConfig.get("valueForMaxTier") ?? 0.75,
             updatePeriod: workspaceConfig.get("updatePeriod") ?? 500,
-            disableForSelected: workspaceConfig.get("disableForSelected") ?? false,
         };
         this._configCache.set(editor.document.uri, config);
         return config;
