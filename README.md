@@ -4,6 +4,12 @@
 
 Define rules to reduce opacity of repeating parts of code to make the main logic pop. Great for dimming Go's `if err != nil { return fmt.Errorf(...) }` error wrapping blocks and JavaScript's `console.log` calls.
 
+## Preview
+
+![A screen recording of Visual Studio Code editor while the cursor is moved to show dimming is disabled whereever the user selects](/media/carets.sepsol.gif)
+
+> The code is from [this gist](https://gist.github.com/sepsol/af5d1252d7d5f029904100d802a8eaaf). Theme is [Gruvbox Material](https://github.com/sainnhe/gruvbox-material)
+
 ## Features
 
 - Define rules based on standard **regex patterns**.
@@ -12,6 +18,7 @@ Define rules to reduce opacity of repeating parts of code to make the main logic
 - Allows **per-workspace** rules via `.vscode/config.json` file, and **per-language** rules under through language tags `[js]`, `[go]`, `[json]` etc.
 - Lets developers maintain high consistency of opacity values across every rule effortlessly by allowing them to assign only a **opacity tier** to rules. So, adjusting one tier's value is enough to update all rules using it.
 - **Toggling** (enabling/disabling) the extension per document: `dim.toggleDimForCurrentEditor`.
+- Dim respects **carets**. Means that Dim won't dim those areas that you are actively working on, or looking to.
 - Checks matched ranges to see if the number of opening `{` and closing `}` **braces** inside the matched block are equal to eliminate problems like partial dimming of blocks or dimming incomplete parts of the code. (Experimental)
 
 ## Performance
@@ -23,6 +30,7 @@ Dim designed to work with high performance even in lower end machines.
 - Robust editor lifecycle tracking. Dim tracks lifecycle updates that requires decoration updates or reusing same or different TextEditor instances for the document; does the needed and ignores the rest.
 - Dim merges the intersecting ranges of different rules with same opacity tier, to avoid applying multiple decorations on one sequence of text.
 - Dim is field tested for Code extension gotchas eg. constant feedback caused by applying decorations on log pane lead to infinite loop.
+- Dim lets you adjust the update period according to your needs and hardware through `updatePeriod` property. Lower values increase the responsiveness of extension and higher values are better for lower end hardware.
 
 ## Usage
 
@@ -66,12 +74,6 @@ Dim designed to work with high performance even in lower end machines.
   "dim.valueForMaxTier": 0.4
 }
 ```
-
-## Screenshot
-
-<img style="max-width:528px" alt="screenshot of a snippet with logging related calls are dimmed" src="media/sepsol.png">
-
-> From [this gist](https://gist.github.com/sepsol/af5d1252d7d5f029904100d802a8eaaf). Theme is [Gruvbox Material](https://github.com/sainnhe/gruvbox-material)
 
 ## Suggestions
 

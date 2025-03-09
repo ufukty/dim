@@ -1,5 +1,12 @@
 # Change Log
 
+## 3.1.0
+
+**New**
+
+- Dim now respects carets! Means that Dim won't dim those areas that you are actively working on, or looking to. Technically speaking; whenever a pattern matching area intersects with any of the selected portions of the document Dim will pass that match without dimming it. On top of that, multiple selections are respected too. Just try "Select All Occurances of Find Match" command on any of the dimmed areas to see its effect.
+- Dim now lets you to adjust the update period. You can select the best value between your caret moving pace and the hardware performance. Lower values are better for usability but might cause perf ormance issues on lower end hardware.
+
 ## 3.0.2
 
 - Fixes decorations are not applied on the last match of every pattern due to the mishandled looping on merging intersecting matches.
