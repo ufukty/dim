@@ -21,7 +21,8 @@
   "[js]": {
     "dim.rules": [
       {
-        "pattern": "announce\\(.*\\);?"
+        "pattern": "announce\\(.*?\\);?",
+        "flags": "gs"
       },
       {
         "pattern": "logger\\.verbose\\([^\\n]*\\);?"
@@ -45,5 +46,7 @@
   ],
   "dim.valueForMaxTier": 0.4,
   "dim.valueForMidTier": 0.3,
-  "dim.valueForMinTier": 0.2
+  "dim.valueForMinTier": 0.2,
+  "dim.disableForSelected": true,
+  "dim.updatePeriod": 50
 }

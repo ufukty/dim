@@ -16,6 +16,8 @@ export interface Config {
     valueForMaxTier: number;
     valueForMidTier: number;
     valueForMinTier: number;
+    updatePeriod: number;
+    disableForSelected: boolean;
 }
 
 export interface PerDecorationQueue {

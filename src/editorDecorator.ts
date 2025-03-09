@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as models from "./models";
-import * as utils from "./utilities";
+import * as utilities from "./utilities";
 import { ConfigManager } from "./configmanager";
 
 export class EditorDecorator {
@@ -41,7 +41,7 @@ export class EditorDecorator {
             this._logger.appendLine(this._filename + ": skipping update because Dim is disabled for this editor");
             return;
         }
-        const period = 500;
+        const period = this._config.updatePeriod;
         var isSchedulingNecessary = Date.now() - this._lastUpdateTimestamp < period;
 
         if (!isSchedulingNecessary) {
@@ -65,6 +65,15 @@ export class EditorDecorator {
         return balance === 0;
     }
 
+    isInOneOfSelectedAreas(range: vscode.Range): boolean {
+        if (!this._editor.selections) return false;
+        for (const selection of this._editor.selections) {
+            this._logger.appendLine(`selection: ${utilities.SprintRange(selection)}`);
+            if (selection.intersection(range)) return true;
+        }
+        return false;
+    }
+
     scanForRule(range: vscode.Range, rule: models.Rule): vscode.Range[] {
         this._logger.appendLine(`${this._filename}: scanning for: ${rule.regex}`);
         var ranges: vscode.Range[] = [];
@@ -77,9 +86,12 @@ export class EditorDecorator {
                 this._editor.document.positionAt(start),
                 this._editor.document.positionAt(end)
             );
-            if (this.doBracesMatch(text, start, end)) {
+            if (
+                this.doBracesMatch(text, start, end) &&
+                (!this._config.disableForSelected || !this.isInOneOfSelectedAreas(range))
+            ) {
                 this._logger.appendLine(
-                    `${this._filename}: scanning for: ${rule.regex}: found: ${utils.SprintRange(range)}`
+                    `${this._filename}: scanning for: ${rule.regex}: found: ${utilities.SprintRange(range)}`
                 );
                 ranges.push(range);
             }
@@ -138,9 +150,9 @@ export class EditorDecorator {
         for (let i = 1; i < sorted.length; i++) {
             if (sorted[i].intersection(merging)) {
                 var m = merging;
-                const before = utils.SprintRange(m);
+                const before = utilities.SprintRange(m);
                 m = sorted[i];
-                const after = utils.SprintRange(m);
+                const after = utilities.SprintRange(m);
                 merging = merging.with(sorted[i]);
                 this._logger.appendLine(`${this._filename}: merging ${before} with ${after}`);
             } else {
@@ -172,7 +184,7 @@ export class EditorDecorator {
         const range = this._editor.document.validateRange(
             new vscode.Range(new vscode.Position(0, 0), new vscode.Position(2000, 0))
         );
-        this._logger.appendLine(`${this._filename}: scanning lines: ${utils.SprintRange(range)}`);
+        this._logger.appendLine(`${this._filename}: scanning lines: ${utilities.SprintRange(range)}`);
         for (const rule of this._config.rules) {
             for (const match of this.scanForRule(range, rule)) {
                 queues[rule.opacity].push(match);

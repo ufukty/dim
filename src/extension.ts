@@ -98,6 +98,14 @@ function onCommandReceiveToggleDimForCurrentEditor() {
     }
 }
 
+function onDidChangeTextEditorSelection(event: vscode.TextEditorSelectionChangeEvent) {
+    if (!activeEditor) return;
+    const ad = decorators.get(activeEditor);
+    if (ad) {
+        ad._schedule();
+    }
+}
+
 export function activate(context: vscode.ExtensionContext) {
     logger = vscode.window.createOutputChannel("dim");
     logger.appendLine("init");
@@ -126,6 +134,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.window.visibleTextEditors.forEach((editor) => {
         onDidChangeActiveTextEditor(editor);
+    });
+
+    vscode.window.onDidChangeTextEditorSelection((event) => {
+        onDidChangeTextEditorSelection(event);
     });
 
     if (vscode.window.activeTextEditor) {
