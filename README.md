@@ -77,6 +77,13 @@ Dim designed to work with high performance even in lower end machines.
 
 - Use proper escaping in pattern values; just like the examples above.
 - Use singleline regex mode (with `s` flag) for block dimming rules. See [MDN page for regex flags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags) or [this Stackoverflow answer](https://stackoverflow.com/questions/918806/difference-between-regular-expression-modifiers-or-flags-m-and-s) if you are not comfortable with the singleline mode.
+- Assign a keyboard shortcut for toggling Dim for current document
+  ```json
+  {
+    "key": "alt+cmd+h",
+    "command": "dim.toggleDimForCurrentEditor"
+  }
+  ```
 
 ## Contribution
 
