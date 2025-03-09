@@ -21,11 +21,11 @@
   "[js]": {
     "dim.rules": [
       {
-        "pattern": "announce\\(.*?\\);?",
+        "pattern": "announce\\(.*?\\);",
         "flags": "gs"
       },
       {
-        "pattern": "logger\\.verbose\\([^\\n]*\\);?"
+        "pattern": "logger\\.[A-Za-z]+\\(.*\\);?"
       }
     ]
   },
