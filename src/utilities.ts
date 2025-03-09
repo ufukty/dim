@@ -1,3 +1,4 @@
+import { start } from "repl";
 import * as vscode from "vscode";
 
 export function changeLineInRange(src: vscode.Range, line: number): vscode.Range {
@@ -34,4 +35,12 @@ export function lineAt(editor: vscode.TextEditor, line: number): vscode.TextLine
     } catch (e: any) {
         return undefined;
     }
+}
+
+export function SprintPos(pos: vscode.Position): string {
+    return `${pos.line + 1}:${pos.character + 1}`;
+}
+
+export function SprintRange(range: vscode.Range): string {
+    return `[${SprintPos(range.start)}, ${SprintPos(range.end)}]`;
 }

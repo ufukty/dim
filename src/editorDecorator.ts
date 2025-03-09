@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as models from "./models";
-import * as utilities from "./utilities";
+import * as utils from "./utilities";
 import { ConfigManager } from "./configmanager";
 
 export class EditorDecorator {
@@ -73,15 +73,15 @@ export class EditorDecorator {
             if (!match.index || !match[0]) return;
             const start = match.index;
             const end = start + match[0].length;
+            const range = new vscode.Range(
+                this._editor.document.positionAt(start),
+                this._editor.document.positionAt(end)
+            );
             if (this.doBracesMatch(text, start, end)) {
-                const startPos = this._editor.document.positionAt(start);
-                const endPos = this._editor.document.positionAt(end);
                 this._logger.appendLine(
-                    `${this._filename}: scanning for: ${rule.regex}: found: [` +
-                        `#${startPos.line + 1}:${startPos.character + 1}, ` +
-                        `#${endPos.line + 1}:${endPos.character + 1}]`
+                    `${this._filename}: scanning for: ${rule.regex}: found: ${utils.SprintRange(range)}`
                 );
-                ranges.push(new vscode.Range(startPos, endPos));
+                ranges.push(range);
             }
         });
         return ranges;
@@ -138,11 +138,11 @@ export class EditorDecorator {
         for (let i = 1; i < sorted.length; i++) {
             if (sorted[i].intersection(merging)) {
                 var m = merging;
-                const a = `[${m.start.line + 1}:${m.start.character + 1}, ${m.end.line + 1}:${m.end.character + 1}]`;
+                const before = utils.SprintRange(m);
                 m = sorted[i];
-                const b = `[${m.start.line + 1}:${m.start.character + 1}, ${m.end.line + 1}:${m.end.character + 1}]`;
+                const after = utils.SprintRange(m);
                 merging = merging.with(sorted[i]);
-                this._logger.appendLine(`${this._filename}: merging ${a} with ${b}`);
+                this._logger.appendLine(`${this._filename}: merging ${before} with ${after}`);
             } else {
                 merged.push(merging);
                 merging = sorted[i];
@@ -172,9 +172,7 @@ export class EditorDecorator {
         const range = this._editor.document.validateRange(
             new vscode.Range(new vscode.Position(0, 0), new vscode.Position(2000, 0))
         );
-        this._logger.appendLine(
-            `${this._filename}: scanning lines: [#${range.start.line + 1}, #${range.end.line + 1}]`
-        );
+        this._logger.appendLine(`${this._filename}: scanning lines: ${utils.SprintRange(range)}`);
         for (const rule of this._config.rules) {
             for (const match of this.scanForRule(range, rule)) {
                 queues[rule.opacity].push(match);
