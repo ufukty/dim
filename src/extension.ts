@@ -99,7 +99,7 @@ function onCommandReceiveToggleDimForCurrentEditor() {
 }
 
 function onDidChangeTextEditorSelection(event: vscode.TextEditorSelectionChangeEvent) {
-    if (!activeEditor) return;
+    if (!activeEditor || activeEditor !== event.textEditor) return;
     const ad = decorators.get(activeEditor);
     if (ad) {
         ad._schedule();
