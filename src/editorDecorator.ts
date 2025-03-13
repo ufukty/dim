@@ -37,26 +37,6 @@ export class EditorDecorator {
         this.config = this.configManager.readConfig(this.editor);
     }
 
-    private schedule() {
-        if (!this.enabled) {
-            this.logger.appendLine(this.filename + ": skipping update because Dim is disabled for this editor");
-            return;
-        }
-        const period = this.config.updatePeriod;
-        var isSchedulingNecessary = Date.now() - this.lastUpdateTimestamp < period;
-
-        if (!isSchedulingNecessary) {
-            this.decorateEditor();
-            this.lastUpdateTimestamp = Date.now();
-        } else if (this.timeoutForScheduler === undefined) {
-            const waitTime = period - (Date.now() - this.lastUpdateTimestamp);
-            this.timeoutForScheduler = setTimeout(() => {
-                this.schedule();
-                this.timeoutForScheduler = undefined;
-            }, waitTime);
-        }
-    }
-
     private doBracesMatch(text: string, start: number, end: number): boolean {
         let balance = 0;
         for (let i = start; i < Math.min(text.length, end); i++) {
@@ -212,6 +192,26 @@ export class EditorDecorator {
         this.disposeLastDecorations();
         this.applyNewDecorations();
         this.logger.appendLine(`${this.filename}: decorated (${Date.now() - start}ms)`);
+    }
+
+    private schedule() {
+        if (!this.enabled) {
+            this.logger.appendLine(this.filename + ": skipping update because Dim is disabled for this editor");
+            return;
+        }
+        const period = this.config.updatePeriod;
+        var isSchedulingNecessary = Date.now() - this.lastUpdateTimestamp < period;
+
+        if (!isSchedulingNecessary) {
+            this.decorateEditor();
+            this.lastUpdateTimestamp = Date.now();
+        } else if (this.timeoutForScheduler === undefined) {
+            const waitTime = period - (Date.now() - this.lastUpdateTimestamp);
+            this.timeoutForScheduler = setTimeout(() => {
+                this.schedule();
+                this.timeoutForScheduler = undefined;
+            }, waitTime);
+        }
     }
 
     blur() {
