@@ -54,7 +54,7 @@ export class EditorDecorator {
         return false;
     }
 
-    scanForRule(range: vscode.Range, rule: models.Rule): vscode.Range[] {
+    private scanForRule(range: vscode.Range, rule: models.Rule): vscode.Range[] {
         this.logger.appendLine(`${this.filename}: scanning for: ${rule.regex}`);
         var ranges: vscode.Range[] = [];
         const text = this.editor.document.getText(range);
