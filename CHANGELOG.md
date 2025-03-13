@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.1.1
+
+**Performance improvement**
+
+- Further increases the responsiveness of Dim by caching the regex matches to use on consecutive selection change updates.
+
 ## 3.1.0
 
 **New**

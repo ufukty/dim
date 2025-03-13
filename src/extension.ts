@@ -63,7 +63,7 @@ function onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
     vscode.window.visibleTextEditors.forEach((editor) => {
         const ad = decorators.get(editor);
         if (ad) {
-            ad.onDidChangeConfiguration();
+            ad.configChange();
         }
     });
 }
@@ -76,7 +76,7 @@ function onCommandReceiveDisableDimForCurrentEditor() {
         // needs to store toggle state separately as vscode doesn't necessarily
         // reuse the same instance of TextEditor for same document when user
         // returns after switching tabs
-        documentState.set(activeEditor.document.uri.toString(false), ad._enabled);
+        documentState.set(activeEditor.document.uri.toString(false), ad.isEnabled());
     }
 }
 
@@ -85,7 +85,7 @@ function onCommandReceiveEnableDimForCurrentEditor() {
     const ad = decorators.get(activeEditor);
     if (ad) {
         ad.enable();
-        documentState.set(activeEditor.document.uri.toString(false), ad._enabled); // read comment above
+        documentState.set(activeEditor.document.uri.toString(false), ad.isEnabled()); // read comment above
     }
 }
 
@@ -94,7 +94,7 @@ function onCommandReceiveToggleDimForCurrentEditor() {
     const ad = decorators.get(activeEditor);
     if (ad) {
         ad.toggle();
-        documentState.set(activeEditor.document.uri.toString(false), ad._enabled); // read comment above
+        documentState.set(activeEditor.document.uri.toString(false), ad.isEnabled()); // read comment above
     }
 }
 
@@ -102,7 +102,7 @@ function onDidChangeTextEditorSelection(event: vscode.TextEditorSelectionChangeE
     if (!activeEditor || activeEditor !== event.textEditor) return;
     const ad = decorators.get(activeEditor);
     if (ad) {
-        ad._schedule();
+        ad.selectionChange();
     }
 }
 
@@ -149,7 +149,7 @@ export function deactivate() {
     for (const editor of vscode.window.visibleTextEditors) {
         var ad = decorators.get(editor);
         if (ad) {
-            ad._disposeLastDecorations();
+            ad.disable();
         }
     }
 }

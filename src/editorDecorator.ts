@@ -1,19 +1,20 @@
 import * as vscode from "vscode";
 import * as models from "./models";
-import * as utilities from "./utilities";
+import * as utils from "./utilities";
 import { ConfigManager } from "./configmanager";
 
 export class EditorDecorator {
-    _editor: vscode.TextEditor;
-    _config: models.Config;
-    _configManager: ConfigManager;
-    _filename: string;
-    _logger: vscode.OutputChannel;
-    _decoTypes: models.DecorationTypes | undefined;
-    _enabled: boolean;
+    private editor: vscode.TextEditor;
+    private config: models.Config;
+    private configManager: ConfigManager;
+    private filename: string;
+    private logger: vscode.OutputChannel;
+    private matches: Map<models.Rule, vscode.Range[]> | undefined;
+    private decoTypes: models.DecorationTypes | undefined;
+    private enabled: boolean;
 
-    _lastUpdateTimestamp: number;
-    _timeoutForScheduler: NodeJS.Timeout | undefined;
+    private lastUpdateTimestamp: number;
+    private timeoutForScheduler: NodeJS.Timeout | undefined;
 
     constructor(
         editor: vscode.TextEditor,
@@ -21,42 +22,42 @@ export class EditorDecorator {
         enabled: boolean,
         logger: vscode.OutputChannel
     ) {
-        this._editor = editor;
-        this._configManager = configManager;
-        this._logger = logger;
-        this._enabled = enabled;
+        this.editor = editor;
+        this.configManager = configManager;
+        this.logger = logger;
+        this.enabled = enabled;
 
         const _filename = editor.document.fileName.split("/").pop();
-        if (_filename) this._filename = _filename;
-        else this._filename = "";
+        if (_filename) this.filename = _filename;
+        else this.filename = "";
 
-        this._lastUpdateTimestamp = 0;
+        this.lastUpdateTimestamp = 0;
 
-        this._logger.appendLine(`${this._filename}: constructor (enabled: ${enabled})`);
-        this._config = this._configManager.readConfig(this._editor);
+        this.logger.appendLine(`${this.filename}: constructor (enabled: ${enabled})`);
+        this.config = this.configManager.readConfig(this.editor);
     }
 
-    _schedule() {
-        if (!this._enabled) {
-            this._logger.appendLine(this._filename + ": skipping update because Dim is disabled for this editor");
+    private schedule() {
+        if (!this.enabled) {
+            this.logger.appendLine(this.filename + ": skipping update because Dim is disabled for this editor");
             return;
         }
-        const period = this._config.updatePeriod;
-        var isSchedulingNecessary = Date.now() - this._lastUpdateTimestamp < period;
+        const period = this.config.updatePeriod;
+        var isSchedulingNecessary = Date.now() - this.lastUpdateTimestamp < period;
 
         if (!isSchedulingNecessary) {
-            this._decorateEditor();
-            this._lastUpdateTimestamp = Date.now();
-        } else if (this._timeoutForScheduler === undefined) {
-            const waitTime = period - (Date.now() - this._lastUpdateTimestamp);
-            this._timeoutForScheduler = setTimeout(() => {
-                this._schedule();
-                this._timeoutForScheduler = undefined;
+            this.decorateEditor();
+            this.lastUpdateTimestamp = Date.now();
+        } else if (this.timeoutForScheduler === undefined) {
+            const waitTime = period - (Date.now() - this.lastUpdateTimestamp);
+            this.timeoutForScheduler = setTimeout(() => {
+                this.schedule();
+                this.timeoutForScheduler = undefined;
             }, waitTime);
         }
     }
 
-    doBracesMatch(text: string, start: number, end: number): boolean {
+    private doBracesMatch(text: string, start: number, end: number): boolean {
         let balance = 0;
         for (let i = start; i < Math.min(text.length, end); i++) {
             if (text[i] === "{") balance++;
@@ -65,30 +66,29 @@ export class EditorDecorator {
         return balance === 0;
     }
 
-    isInOneOfSelectedAreas(range: vscode.Range): boolean {
-        if (!this._editor.selections) return false;
-        for (const selection of this._editor.selections) {
-            this._logger.appendLine(`selection: ${utilities.SprintRange(selection)}`);
+    private isInOneOfSelectedAreas(range: vscode.Range): boolean {
+        if (!this.editor.selections) return false;
+        for (const selection of this.editor.selections) {
             if (selection.intersection(range)) return true;
         }
         return false;
     }
 
     scanForRule(range: vscode.Range, rule: models.Rule): vscode.Range[] {
-        this._logger.appendLine(`${this._filename}: scanning for: ${rule.regex}`);
+        this.logger.appendLine(`${this.filename}: scanning for: ${rule.regex}`);
         var ranges: vscode.Range[] = [];
-        const text = this._editor.document.getText(range);
+        const text = this.editor.document.getText(range);
         Array.from(text.matchAll(rule.regex)).forEach((match) => {
             if (!match.index || !match[0]) return;
             const start = match.index;
             const end = start + match[0].length;
             const range = new vscode.Range(
-                this._editor.document.positionAt(start),
-                this._editor.document.positionAt(end)
+                this.editor.document.positionAt(start),
+                this.editor.document.positionAt(end)
             );
-            if (this.doBracesMatch(text, start, end) && !this.isInOneOfSelectedAreas(range)) {
-                this._logger.appendLine(
-                    `${this._filename}: scanning for: ${rule.regex}: found: ${utilities.SprintRange(range)}`
+            if (this.doBracesMatch(text, start, end)) {
+                this.logger.appendLine(
+                    `${this.filename}: scanning for: ${rule.regex}: found: ${utils.SprintRange(range)}`
                 );
                 ranges.push(range);
             }
@@ -96,32 +96,43 @@ export class EditorDecorator {
         return ranges;
     }
 
-    _disposeLastDecorations() {
-        this._logger.appendLine(`${this._filename}: disposing previous decorations`);
-        if (!this._decoTypes) return;
-        this._decoTypes.max.dispose();
-        this._decoTypes.mid.dispose();
-        this._decoTypes.min.dispose();
+    private scanForRules() {
+        const range = this.editor.document.validateRange(
+            new vscode.Range(new vscode.Position(0, 0), new vscode.Position(2000, 0))
+        );
+        this.logger.appendLine(`${this.filename}: scanning lines: ${utils.SprintRange(range)}`);
+        this.matches = new Map() as Map<models.Rule, vscode.Range[]>;
+        for (const rule of this.config.rules) {
+            this.matches.set(rule, this.scanForRule(range, rule));
+        }
     }
 
-    _prepareDecorationTypes(): models.DecorationTypes {
+    private disposeLastDecorations() {
+        this.logger.appendLine(`${this.filename}: disposing previous decorations`);
+        if (!this.decoTypes) return;
+        this.decoTypes.max.dispose();
+        this.decoTypes.mid.dispose();
+        this.decoTypes.min.dispose();
+    }
+
+    private prepareDecorationTypes(): models.DecorationTypes {
         return {
             "max": vscode.window.createTextEditorDecorationType({
-                "opacity": this._config.valueForMaxTier.toString(),
+                "opacity": this.config.valueForMaxTier.toString(),
                 "isWholeLine": false,
             }),
             "mid": vscode.window.createTextEditorDecorationType({
-                "opacity": this._config.valueForMidTier.toString(),
+                "opacity": this.config.valueForMidTier.toString(),
                 "isWholeLine": false,
             }),
             "min": vscode.window.createTextEditorDecorationType({
-                "opacity": this._config.valueForMinTier.toString(),
+                "opacity": this.config.valueForMinTier.toString(),
                 "isWholeLine": false,
             }),
         };
     }
 
-    _mergeIntersecting(queue: vscode.Range[]): vscode.Range[] {
+    private mergeIntersecting(queue: vscode.Range[]): vscode.Range[] {
         if (queue.length <= 1) return queue;
         const sorted = queue.sort((a, b) => {
             // no overlap: aa-bb
@@ -147,11 +158,11 @@ export class EditorDecorator {
         for (let i = 1; i < sorted.length; i++) {
             if (sorted[i].intersection(merging)) {
                 var m = merging;
-                const before = utilities.SprintRange(m);
+                const before = utils.SprintRange(m);
                 m = sorted[i];
-                const after = utilities.SprintRange(m);
+                const after = utils.SprintRange(m);
                 merging = merging.with(sorted[i]);
-                this._logger.appendLine(`${this._filename}: merging ${before} with ${after}`);
+                this.logger.appendLine(`${this.filename}: merging ${before} with ${after}`);
             } else {
                 merged.push(merging);
                 merging = sorted[i];
@@ -161,73 +172,92 @@ export class EditorDecorator {
         return merged;
     }
 
-    _applyNewDecorations(perDecoQueues: models.PerDecorationQueue) {
-        const decoTypes = this._prepareDecorationTypes();
-        this._editor.setDecorations(decoTypes.max, this._mergeIntersecting(perDecoQueues.max));
-        this._editor.setDecorations(decoTypes.mid, this._mergeIntersecting(perDecoQueues.mid));
-        this._editor.setDecorations(decoTypes.min, this._mergeIntersecting(perDecoQueues.min));
-        this._decoTypes = decoTypes;
-    }
-
-    _decorateEditor() {
-        this._logger.appendLine(this._filename + ": decorating...");
-        const start = Date.now();
-
-        var queues = {
+    private createDecorationQueues(): models.PerDecorationQueue | undefined {
+        if (!this.matches) return;
+        let queues = {
             "max": [] as vscode.Range[],
             "mid": [] as vscode.Range[],
             "min": [] as vscode.Range[],
         };
-        const range = this._editor.document.validateRange(
-            new vscode.Range(new vscode.Position(0, 0), new vscode.Position(2000, 0))
-        );
-        this._logger.appendLine(`${this._filename}: scanning lines: ${utilities.SprintRange(range)}`);
-        for (const rule of this._config.rules) {
-            for (const match of this.scanForRule(range, rule)) {
-                queues[rule.opacity].push(match);
+        for (const rule of this.config.rules) {
+            const matchesForRule = this.matches.get(rule);
+            if (matchesForRule) {
+                for (const match of matchesForRule) {
+                    queues[rule.opacity].push(match);
+                }
             }
         }
+        return {
+            "max": this.mergeIntersecting(queues.max.filter((range) => !this.isInOneOfSelectedAreas(range))),
+            "mid": this.mergeIntersecting(queues.mid.filter((range) => !this.isInOneOfSelectedAreas(range))),
+            "min": this.mergeIntersecting(queues.min.filter((range) => !this.isInOneOfSelectedAreas(range))),
+        };
+    }
 
-        this._disposeLastDecorations();
-        this._applyNewDecorations(queues);
+    private applyNewDecorations() {
+        if (!this.matches) return;
+        const queues = this.createDecorationQueues();
+        if (!queues) return;
+        const decoTypes = this.prepareDecorationTypes();
+        this.editor.setDecorations(decoTypes.max, queues.max);
+        this.editor.setDecorations(decoTypes.mid, queues.mid);
+        this.editor.setDecorations(decoTypes.min, queues.min);
+        this.decoTypes = decoTypes;
+    }
 
-        this._logger.appendLine(this._filename + ": decorated (" + (Date.now() - start) + "ms)");
+    private decorateEditor() {
+        this.logger.appendLine(`${this.filename}: decorating...`);
+        const start = Date.now();
+        if (!this.matches) this.scanForRules();
+        this.disposeLastDecorations();
+        this.applyNewDecorations();
+        this.logger.appendLine(`${this.filename}: decorated (${Date.now() - start}ms)`);
     }
 
     blur() {
-        this._logger.appendLine(this._filename + ": blur");
+        this.logger.appendLine(`${this.filename}: blur`);
     }
 
     focus() {
-        this._logger.appendLine(this._filename + ": focus");
-        this._schedule();
+        this.logger.appendLine(`${this.filename}: focus`);
+        this.schedule();
     }
 
     contentChange() {
-        this._logger.appendLine(this._filename + ": content change");
-        this._schedule();
+        this.logger.appendLine(`${this.filename}: content change`);
+        this.matches = undefined;
+        this.schedule();
     }
 
-    onDidChangeConfiguration() {
-        this._logger.appendLine(this._filename + ": configuration change");
-        this._config = this._configManager.readConfig(this._editor);
-        this._schedule();
+    selectionChange() {
+        this.logger.appendLine(`${this.filename}: selection change`);
+        this.schedule();
+    }
+
+    configChange() {
+        this.logger.appendLine(`${this.filename}: configuration change`);
+        this.config = this.configManager.readConfig(this.editor);
+        this.schedule();
     }
 
     enable() {
-        this._logger.appendLine(this._filename + ": enabling...");
-        this._enabled = true;
-        this._schedule();
+        this.logger.appendLine(`${this.filename}: enabling...`);
+        this.enabled = true;
+        this.schedule();
     }
 
     disable() {
-        this._logger.appendLine(this._filename + ": disabling...");
-        this._enabled = false;
-        this._disposeLastDecorations();
+        this.logger.appendLine(`${this.filename}: disabling...`);
+        this.enabled = false;
+        this.disposeLastDecorations();
     }
 
     toggle() {
-        if (this._enabled) this.disable();
+        if (this.enabled) this.disable();
         else this.enable();
+    }
+
+    isEnabled() {
+        return this.enabled;
     }
 }
