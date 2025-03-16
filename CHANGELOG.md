@@ -1,5 +1,10 @@
 # Change Log
 
+## 3.1.3
+
+- Removes some presentation related content from the installation.
+- Adjusts the marketplace page styling of extension.
+
 ## 3.1.2
 
 Fixes dim trying to keep using cached matches even when they become outdated, if the change happened when the editor is out of focus, which is the case when user use another editor (tab) to edit config.
