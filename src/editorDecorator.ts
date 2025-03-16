@@ -237,12 +237,14 @@ export class EditorDecorator {
     configChange() {
         this.logger.appendLine(`${this.filename}: configuration change`);
         this.config = this.configManager.readConfig(this.editor);
+        this.matches = undefined;
         this.schedule();
     }
 
     enable() {
         this.logger.appendLine(`${this.filename}: enabling...`);
         this.enabled = true;
+        this.matches = undefined;
         this.schedule();
     }
 
