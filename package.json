@@ -155,8 +155,8 @@
     "vscode": "^1.78.0"
   },
   "galleryBanner": {
-    "color": "444444",
-    "theme": "light"
+    "color": "#000000",
+    "theme": "dark"
   },
   "homepage": "https://github.com/ufukty/dim",
   "icon": "media/icon.png",
