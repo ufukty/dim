@@ -15,7 +15,7 @@ Define rules to reduce opacity of repeating parts of code to make the main logic
 - Define rules based on standard **regex patterns**.
 - Supports optional **regex flags**. With sensible defaults, for those who are not comfortable with flags.
 - Matches both single line expressions and **blocks of code**.
-- Allows **per-workspace** rules via `.vscode/config.json` file, and **per-language** rules under through language tags `[js]`, `[go]`, `[json]` etc.
+- Allows **per-workspace** rules via `.vscode/config.json` file, and **per-language** rules through language tags `[js]`, `[go]`, `[json]` etc.
 - Lets developers maintain high consistency of opacity values across every rule effortlessly by allowing them to assign only a **opacity tier** to rules. So, adjusting one tier's value is enough to update all rules using it.
 - **Toggling** (enabling/disabling) the extension per document: `dim.toggleDimForCurrentEditor`.
 - Dim respects **carets**. Means that Dim won't dim those areas that you are actively working on, or looking to.
