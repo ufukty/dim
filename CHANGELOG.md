@@ -1,5 +1,10 @@
 # Change Log
 
+## 3.1.4
+
+- Reverts the marketplace page styling of extension to lighter colors.
+- Minor changes in whitespaces in changelog.
+
 ## 3.1.3
 
 - Removes some presentation related content from the installation.
@@ -7,7 +12,7 @@
 
 ## 3.1.2
 
-Fixes dim trying to keep using cached matches even when they become outdated, if the change happened when the editor is out of focus, which is the case when user use another editor (tab) to edit config.
+- Fixes dim trying to keep using cached matches even when they become outdated, if the change happened when the editor is out of focus, which is the case when user use another editor (tab) to edit config.
 
 ## 3.1.1
 
