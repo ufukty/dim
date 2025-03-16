@@ -166,6 +166,7 @@
     "dimming",
     "focusing",
     "highlighting",
+    "lowlight",
     "opacity",
     "readability",
     "regex"
