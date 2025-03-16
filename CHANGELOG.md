@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.1.5
+
+**Performance improvement**
+
+- This release significantly reduces the possibility of flickering issue to occur which were best noticable when cursor is moved through chunks of code to rapidly select/deselect different matches.
+
 ## 3.1.4
 
 - Reverts the marketplace page styling of extension to lighter colors.
