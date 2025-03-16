@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.1.6
+
+- Fixes Dim miscalculating the merged range for rules match intersecting parts of code.
+
 ## 3.1.5
 
 **Performance improvement**
