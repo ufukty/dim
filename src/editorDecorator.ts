@@ -35,6 +35,25 @@ export class EditorDecorator {
 
         this.logger.appendLine(`${this.filename}: constructor (enabled: ${enabled})`);
         this.config = this.configManager.readConfig(this.editor);
+        this.withConfig();
+    }
+
+    private withConfig() {
+        if (this.decoTypes) this.disposeLastDecorations();
+        this.decoTypes = {
+            "max": vscode.window.createTextEditorDecorationType({
+                "opacity": this.config.valueForMaxTier.toString(),
+                "isWholeLine": false,
+            }),
+            "mid": vscode.window.createTextEditorDecorationType({
+                "opacity": this.config.valueForMidTier.toString(),
+                "isWholeLine": false,
+            }),
+            "min": vscode.window.createTextEditorDecorationType({
+                "opacity": this.config.valueForMinTier.toString(),
+                "isWholeLine": false,
+            }),
+        } as models.DecorationTypes;
     }
 
     private doBracesMatch(text: string, start: number, end: number): boolean {
@@ -93,23 +112,6 @@ export class EditorDecorator {
         this.decoTypes.max.dispose();
         this.decoTypes.mid.dispose();
         this.decoTypes.min.dispose();
-    }
-
-    private prepareDecorationTypes(): models.DecorationTypes {
-        return {
-            "max": vscode.window.createTextEditorDecorationType({
-                "opacity": this.config.valueForMaxTier.toString(),
-                "isWholeLine": false,
-            }),
-            "mid": vscode.window.createTextEditorDecorationType({
-                "opacity": this.config.valueForMidTier.toString(),
-                "isWholeLine": false,
-            }),
-            "min": vscode.window.createTextEditorDecorationType({
-                "opacity": this.config.valueForMinTier.toString(),
-                "isWholeLine": false,
-            }),
-        };
     }
 
     private mergeIntersecting(queue: vscode.Range[]): vscode.Range[] {
@@ -175,21 +177,19 @@ export class EditorDecorator {
     }
 
     private applyNewDecorations() {
+        if (!this.decoTypes) return;
         if (!this.matches) return;
         const queues = this.createDecorationQueues();
         if (!queues) return;
-        const decoTypes = this.prepareDecorationTypes();
-        this.editor.setDecorations(decoTypes.max, queues.max);
-        this.editor.setDecorations(decoTypes.mid, queues.mid);
-        this.editor.setDecorations(decoTypes.min, queues.min);
-        this.decoTypes = decoTypes;
+        this.editor.setDecorations(this.decoTypes.max, queues.max);
+        this.editor.setDecorations(this.decoTypes.mid, queues.mid);
+        this.editor.setDecorations(this.decoTypes.min, queues.min);
     }
 
     private decorateEditor() {
         this.logger.appendLine(`${this.filename}: decorating...`);
         const start = Date.now();
         if (!this.matches) this.scanForRules();
-        this.disposeLastDecorations();
         this.applyNewDecorations();
         this.logger.appendLine(`${this.filename}: decorated (${Date.now() - start}ms)`);
     }
@@ -238,6 +238,7 @@ export class EditorDecorator {
         this.logger.appendLine(`${this.filename}: configuration change`);
         this.config = this.configManager.readConfig(this.editor);
         this.matches = undefined;
+        this.withConfig();
         this.schedule();
     }
 

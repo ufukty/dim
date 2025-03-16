@@ -47,5 +47,5 @@
   "dim.valueForMaxTier": 0.4,
   "dim.valueForMidTier": 0.3,
   "dim.valueForMinTier": 0.2,
-  "dim.updatePeriod": 50
+  "dim.updatePeriod": 10
 }
