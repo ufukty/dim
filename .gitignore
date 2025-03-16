@@ -1,8 +1,8 @@
-out
-dist
-node_modules
+.DS_Store
 .vscode-test/
 *.vsix
-sketch
+/media/*.sketch
+dist
+node_modules
+out
 test/private*
-.DS_Store
