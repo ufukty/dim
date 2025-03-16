@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.1.2
+
+Fixes dim trying to keep using cached matches even when they become outdated, if the change happened when the editor is out of focus, which is the case when user use another editor (tab) to edit config.
+
 ## 3.1.1
 
 **Performance improvement**
