@@ -143,8 +143,9 @@ export class EditorDecorator {
                 const before = utils.SprintRange(m);
                 m = sorted[i];
                 const after = utils.SprintRange(m);
-                merging = merging.with(sorted[i]);
-                this.logger.appendLine(`${this.filename}: merging ${before} with ${after}`);
+                merging = merging.union(sorted[i]);
+                const mergd = utils.SprintRange(merging);
+                this.logger.appendLine(`${this.filename}: merging ${before} with ${after} to ${mergd}`);
             } else {
                 merged.push(merging);
                 merging = sorted[i];
