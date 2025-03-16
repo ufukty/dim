@@ -31,7 +31,7 @@ Dim designed to work with high performance even in lower end machines.
 - Dim merges the intersecting ranges of different rules with same opacity tier, to avoid applying multiple decorations on one sequence of text.
 - Dim is field tested for Code extension gotchas eg. constant feedback caused by applying decorations on log pane lead to infinite loop.
 - Dim lets you adjust the update period according to your needs and hardware through `updatePeriod` property. Lower values increase the responsiveness of extension and higher values are better for lower end hardware.
-- Dim reuses the same set of decorations per editor until config changes styles to avoid flickering issue which is enabled by performing decoration updates without requiring complete disposal of old ones.
+- Dim reuses the same set of decorations per editor until the opacity values in config changes to avoid flickering issue which is enabled by performing decoration updates without requiring complete disposal of old ones.
 
 ## Usage
 
