@@ -1,7 +1,7 @@
 {
   "name": "dim",
   "displayName": "dim",
-  "description": "Define rules to reduce opacity of repeating lines or blocks to be able to focus in main logic",
+  "description": "Define regex rules to dim boring parts of code and make the main logic pop.",
   "publisher": "ufukty",
   "version": "3.1.1",
   "engines": {
@@ -11,8 +11,14 @@
     "Other"
   ],
   "keywords": [
-    "light",
-    "code reading"
+    "code reading",
+    "blocks",
+    "opacity",
+    "dimming",
+    "focusing",
+    "highlighting",
+    "readability",
+    "regex"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -175,5 +181,9 @@
     "type": "git",
     "url": "https://github.com/ufukty/dim"
   },
-  "homepage": "https://github.com/ufukty/dim"
+  "homepage": "https://github.com/ufukty/dim",
+  "galleryBanner": {
+    "color": "444444",
+    "theme": "light"
+  }
 }
