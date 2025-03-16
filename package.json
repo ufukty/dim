@@ -1,74 +1,85 @@
 {
-  "name": "dim",
-  "displayName": "dim",
-  "description": "Define regex rules to dim boring parts of code and make the main logic pop.",
-  "publisher": "ufukty",
-  "version": "3.1.1",
-  "engines": {
-    "vscode": "^1.78.0"
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "bugs": {
+    "url": "https://github.com/ufukty/dim/issues"
   },
   "categories": [
     "Other"
   ],
-  "keywords": [
-    "code reading",
-    "blocks",
-    "opacity",
-    "dimming",
-    "focusing",
-    "highlighting",
-    "readability",
-    "regex"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
+        "category": "Dim",
         "command": "dim.disableDimForCurrentEditor",
-        "title": "Disable extension for current document",
-        "category": "Dim"
+        "title": "Disable extension for current document"
       },
       {
+        "category": "Dim",
         "command": "dim.enableDimForCurrentEditor",
-        "title": "Enable extension for current document",
-        "category": "Dim"
+        "title": "Enable extension for current document"
       },
       {
+        "category": "Dim",
         "command": "dim.toggleDimForCurrentEditor",
-        "title": "Toggle extension for current document",
-        "category": "Dim"
+        "title": "Toggle extension for current document"
       }
     ],
     "configuration": {
-      "title": "dim",
       "properties": {
+        "dim.defaultFlags": {
+          "default": "g",
+          "description": "The default flags that will be used to generate regexes out of patterns given in rules. Overridable in rules.",
+          "scope": "window",
+          "type": "string"
+        },
+        "dim.defaultMaxLinesBetween": {
+          "deprecated": true,
+          "description": "This property is deprecated. If desired, regex quantifiers (such as `{0,n}`) can be considered instead.",
+          "type": "number"
+        },
+        "dim.defaultOpacityTier": {
+          "default": "mid",
+          "description": "The default opacity will be assumed for rules that doesn't specify. Overridable in rules.",
+          "enum": [
+            "min",
+            "mid",
+            "max"
+          ],
+          "scope": "window",
+          "type": "string"
+        },
+        "dim.defaultScanLimit": {
+          "deprecated": true,
+          "description": "This property is deprecated. Dim now scans only the first 2000 lines of document.",
+          "type": "number"
+        },
         "dim.rules": {
           "default": [],
-          "scope": "language-overridable",
           "description": "List of rules that will be used by dim to decide which part of code will be dimmed.",
-          "type": "array",
           "items": {
-            "type": "object",
             "properties": {
-              "pattern": {
-                "type": "string",
-                "description": "The pattern that will be used to generate regex. Don't forget proper escaping. Eg. \"[^\\n]\" means any character other than the new line. For dimming blocks (rather than parts in single line) it is possible to use dot operator for newlines. See the description for \"flags\" property."
+              "end": {
+                "deprecated": true,
+                "description": "This property is deprecated. Please migrate to using \"pattern\" property. Consider the use of \"s\" flag for block dimming rules to make dots match newlines. "
               },
               "flags": {
-                "type": "string",
+                "default": "g",
                 "description": "Flag suffix that will be used for generating the regex for given pattern. Dim sets \"g\" flag by default which matches all instances (rather than the first) of pattern. Consider adding \"s\" for block dimming rules which makes the dot match with newlines. Don't use a separator between flags. Eg. \"gs\"",
-                "default": "g"
+                "type": "string"
               },
               "opacity": {
-                "type": "string",
                 "enum": [
                   "min",
                   "mid",
                   "max"
-                ]
+                ],
+                "type": "string"
+              },
+              "pattern": {
+                "description": "The pattern that will be used to generate regex. Don't forget proper escaping. Eg. \"[^\\n]\" means any character other than the new line. For dimming blocks (rather than parts in single line) it is possible to use dot operator for newlines. See the description for \"flags\" property.",
+                "type": "string"
               },
               "rule": {
                 "deprecated": true,
@@ -77,85 +88,54 @@
               "start": {
                 "deprecated": true,
                 "description": "This property is deprecated. Please migrate to using \"pattern\" property. Consider the use of \"s\" flag for block dimming rules to make dots match newlines. "
-              },
-              "end": {
-                "deprecated": true,
-                "description": "This property is deprecated. Please migrate to using \"pattern\" property. Consider the use of \"s\" flag for block dimming rules to make dots match newlines. "
               }
             },
             "required": [
               "pattern"
-            ]
-          }
-        },
-        "dim.valueForMinTier": {
-          "type": "number",
-          "default": 0.25,
-          "scope": "window",
-          "description": "Actual opacity value for min opacity rules.",
-          "minimum": 0,
-          "maximum": 1
-        },
-        "dim.valueForMidTier": {
-          "type": "number",
-          "default": 0.5,
-          "scope": "window",
-          "description": "Actual opacity value for mid opacity rules.",
-          "minimum": 0,
-          "maximum": 1
-        },
-        "dim.valueForMaxTier": {
-          "type": "number",
-          "default": 0.75,
-          "scope": "window",
-          "description": "Actual opacity value for max opacity rules.",
-          "minimum": 0,
-          "maximum": 1
-        },
-        "dim.defaultOpacityTier": {
-          "type": "string",
-          "scope": "window",
-          "enum": [
-            "min",
-            "mid",
-            "max"
-          ],
-          "default": "mid",
-          "description": "The default opacity will be assumed for rules that doesn't specify. Overridable in rules."
+            ],
+            "type": "object"
+          },
+          "scope": "language-overridable",
+          "type": "array"
         },
         "dim.updatePeriod": {
-          "type": "number",
           "default": 500,
+          "description": "The minimum duration waited between two run of Dim for any editor in milliseconds. Lower values makes Dim more reactive to input changes, while might affect overall system performance.",
           "scope": "window",
-          "description": "The minimum duration waited between two run of Dim for any editor in milliseconds. Lower values makes Dim more reactive to input changes, while might affect overall system performance."
+          "type": "number"
         },
-        "dim.defaultFlags": {
-          "type": "string",
+        "dim.valueForMaxTier": {
+          "default": 0.75,
+          "description": "Actual opacity value for max opacity rules.",
+          "maximum": 1,
+          "minimum": 0,
           "scope": "window",
-          "default": "g",
-          "description": "The default flags that will be used to generate regexes out of patterns given in rules. Overridable in rules."
+          "type": "number"
         },
-        "dim.defaultScanLimit": {
-          "type": "number",
-          "deprecated": true,
-          "description": "This property is deprecated. Dim now scans only the first 2000 lines of document."
+        "dim.valueForMidTier": {
+          "default": 0.5,
+          "description": "Actual opacity value for mid opacity rules.",
+          "maximum": 1,
+          "minimum": 0,
+          "scope": "window",
+          "type": "number"
         },
-        "dim.defaultMaxLinesBetween": {
-          "type": "number",
-          "deprecated": true,
-          "description": "This property is deprecated. If desired, regex quantifiers (such as `{0,n}`) can be considered instead."
+        "dim.valueForMinTier": {
+          "default": 0.25,
+          "description": "Actual opacity value for min opacity rules.",
+          "maximum": 1,
+          "minimum": 0,
+          "scope": "window",
+          "type": "number"
         }
-      }
+      },
+      "title": "dim"
     }
   },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+  "dependencies": {
+    "lodash": "^4.17.21"
   },
+  "description": "Define regex rules to dim boring parts of code and make the main logic pop.",
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/lodash": "^4.14.194",
@@ -170,20 +150,40 @@
     "mocha": "^10.2.0",
     "typescript": "^5.0.4"
   },
-  "dependencies": {
-    "lodash": "^4.17.21"
+  "displayName": "dim",
+  "engines": {
+    "vscode": "^1.78.0"
   },
+  "galleryBanner": {
+    "color": "444444",
+    "theme": "light"
+  },
+  "homepage": "https://github.com/ufukty/dim",
   "icon": "media/icon.png",
-  "bugs": {
-    "url": "https://github.com/ufukty/dim/issues"
-  },
+  "keywords": [
+    "blocks",
+    "code reading",
+    "dimming",
+    "focusing",
+    "highlighting",
+    "opacity",
+    "readability",
+    "regex"
+  ],
+  "main": "./out/extension.js",
+  "name": "dim",
+  "publisher": "ufukty",
   "repository": {
     "type": "git",
     "url": "https://github.com/ufukty/dim"
   },
-  "homepage": "https://github.com/ufukty/dim",
-  "galleryBanner": {
-    "color": "444444",
-    "theme": "light"
-  }
+  "scripts": {
+    "compile": "tsc -p ./",
+    "lint": "eslint src --ext ts",
+    "pretest": "npm run compile && npm run lint",
+    "test": "node ./out/test/runTest.js",
+    "vscode:prepublish": "npm run compile",
+    "watch": "tsc -watch -p ./"
+  },
+  "version": "3.1.1"
 }
