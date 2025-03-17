@@ -12,6 +12,7 @@ export class EditorDecorator {
     private matches: Map<models.Rule, vscode.Range[]> | undefined;
     private decoTypes: models.DecorationTypes | undefined;
     private enabled: boolean;
+    private inFocus: boolean;
 
     private lastUpdateTimestamp: number;
     private timeoutForScheduler: NodeJS.Timeout | undefined;
@@ -26,6 +27,7 @@ export class EditorDecorator {
         this.configManager = configManager;
         this.logger = logger;
         this.enabled = enabled;
+        this.inFocus = true;
 
         const _filename = editor.document.fileName.split("/").pop();
         if (_filename) this.filename = _filename;
@@ -66,6 +68,7 @@ export class EditorDecorator {
     }
 
     private isInOneOfSelectedAreas(range: vscode.Range): boolean {
+        if (!this.inFocus) return false;
         if (!this.editor.selections) return false;
         for (const selection of this.editor.selections) {
             if (selection.intersection(range)) return true;
@@ -217,10 +220,12 @@ export class EditorDecorator {
 
     blur() {
         this.logger.appendLine(`${this.filename}: blur`);
+        this.inFocus = false;
     }
 
     focus() {
         this.logger.appendLine(`${this.filename}: focus`);
+        this.inFocus = true;
         this.schedule();
     }
 
