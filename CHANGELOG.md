@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.1.8
+
+- Fixes toggling Dim back to on doesn't work.
+
 ## 3.1.7
 
 - Fixes passing selected areas feature causing user to mis important decoration updates while updating the config in another tab aside. The issue were degrading the user experience for experimenting on new regex rules. Now, Dim respects carets only when the editor is active.
