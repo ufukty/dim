@@ -112,9 +112,9 @@ export class EditorDecorator {
     private disposeLastDecorations() {
         this.logger.appendLine(`${this.filename}: disposing previous decorations`);
         if (!this.decoTypes) return;
-        this.decoTypes.max.dispose();
-        this.decoTypes.mid.dispose();
-        this.decoTypes.min.dispose();
+        this.editor.setDecorations(this.decoTypes.max, []);
+        this.editor.setDecorations(this.decoTypes.mid, []);
+        this.editor.setDecorations(this.decoTypes.min, []);
     }
 
     private mergeIntersecting(queue: vscode.Range[]): vscode.Range[] {
