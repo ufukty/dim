@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.1.9
+
+Adds second preview gif to readme. No code changes this time.
+
 ## 3.1.8
 
 - Fixes toggling Dim back to on doesn't work.
