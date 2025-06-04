@@ -2,7 +2,7 @@
 
 ## 3.1.9
 
-- Updates dependencies.
+- Updates dependencies with security patches.
 - Adds second preview gif to readme.
 
 ## 3.1.8
