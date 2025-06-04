@@ -1,5 +1,9 @@
 // Place your settings in this file to overwrite default and user settings.
 {
+    "[markdown]": {
+        "prettier.tabWidth": 2
+    },
+    "editor.tabSize": 4,
     "files.exclude": {
         "out": false // set this to true to hide the "out" folder with the compiled JS files
     },
