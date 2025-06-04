@@ -2,7 +2,8 @@
 
 ## 3.1.9
 
-Adds second preview gif to readme. No code changes this time.
+- Updates dependencies.
+- Adds second preview gif to readme.
 
 ## 3.1.8
 
