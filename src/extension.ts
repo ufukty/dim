@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { EditorDecorator } from "./editorDecorator";
 import { ConfigManager } from "./configmanager";
+import * as review from "./review";
+import * as stats from "./stats";
 
 class ExtensionLifecycleController {
     decorators: Map<vscode.TextEditor, EditorDecorator>;
@@ -9,6 +11,8 @@ class ExtensionLifecycleController {
     configManager: ConfigManager;
     documentState: Map<string, boolean>; // <editor.document.uri: boolean>
     context: vscode.ExtensionContext;
+
+    configEngagementReview: review.UponConfigEngagementReviewController;
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
@@ -19,6 +23,9 @@ class ExtensionLifecycleController {
         this.decorators = new Map();
         this.configManager = new ConfigManager();
         this.documentState = new Map<string, boolean>();
+
+        var configInteractionStatsManager = new stats.ConfigInteractionStatsManager(this.logger, context);
+        this.configEngagementReview = new review.UponConfigEngagementReviewController(configInteractionStatsManager);
 
         context.subscriptions.push(
             vscode.commands.registerCommand(
@@ -112,6 +119,7 @@ class ExtensionLifecycleController {
 
     onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
         if (!e.affectsConfiguration("dim")) return;
+
         this.configManager.clearConfigCache(e);
         vscode.window.visibleTextEditors.forEach((editor) => {
             const ad = this.decorators.get(editor);
@@ -119,6 +127,8 @@ class ExtensionLifecycleController {
                 ad.configChange();
             }
         });
+
+        this.configEngagementReview.On(this.context);
     }
 
     onCommandReceiveDisableDimForCurrentEditor() {
