@@ -154,10 +154,6 @@
   "engines": {
     "vscode": "^1.78.0"
   },
-  "galleryBanner": {
-    "color": "#ffffff",
-    "theme": "light"
-  },
   "homepage": "https://github.com/ufukty/dim",
   "icon": "media/icon.png",
   "keywords": [
