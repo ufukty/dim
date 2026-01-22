@@ -1,40 +1,47 @@
 name: CI
 
 on:
-  push: {}
-  pull_request: {}
-  schedule: [cron: "26 4 * * *"]
-  workflow_dispatch: {}
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "26 4 * * *"
+  workflow_dispatch:
 
 permissions:
-  security-events: write
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  analyze:
-    name: Analyze JS and TS
+  quality:
+    name: Lint and type-check with Node
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 18, cache: npm }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run type-check
 
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       security-events: write
-      packages: read
-      actions: read
       contents: read
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: javascript-typescript
-          queries: security-and-quality
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-        with:
-          category: "/language:javascript-typescript"
-          threads: 2
-          ram: 4096
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 18, cache: npm }
+      - run: npm ci
+      - uses: github/codeql-action/init@v4
+        with: { languages: javascript-typescript, queries: security-and-quality }
+      - uses: github/codeql-action/autobuild@v4
+      - uses: github/codeql-action/analyze@v4
+        with: { category: "/language:javascript-typescript" }
