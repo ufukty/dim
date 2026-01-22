@@ -1,23 +1,19 @@
 name: CI
 
 on:
-  pull_request:
   push:
-    branches: [main]
-  schedule:
-    - cron: "26 4 * * *"
+  pull_request:
   workflow_dispatch:
-
-permissions:
-  contents: read
+  schedule: [cron: "26 4 * * *"]
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: read-all
+
 jobs:
-  quality:
-    name: Lint and type-check with Node
+  Npm:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -28,7 +24,7 @@ jobs:
       - run: npm run lint
       - run: npm run type-check
 
-  codeql:
+  CodeQL:
     name: CodeQL
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -41,7 +37,6 @@ jobs:
         with: { node-version: 18, cache: npm }
       - run: npm ci
       - uses: github/codeql-action/init@v4
-        with: { languages: javascript-typescript, queries: security-and-quality }
-      - uses: github/codeql-action/autobuild@v4
+        with: { languages: javascript-typescript, queries: security-and-quality, build-mode: autobuild }
       - uses: github/codeql-action/analyze@v4
         with: { category: "/language:javascript-typescript" }
