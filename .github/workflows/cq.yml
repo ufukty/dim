@@ -1,0 +1,38 @@
+name: Code Quality
+
+on:
+  workflow_dispatch:
+  schedule: [cron: "30 4 * * *"]
+
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: read-all
+
+jobs:
+  JavaScript:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: { security-events: write }
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with: { node-version: 18, cache: npm }
+      - run: npm ci
+      - uses: github/codeql-action/init@v4
+        with: { languages: javascript-typescript, queries: security-and-quality }
+      - uses: github/codeql-action/autobuild@v4
+      - uses: github/codeql-action/analyze@v4
+        with: { category: "/language:javascript-typescript" }
+
+  Actions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: { security-events: write }
+    steps:
+      - uses: actions/checkout@v6
+      - uses: github/codeql-action/init@v4
+        with: { languages: actions, build-mode: none, queries: security-and-quality }
+      - uses: github/codeql-action/analyze@v4
+        with: { category: "/language:actions" }
