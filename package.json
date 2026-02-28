@@ -152,7 +152,7 @@
   },
   "displayName": "dim",
   "engines": {
-    "vscode": "^1.78.0"
+    "vscode": "^1.99.0"
   },
   "homepage": "https://github.com/ufukty/dim",
   "icon": "media/icon.png",
