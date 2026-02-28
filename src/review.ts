@@ -53,7 +53,7 @@ async function presentPrompt(ctx: vscode.ExtensionContext) {
     OptionWriteAReview,
     OptionOpenAnIssue,
     OptionMaybeLater,
-    OptionDoNotAskAgain
+    OptionDoNotAskAgain,
   );
 
   await ctx.globalState.update(KeyLastPrompt, Date.now());
