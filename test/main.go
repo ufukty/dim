@@ -8,7 +8,6 @@ import (
 
 func Test(t *testing.T) {
 	_, err := os.Create("")
-
 	if err != nil {
 		t.Error("hidden 1")
 	}
