@@ -132,9 +132,6 @@
       "title": "dim"
     }
   },
-  "dependencies": {
-    "lodash": "^4.17.23"
-  },
   "description": "Define regex rules to dim boring parts of code and make the main logic pop.",
   "devDependencies": {
     "@types/glob": "^8.1.0",
