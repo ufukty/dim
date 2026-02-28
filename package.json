@@ -135,7 +135,6 @@
   "description": "Define regex rules to dim boring parts of code and make the main logic pop.",
   "devDependencies": {
     "@types/glob": "^8.1.0",
-    "@types/lodash": "^4.14.194",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
     "@types/vscode": "^1.78.0",
