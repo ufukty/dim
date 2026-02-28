@@ -134,6 +134,7 @@
   },
   "description": "Define regex rules to dim boring parts of code and make the main logic pop.",
   "devDependencies": {
+    "@types/glob": "^9.0.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.3.2",
     "@types/vscode": "^1.99.0",
@@ -143,8 +144,7 @@
     "eslint": "^10.0.2",
     "glob": "^13.0.6",
     "mocha": "^11.7.5",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.56.1"
+    "typescript": "^5.9.3"
   },
   "displayName": "dim",
   "engines": {
