@@ -105,7 +105,7 @@ class ExtensionLifecycleController {
 
   onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
     if (!e.affectsConfiguration("dim")) return;
-    this.configManager.clearConfigCache(e);
+    this.configManager.clearConfigCache();
     vscode.window.visibleTextEditors.forEach((editor) => {
       const ad = this.decorators.get(editor);
       if (ad) {

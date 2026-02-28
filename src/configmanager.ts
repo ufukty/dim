@@ -8,7 +8,7 @@ export class ConfigManager {
     this._configCache = new Map();
   }
 
-  clearConfigCache(e: vscode.ConfigurationChangeEvent) {
+  clearConfigCache() {
     this._configCache.clear();
   }
 
