@@ -8,13 +8,15 @@ Define rules to reduce opacity of repeating parts of code to make the main logic
 
 Dim passes selections:
 
-<img alt="A screen recording of Visual Studio Code editor while the cursor is moved to show dimming is disabled whereever the user selects" src="media/carets.sepsol.gif" width="838" >
+<img alt="A screen recording of Visual Studio Code editor while the cursor is moved to show dimming is disabled whereever the user selects" src="media/carets.sepsol.gif" width="668" >
+
+> Code is on [GitHub](https://gist.github.com/sepsol/af5d1252d7d5f029904100d802a8eaaf). Theme is [Gruvbox Material](https://marketplace.visualstudio.com/items?itemName=sainnhe.gruvbox-material)
 
 Dim can be temporarily turned off for a document:
 
 <img alt="Dim on Go code and toggling feature" src="media/toggling.gif" width="668" >
 
-> Example code are on [Github Gist](https://gist.github.com/sepsol/af5d1252d7d5f029904100d802a8eaaf) for JavaScript and on [GitHub](https://github.com/ufukty/gohandlers-petstore/blob/main/handlers/pets/create.go) for Go. Themes are [Gruvbox Material](https://marketplace.visualstudio.com/items?itemName=sainnhe.gruvbox-material) and [Vitesse Black](https://marketplace.visualstudio.com/items?itemName=antfu.theme-vitesse).
+> Code is on [GitHub](https://github.com/ufukty/gohandlers-petstore/blob/main/handlers/pets/create.go) for Go. Theme is [Vitesse Black](https://marketplace.visualstudio.com/items?itemName=antfu.theme-vitesse).
 
 ## Features
 
