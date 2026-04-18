@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
-import * as models from "./models";
 import * as utils from "./utilities";
-import { ConfigManager } from "./configmanager";
+import * as cm from "./configManager";
+import * as models from "./models";
 
 export class EditorDecorator {
   private editor: vscode.TextEditor;
   private config: models.Config;
-  private configManager: ConfigManager;
+  private configManager: cm.ConfigManager;
   private filename: string;
   private logger: vscode.OutputChannel;
   private matches: Map<models.Rule, vscode.Range[]> | undefined;
@@ -17,9 +17,9 @@ export class EditorDecorator {
   private lastUpdateTimestamp: number;
   private timeoutForScheduler: NodeJS.Timeout | undefined;
 
-  constructor(editor: vscode.TextEditor, configManager: ConfigManager, enabled: boolean, logger: vscode.OutputChannel) {
+  constructor(editor: vscode.TextEditor, cm: cm.ConfigManager, enabled: boolean, logger: vscode.OutputChannel) {
     this.editor = editor;
-    this.configManager = configManager;
+    this.configManager = cm;
     this.logger = logger;
     this.enabled = enabled;
     this.inFocus = true;
@@ -73,7 +73,7 @@ export class EditorDecorator {
 
   private scanForRule(range: vscode.Range, rule: models.Rule): vscode.Range[] {
     this.logger.appendLine(`${this.filename}: scanning for: ${rule.regex}`);
-    var ranges: vscode.Range[] = [];
+    const ranges: vscode.Range[] = [];
     const text = this.editor.document.getText(range);
     Array.from(text.matchAll(rule.regex)).forEach((match) => {
       if (!match.index || !match[0]) return;
@@ -128,11 +128,11 @@ export class EditorDecorator {
       }
       return 0;
     });
-    var merged = [] as vscode.Range[];
-    var merging = sorted[0];
+    const merged = [] as vscode.Range[];
+    let merging = sorted[0];
     for (let i = 1; i < sorted.length; i++) {
       if (sorted[i].intersection(merging)) {
-        var m = merging;
+        let m = merging;
         const before = utils.SprintRange(m);
         m = sorted[i];
         const after = utils.SprintRange(m);
@@ -150,7 +150,7 @@ export class EditorDecorator {
 
   private createDecorationQueues(): models.PerDecorationQueue | undefined {
     if (!this.matches) return;
-    let queues = {
+    const queues = {
       "max": [] as vscode.Range[],
       "mid": [] as vscode.Range[],
       "min": [] as vscode.Range[],
@@ -194,7 +194,7 @@ export class EditorDecorator {
       return;
     }
     const period = this.config.updatePeriod;
-    var isSchedulingNecessary = Date.now() - this.lastUpdateTimestamp < period;
+    const isSchedulingNecessary = Date.now() - this.lastUpdateTimestamp < period;
 
     if (!isSchedulingNecessary) {
       this.decorateEditor();
