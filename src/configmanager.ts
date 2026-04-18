@@ -65,12 +65,12 @@ export class ConfigManager {
   }
 
   readConfig(editor: vscode.TextEditor): Config {
-    var cached = this._configCache.get(editor.document.uri);
+    const cached = this._configCache.get(editor.document.uri);
     if (cached) {
       return cached;
     }
     const workspaceConfig = vscode.workspace.getConfiguration("dim", editor.document.uri);
-    var config: Config = {
+    const config: Config = {
       rules: this._readRules(editor, workspaceConfig),
       valueForMinTier: workspaceConfig.get("valueForMinTier") ?? 0.25,
       valueForMidTier: workspaceConfig.get("valueForMidTier") ?? 0.5,

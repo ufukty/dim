@@ -56,7 +56,7 @@ class ExtensionLifecycleController {
 
   onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): any {
     if (this.activeEditor) {
-      var d = this.decorators.get(this.activeEditor);
+      const d = this.decorators.get(this.activeEditor);
       if (d) {
         d.blur();
       }
@@ -77,7 +77,7 @@ class ExtensionLifecycleController {
     this.activeEditor = editor;
 
     if (this.activeEditor) {
-      d = this.decorators.get(this.activeEditor);
+      let d = this.decorators.get(this.activeEditor);
       if (!d) {
         const uri = this.activeEditor.document.uri.toString(false);
         let enabled = this.documentState.get(uri);
@@ -154,7 +154,7 @@ class ExtensionLifecycleController {
 
   destroy() {
     for (const editor of vscode.window.visibleTextEditors) {
-      var ad = this.decorators.get(editor);
+      const ad = this.decorators.get(editor);
       if (ad) {
         ad.disable();
       }
@@ -162,7 +162,7 @@ class ExtensionLifecycleController {
   }
 }
 
-var c: ExtensionLifecycleController;
+let c: ExtensionLifecycleController;
 
 export function activate(context: vscode.ExtensionContext) {
   c = new ExtensionLifecycleController(context);
