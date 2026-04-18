@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { EditorDecorator } from "./editorDecorator";
-import { ConfigManager } from "./configmanager";
+import { ConfigManager } from "./configManager";
 
 class ExtensionLifecycleController {
   decorators: Map<vscode.TextEditor, EditorDecorator>;
@@ -54,7 +54,7 @@ class ExtensionLifecycleController {
     }
   }
 
-  onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): any {
+  onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): unknown {
     if (this.activeEditor) {
       const d = this.decorators.get(this.activeEditor);
       if (d) {
@@ -91,7 +91,7 @@ class ExtensionLifecycleController {
     }
   }
 
-  onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent): any {
+  onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent): unknown {
     if (!this.activeEditor) return;
     if (event.document.uri.path !== this.activeEditor.document.uri.path || event.document.uri.scheme !== "file") return;
     this.logger.appendLine("onDidChangeTextDocument");

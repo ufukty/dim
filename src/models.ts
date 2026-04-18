@@ -1,23 +1,5 @@
 import * as vscode from "vscode";
-
-export enum Opacity {
-  Max = "max",
-  Mid = "mid",
-  Min = "min",
-}
-
-export interface Rule {
-  regex: RegExp;
-  opacity: Opacity;
-}
-
-export interface Config {
-  rules: Rule[];
-  valueForMaxTier: number;
-  valueForMidTier: number;
-  valueForMinTier: number;
-  updatePeriod: number;
-}
+import * as config from "./config";
 
 export interface PerDecorationQueue {
   "max": vscode.Range[];
@@ -29,4 +11,18 @@ export interface DecorationTypes {
   "max": vscode.TextEditorDecorationType;
   "mid": vscode.TextEditorDecorationType;
   "min": vscode.TextEditorDecorationType;
+}
+
+/* Compiled version of {@link config.Rule}. */
+export interface Rule {
+  regex: RegExp;
+  opacity: config.Opacity;
+}
+
+export interface Config {
+  rules: Rule[];
+  valueForMaxTier: number;
+  valueForMidTier: number;
+  valueForMinTier: number;
+  updatePeriod: number;
 }

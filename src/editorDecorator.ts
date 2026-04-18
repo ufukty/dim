@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
-import * as models from "./models";
 import * as utils from "./utilities";
-import { ConfigManager } from "./configmanager";
+import * as cm from "./configManager";
+import * as models from "./models";
 
 export class EditorDecorator {
   private editor: vscode.TextEditor;
   private config: models.Config;
-  private configManager: ConfigManager;
+  private configManager: cm.ConfigManager;
   private filename: string;
   private logger: vscode.OutputChannel;
   private matches: Map<models.Rule, vscode.Range[]> | undefined;
@@ -17,9 +17,9 @@ export class EditorDecorator {
   private lastUpdateTimestamp: number;
   private timeoutForScheduler: NodeJS.Timeout | undefined;
 
-  constructor(editor: vscode.TextEditor, configManager: ConfigManager, enabled: boolean, logger: vscode.OutputChannel) {
+  constructor(editor: vscode.TextEditor, cm: cm.ConfigManager, enabled: boolean, logger: vscode.OutputChannel) {
     this.editor = editor;
-    this.configManager = configManager;
+    this.configManager = cm;
     this.logger = logger;
     this.enabled = enabled;
     this.inFocus = true;
