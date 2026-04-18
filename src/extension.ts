@@ -96,7 +96,6 @@ class ExtensionLifecycleController {
     if (event.document.uri.path !== this.activeEditor.document.uri.path || event.document.uri.scheme !== "file") return;
     this.logger.appendLine("onDidChangeTextDocument");
 
-    const uri = this.activeEditor.document.uri.toString(false);
     const d = this.decorators.get(this.activeEditor);
     if (d) {
       d.contentChange();
