@@ -1,5 +1,19 @@
 # Change Log
 
+## 3.2.0
+
+Includes some changes that should not affect the use.
+
+**New**
+
+- [Dim Discussions](https://github.com/ufukty/dim/discussions) are now open. Report bugs, suggest features and ask questions.
+
+**Minor changes**
+
+- Raises the minimum version of Code required to 1.99 (March 2025).
+- Removes the settings previously deprecated at Dim v3 (March 2025).
+- Drops the only dependency left; Dim is now zero-dep.
+
 ## 3.1.9
 
 - Updates dependencies with security patches.
