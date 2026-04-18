@@ -175,7 +175,6 @@
   "scripts": {
     "compile": "tsc -p ./",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js",
     "typecheck": "tsc --noEmit",
     "vscode:prepublish": "npm run compile"
   },
