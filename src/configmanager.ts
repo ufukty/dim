@@ -13,7 +13,7 @@ export class ConfigManager {
     this._configCache.clear();
   }
 
-  _marshallRules(jsonRules: config.Rule[], defaultOpacity: config.Opacity, defaultFlags: string): models.Rule[] {
+  private marshallRules(jsonRules: config.Rule[], defaultOpacity: config.Opacity, defaultFlags: string): models.Rule[] {
     return jsonRules
       .filter((rule) => {
         return "pattern" in rule;
@@ -26,18 +26,18 @@ export class ConfigManager {
       });
   }
 
-  _getWorkspaceRulesInJSON(workspaceConfig: vscode.WorkspaceConfiguration): config.Rule[] {
+  private getWorkspaceRulesInJSON(workspaceConfig: vscode.WorkspaceConfiguration): config.Rule[] {
     const jsonRules = workspaceConfig.get("rules") ?? [];
     if (!Array.isArray(jsonRules)) return [];
     return jsonRules;
   }
 
-  _getActiveDocumentLanguageSlug(editor: vscode.TextEditor) {
+  private getActiveDocumentLanguageSlug(editor: vscode.TextEditor) {
     return "[" + editor.document.uri.path.split(".").pop() + "]";
   }
 
-  _getLanguageSpecificRulesInJSON(editor: vscode.TextEditor): config.Rule[] {
-    const activeLangSlug = this._getActiveDocumentLanguageSlug(editor);
+  private getLanguageSpecificRulesInJSON(editor: vscode.TextEditor): config.Rule[] {
+    const activeLangSlug = this.getActiveDocumentLanguageSlug(editor);
 
     const workspaceConfig = vscode.workspace.getConfiguration();
     const langConfig = workspaceConfig.get(activeLangSlug);
@@ -56,12 +56,12 @@ export class ConfigManager {
     return rules;
   }
 
-  _readRules(editor: vscode.TextEditor, workspaceConfig: vscode.WorkspaceConfiguration): models.Rule[] {
+  private readRules(editor: vscode.TextEditor, workspaceConfig: vscode.WorkspaceConfiguration): models.Rule[] {
     const defaultOpacity = (workspaceConfig.get("defaultOpacityTier") as config.Opacity) ?? config.Opacity.Mid;
     const defaultFlags = (workspaceConfig.get("defaultFlags") as string) ?? "gs";
-    const workspaceRules = this._getWorkspaceRulesInJSON(workspaceConfig);
-    const languageSpecificRules = this._getLanguageSpecificRulesInJSON(editor);
-    const rules = this._marshallRules([...workspaceRules, ...languageSpecificRules], defaultOpacity, defaultFlags);
+    const workspaceRules = this.getWorkspaceRulesInJSON(workspaceConfig);
+    const languageSpecificRules = this.getLanguageSpecificRulesInJSON(editor);
+    const rules = this.marshallRules([...workspaceRules, ...languageSpecificRules], defaultOpacity, defaultFlags);
     return rules;
   }
 
@@ -72,7 +72,7 @@ export class ConfigManager {
     }
     const workspaceConfig = vscode.workspace.getConfiguration("dim", editor.document.uri);
     const config: models.Config = {
-      rules: this._readRules(editor, workspaceConfig),
+      rules: this.readRules(editor, workspaceConfig),
       valueForMinTier: workspaceConfig.get("valueForMinTier") ?? 0.25,
       valueForMidTier: workspaceConfig.get("valueForMidTier") ?? 0.5,
       valueForMaxTier: workspaceConfig.get("valueForMaxTier") ?? 0.75,
