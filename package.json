@@ -176,8 +176,8 @@
     "compile": "tsc -p ./",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "vscode:prepublish": "npm run compile",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "vscode:prepublish": "npm run compile"
   },
   "version": "3.1.9"
 }
