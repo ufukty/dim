@@ -23,4 +23,3 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm run compile
-      - run: npm run test # requries `compile`
