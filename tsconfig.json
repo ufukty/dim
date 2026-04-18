@@ -9,7 +9,11 @@
     "sourceMap": true,
     "rootDir": "src",
     "esModuleInterop": true,
-    "strict": true
+    "strict": true,
+    "types": [
+      "node",
+      "vscode"
+    ]
   },
   "exclude": [
     "node_modules",
