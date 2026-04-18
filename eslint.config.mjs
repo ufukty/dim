@@ -1,9 +1,12 @@
+import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
 
-export default tseslint.config(
+export default defineConfig([
+  eslint.configs.recommended,
+  tseslint.configs.recommended,
   {
-    files: ["**/*.ts"],
-    extends: [tseslint.configs.recommended],
+    files: ["**/*.{ts,mts,cts}"],
     languageOptions: {
       ecmaVersion: 2025,
       sourceType: "module",
@@ -18,4 +21,4 @@ export default tseslint.config(
   {
     ignores: ["out/**", "dist/**", "**/*.d.ts"],
   },
-);
+]);

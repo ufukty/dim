@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { EditorDecorator } from "./editorDecorator";
-import { ConfigManager } from "./configmanager";
+import { ConfigManager } from "./configManager";
 
 class ExtensionLifecycleController {
   decorators: Map<vscode.TextEditor, EditorDecorator>;
@@ -54,9 +54,9 @@ class ExtensionLifecycleController {
     }
   }
 
-  onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): any {
+  onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined): unknown {
     if (this.activeEditor) {
-      var d = this.decorators.get(this.activeEditor);
+      const d = this.decorators.get(this.activeEditor);
       if (d) {
         d.blur();
       }
@@ -77,7 +77,7 @@ class ExtensionLifecycleController {
     this.activeEditor = editor;
 
     if (this.activeEditor) {
-      d = this.decorators.get(this.activeEditor);
+      let d = this.decorators.get(this.activeEditor);
       if (!d) {
         const uri = this.activeEditor.document.uri.toString(false);
         let enabled = this.documentState.get(uri);
@@ -91,12 +91,11 @@ class ExtensionLifecycleController {
     }
   }
 
-  onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent): any {
+  onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent): unknown {
     if (!this.activeEditor) return;
     if (event.document.uri.path !== this.activeEditor.document.uri.path || event.document.uri.scheme !== "file") return;
     this.logger.appendLine("onDidChangeTextDocument");
 
-    const uri = this.activeEditor.document.uri.toString(false);
     const d = this.decorators.get(this.activeEditor);
     if (d) {
       d.contentChange();
@@ -105,7 +104,7 @@ class ExtensionLifecycleController {
 
   onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
     if (!e.affectsConfiguration("dim")) return;
-    this.configManager.clearConfigCache(e);
+    this.configManager.clearConfigCache();
     vscode.window.visibleTextEditors.forEach((editor) => {
       const ad = this.decorators.get(editor);
       if (ad) {
@@ -154,7 +153,7 @@ class ExtensionLifecycleController {
 
   destroy() {
     for (const editor of vscode.window.visibleTextEditors) {
-      var ad = this.decorators.get(editor);
+      const ad = this.decorators.get(editor);
       if (ad) {
         ad.disable();
       }
@@ -162,7 +161,7 @@ class ExtensionLifecycleController {
   }
 }
 
-var c: ExtensionLifecycleController;
+let c: ExtensionLifecycleController;
 
 export function activate(context: vscode.ExtensionContext) {
   c = new ExtensionLifecycleController(context);

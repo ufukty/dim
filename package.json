@@ -134,6 +134,8 @@
   },
   "description": "Define regex rules to dim boring parts of code and make the main logic pop.",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/glob": "^9.0.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.3.2",
     "@types/vscode": "^1.99.0",
@@ -173,10 +175,8 @@
   "scripts": {
     "compile": "tsc -p ./",
     "lint": "eslint src --ext ts",
-    "pretest": "npm run compile && npm run lint",
-    "test": "node ./out/test/runTest.js",
-    "vscode:prepublish": "npm run compile",
-    "watch": "tsc -watch -p ./"
+    "typecheck": "tsc --noEmit",
+    "vscode:prepublish": "npm run compile"
   },
   "version": "3.1.9"
 }
