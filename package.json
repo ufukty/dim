@@ -175,10 +175,8 @@
   "scripts": {
     "compile": "tsc -p ./",
     "lint": "eslint src --ext ts",
-    "pretest": "npm run compile && npm run lint",
     "test": "node ./out/test/runTest.js",
     "vscode:prepublish": "npm run compile",
-    "watch": "tsc -watch -p ./",
     "typecheck": "tsc --noEmit"
   },
   "version": "3.1.9"
