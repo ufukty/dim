@@ -2,10 +2,12 @@
   "prettier.tabWidth": 2,
   "editor.tabSize": 2,
   "files.exclude": {
-    "out": false
+    "out": false,
+    "dist": false
   },
   "search.exclude": {
-    "out": true
+    "out": true,
+    "dist": true
   },
-  "typescript.tsc.autoDetect": "off"
+  "js/ts.tsc.autoDetect": "off"
 }
