@@ -151,7 +151,7 @@
     "url": "https://github.com/ufukty/dim"
   },
   "scripts": {
-    "test-integration": "npx tsc -p . --outDir out && npm run compile && npx eslint src && vscode-test",
+    "test-integration": "npx tsc -p . --outDir out && npx eslint src && node esbuild.js && vscode-test",
     "vscode:prepublish": "npx tsc --noEmit && npx eslint src && node esbuild.js --production",
     "watch": "npm-run-all -p watch:*",
     "watch-tests": "tsc -p . -w --outDir out",
