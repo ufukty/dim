@@ -121,7 +121,6 @@
     "eslint": "^10.0.2",
     "glob": "^13.0.6",
     "globals": "^17.5.0",
-    "npm-run-all": "^4.1.5",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.56.1",
     "vitest": "^4.1.4"
@@ -152,11 +151,7 @@
   },
   "scripts": {
     "test-integration": "npx tsc -p . && npx eslint src && node esbuild.mjs && vscode-test",
-    "vscode:prepublish": "npx tsc --noEmit && npx eslint src && node esbuild.mjs --production",
-    "watch": "npm-run-all -p watch:*",
-    "watch-tests": "tsc -p . -w",
-    "watch:esbuild": "node esbuild.js --watch",
-    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json"
+    "vscode:prepublish": "npx tsc --noEmit && npx eslint src && node esbuild.mjs --production"
   },
   "version": "3.2.0"
 }
