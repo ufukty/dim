@@ -2,12 +2,14 @@
 .gitignore
 .vscode/**
 **/*.map
-**/*.sketch
 **/*.ts
 **/eslint.config.mjs
 **/tsconfig.json
 esbuild.mjs
+media/**
 node_modules/**
 out/**
 src/**
-test
+test/**
+
+!media/icon.png
