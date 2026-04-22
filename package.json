@@ -151,14 +151,8 @@
     "url": "https://github.com/ufukty/dim"
   },
   "scripts": {
-    "check-types": "tsc --noEmit",
-    "compile": "npm run check-types && npm run lint && node esbuild.js",
-    "compile-tests": "tsc -p . --outDir out",
-    "lint": "eslint src",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "test": "vscode-test",
-    "vscode:prepublish": "npm run package",
+    "test-integration": "npx tsc -p . --outDir out && npm run compile && npx eslint src && vscode-test",
+    "vscode:prepublish": "npx tsc --noEmit && npx eslint src && node esbuild.js --production",
     "watch": "npm-run-all -p watch:*",
     "watch-tests": "tsc -p . -w --outDir out",
     "watch:esbuild": "node esbuild.js --watch",
