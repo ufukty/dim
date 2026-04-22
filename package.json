@@ -115,8 +115,6 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.3.2",
     "@types/vscode": "^1.99.0",
-    "@vscode/test-cli": "^0.0.11",
-    "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.28.0",
     "eslint": "^10.0.2",
     "glob": "^13.0.6",
@@ -150,7 +148,7 @@
     "url": "https://github.com/ufukty/dim"
   },
   "scripts": {
-    "test-integration": "npx tsc -p . && npx eslint src && node esbuild.mjs && vscode-test",
+    "test": "npx vitest run",
     "vscode:prepublish": "npx tsc --noEmit && npx eslint src && node esbuild.mjs --production"
   },
   "version": "3.2.0"
