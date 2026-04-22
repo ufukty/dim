@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.2.2
+
+The package size is reduced to about 200KB.
+
 ## 3.2.1
 
 Minor performance improvement.
