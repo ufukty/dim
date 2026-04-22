@@ -1,5 +1,9 @@
 # Change Log
 
+## 3.2.1
+
+Minor performance improvement.
+
 ## 3.2.0
 
 Includes some changes that should not affect the use.
