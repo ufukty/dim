@@ -1,3 +1,4 @@
+.github
 .gitignore
 .vscode-test/**
 .vscode/**
@@ -7,8 +8,10 @@
 **/*.ts
 **/eslint.config.mjs
 **/tsconfig.json
-esbuild.js
+esbuild.mjs
 node_modules/**
 out/**
 src/**
+test
 vsc-extension-quickstart.md
+**/*.sketch
