@@ -1,6 +1,7 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import { defineConfig } from "eslint/config";
+import globals from "globals";
 
 export default defineConfig([
   eslint.configs.recommended,
@@ -17,6 +18,13 @@ export default defineConfig([
       "eqeqeq": "warn",
       "semi": "warn",
     },
+  },
+  {
+    files: ["*.js"],
+    languageOptions: {
+      globals: globals.node,
+    },
+    rules: { "no-undef": "error" },
   },
   {
     ignores: ["out/**", "dist/**", "**/*.d.ts"],
