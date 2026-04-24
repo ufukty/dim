@@ -12,10 +12,8 @@ class ExtensionLifecycleController {
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
-
     this.logger = vscode.window.createOutputChannel("dim");
     this.logger.appendLine("init");
-
     this.decorators = new Map();
     this.configManager = new ConfigManager();
     this.documentState = new Map<string, boolean>();
