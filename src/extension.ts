@@ -20,16 +20,11 @@ class ExtensionLifecycleController {
     this.configManager = new ConfigManager();
     this.documentState = new Map<string, boolean>();
 
+    /* prettier-ignore */
     context.subscriptions.push(
-      vscode.commands.registerCommand(
-        "dim.disableDimForCurrentEditor",
-        this.onCommandReceiveDisableDimForCurrentEditor,
-      ),
-      vscode.commands.registerCommand("dim.enableDimForCurrentEditor", this.onCommandReceiveEnableDimForCurrentEditor),
-      vscode.commands.registerCommand("dim.toggleDimForCurrentEditor", this.onCommandReceiveToggleDimForCurrentEditor),
-    );
-
-    context.subscriptions.push(
+      vscode.commands.registerCommand("dim.disableDimForCurrentEditor", this.onCommandReceiveDisableDimForCurrentEditor.bind(this)),
+      vscode.commands.registerCommand("dim.enableDimForCurrentEditor", this.onCommandReceiveEnableDimForCurrentEditor.bind(this)),
+      vscode.commands.registerCommand("dim.toggleDimForCurrentEditor", this.onCommandReceiveToggleDimForCurrentEditor.bind(this)),
       vscode.window.onDidChangeActiveTextEditor(this.onDidChangeActiveTextEditor.bind(this)),
       vscode.window.onDidChangeTextEditorSelection(this.onDidChangeTextEditorSelection.bind(this)),
       vscode.workspace.onDidChangeConfiguration(this.onDidChangeConfiguration.bind(this)),
