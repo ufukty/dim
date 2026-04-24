@@ -20,18 +20,16 @@ class ExtensionLifecycleController {
 
     /* prettier-ignore */
     context.subscriptions.push(
-      vscode.commands.registerCommand("dim.disableDimForCurrentEditor", this.onCommandReceiveDisableDimForCurrentEditor.bind(this)),
-      vscode.commands.registerCommand("dim.enableDimForCurrentEditor", this.onCommandReceiveEnableDimForCurrentEditor.bind(this)),
-      vscode.commands.registerCommand("dim.toggleDimForCurrentEditor", this.onCommandReceiveToggleDimForCurrentEditor.bind(this)),
-      vscode.window.onDidChangeActiveTextEditor(this.onDidChangeActiveTextEditor.bind(this)),
-      vscode.window.onDidChangeTextEditorSelection(this.onDidChangeTextEditorSelection.bind(this)),
-      vscode.workspace.onDidChangeConfiguration(this.onDidChangeConfiguration.bind(this)),
-      vscode.workspace.onDidChangeTextDocument(this.onDidChangeTextDocument.bind(this)),
+      vscode.commands.registerCommand("dim.disableDimForCurrentEditor", this.onCommandReceiveDisableDimForCurrentEditor, this),
+      vscode.commands.registerCommand("dim.enableDimForCurrentEditor", this.onCommandReceiveEnableDimForCurrentEditor, this),
+      vscode.commands.registerCommand("dim.toggleDimForCurrentEditor", this.onCommandReceiveToggleDimForCurrentEditor, this),
+      vscode.window.onDidChangeActiveTextEditor(this.onDidChangeActiveTextEditor, this),
+      vscode.window.onDidChangeTextEditorSelection(this.onDidChangeTextEditorSelection, this),
+      vscode.workspace.onDidChangeConfiguration(this.onDidChangeConfiguration, this),
+      vscode.workspace.onDidChangeTextDocument(this.onDidChangeTextDocument, this),
     );
 
-    vscode.window.visibleTextEditors.forEach((editor: vscode.TextEditor) => {
-      this.onDidChangeActiveTextEditor(editor);
-    });
+    vscode.window.visibleTextEditors.forEach(this.onDidChangeActiveTextEditor, this);
 
     if (vscode.window.activeTextEditor) {
       this.activeEditor = vscode.window.activeTextEditor;
