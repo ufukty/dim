@@ -29,24 +29,15 @@ class ExtensionLifecycleController {
       vscode.commands.registerCommand("dim.toggleDimForCurrentEditor", this.onCommandReceiveToggleDimForCurrentEditor),
     );
 
-    vscode.workspace.onDidChangeConfiguration((e: vscode.ConfigurationChangeEvent) => {
-      this.onDidChangeConfiguration(e);
-    });
+    context.subscriptions.push(
+      vscode.window.onDidChangeActiveTextEditor(this.onDidChangeActiveTextEditor.bind(this)),
+      vscode.window.onDidChangeTextEditorSelection(this.onDidChangeTextEditorSelection.bind(this)),
+      vscode.workspace.onDidChangeConfiguration(this.onDidChangeConfiguration.bind(this)),
+      vscode.workspace.onDidChangeTextDocument(this.onDidChangeTextDocument.bind(this)),
+    );
 
-    vscode.window.onDidChangeActiveTextEditor((editor) => {
+    vscode.window.visibleTextEditors.forEach((editor: vscode.TextEditor) => {
       this.onDidChangeActiveTextEditor(editor);
-    });
-
-    vscode.workspace.onDidChangeTextDocument((event) => {
-      this.onDidChangeTextDocument(event);
-    });
-
-    vscode.window.visibleTextEditors.forEach((editor) => {
-      this.onDidChangeActiveTextEditor(editor);
-    });
-
-    vscode.window.onDidChangeTextEditorSelection((event) => {
-      this.onDidChangeTextEditorSelection(event);
     });
 
     if (vscode.window.activeTextEditor) {
