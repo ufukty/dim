@@ -2,17 +2,7 @@ import * as vscode from "vscode";
 import * as config from "./config";
 import * as models from "./models";
 
-export class ConfigManager {
-  _configCache: Map<vscode.ConfigurationScope, models.Config>;
-
-  constructor() {
-    this._configCache = new Map();
-  }
-
-  clearConfigCache() {
-    this._configCache.clear();
-  }
-
+class ConfigCompiler {
   private marshallRules(jsonRules: config.Rule[], defaultOpacity: config.Opacity, defaultFlags: string): models.Rule[] {
     return jsonRules
       .filter((rule) => {
@@ -65,11 +55,7 @@ export class ConfigManager {
     return rules;
   }
 
-  readConfig(editor: vscode.TextEditor): models.Config {
-    const cached = this._configCache.get(editor.document.uri);
-    if (cached) {
-      return cached;
-    }
+  for(editor: vscode.TextEditor): models.Config {
     const workspaceConfig = vscode.workspace.getConfiguration("dim", editor.document.uri);
     const config: models.Config = {
       rules: this.readRules(editor, workspaceConfig),
@@ -78,7 +64,29 @@ export class ConfigManager {
       valueForMaxTier: workspaceConfig.get("valueForMaxTier") ?? 0.75,
       updatePeriod: workspaceConfig.get("updatePeriod") ?? 500,
     };
-    this._configCache.set(editor.document.uri, config);
     return config;
+  }
+}
+
+export class ConfigManager {
+  private cache: Map<vscode.ConfigurationScope, models.Config>;
+  private compiler: ConfigCompiler;
+
+  constructor() {
+    this.cache = new Map();
+    this.compiler = new ConfigCompiler();
+  }
+
+  for(editor: vscode.TextEditor): models.Config {
+    let config = this.cache.get(editor.document.uri);
+    if (!config) {
+      config = this.compiler.for(editor);
+      this.cache.set(editor.document.uri, config);
+    }
+    return config;
+  }
+
+  invalidate() {
+    this.cache.clear();
   }
 }

@@ -26,7 +26,7 @@ export class EditorDecorator {
     this.filename = editor.document.fileName.split("/").pop() ?? "";
     this.lastUpdateTimestamp = 0;
     this.logger.appendLine(`${this.filename}: constructor (enabled: ${enabled})`);
-    this.config = this.configManager.readConfig(this.editor);
+    this.config = this.configManager.for(this.editor);
     this.withConfig();
   }
 
@@ -215,7 +215,7 @@ export class EditorDecorator {
 
   configChange() {
     this.logger.appendLine(`${this.filename}: configuration change`);
-    this.config = this.configManager.readConfig(this.editor);
+    this.config = this.configManager.for(this.editor);
     this.matches = undefined;
     this.withConfig();
     this.schedule();
