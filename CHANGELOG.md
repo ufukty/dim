@@ -1,5 +1,11 @@
 # Change Log
 
+## NEXT VERSION
+
+**Changed**
+
+- The way the language-specific rules are processed is changed. The previous method which was checking the rules under the `[file-extension]` setting objects is replaced with the native API based method. Some old rules might need an update, but most are expected to keep working.
+
 ## 3.2.2
 
 The package size is reduced to about 200KB.
