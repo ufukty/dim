@@ -4,7 +4,7 @@
 
 **Changed**
 
-- The way the language-specific rules are processed is changed. The previous method which was checking the rules under the `[file-extension]` setting objects is replaced with the native API based method. Some old rules might need an update, but most are expected to keep working.
+- The way the language-specific rules are processed is changed. The previous method which was checking the rules under the `[file-extension]` setting objects is replaced with the native API based method. Some old rules might need an update, but most are expected to keep working. For example the `[js]` block which is previously honored by Dim, now needs to be updated to `[javascript]` or the rules under it will be ignored.
 
 ## 3.2.2
 
