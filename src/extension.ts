@@ -12,42 +12,24 @@ class ExtensionLifecycleController {
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
-
     this.logger = vscode.window.createOutputChannel("dim");
     this.logger.appendLine("init");
-
     this.decorators = new Map();
     this.configManager = new ConfigManager();
     this.documentState = new Map<string, boolean>();
 
+    /* prettier-ignore */
     context.subscriptions.push(
-      vscode.commands.registerCommand(
-        "dim.disableDimForCurrentEditor",
-        this.onCommandReceiveDisableDimForCurrentEditor,
-      ),
-      vscode.commands.registerCommand("dim.enableDimForCurrentEditor", this.onCommandReceiveEnableDimForCurrentEditor),
-      vscode.commands.registerCommand("dim.toggleDimForCurrentEditor", this.onCommandReceiveToggleDimForCurrentEditor),
+      vscode.commands.registerCommand("dim.disableDimForCurrentEditor", this.onCommandReceiveDisableDimForCurrentEditor, this),
+      vscode.commands.registerCommand("dim.enableDimForCurrentEditor", this.onCommandReceiveEnableDimForCurrentEditor, this),
+      vscode.commands.registerCommand("dim.toggleDimForCurrentEditor", this.onCommandReceiveToggleDimForCurrentEditor, this),
+      vscode.window.onDidChangeActiveTextEditor(this.onDidChangeActiveTextEditor, this),
+      vscode.window.onDidChangeTextEditorSelection(this.onDidChangeTextEditorSelection, this),
+      vscode.workspace.onDidChangeConfiguration(this.onDidChangeConfiguration, this),
+      vscode.workspace.onDidChangeTextDocument(this.onDidChangeTextDocument, this),
     );
 
-    vscode.workspace.onDidChangeConfiguration((e: vscode.ConfigurationChangeEvent) => {
-      this.onDidChangeConfiguration(e);
-    });
-
-    vscode.window.onDidChangeActiveTextEditor((editor) => {
-      this.onDidChangeActiveTextEditor(editor);
-    });
-
-    vscode.workspace.onDidChangeTextDocument((event) => {
-      this.onDidChangeTextDocument(event);
-    });
-
-    vscode.window.visibleTextEditors.forEach((editor) => {
-      this.onDidChangeActiveTextEditor(editor);
-    });
-
-    vscode.window.onDidChangeTextEditorSelection((event) => {
-      this.onDidChangeTextEditorSelection(event);
-    });
+    vscode.window.visibleTextEditors.forEach(this.onDidChangeActiveTextEditor, this);
 
     if (vscode.window.activeTextEditor) {
       this.activeEditor = vscode.window.activeTextEditor;
@@ -104,7 +86,7 @@ class ExtensionLifecycleController {
 
   onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
     if (!e.affectsConfiguration("dim")) return;
-    this.configManager.clearConfigCache();
+    this.configManager.invalidate();
     vscode.window.visibleTextEditors.forEach((editor) => {
       const ad = this.decorators.get(editor);
       if (ad) {
