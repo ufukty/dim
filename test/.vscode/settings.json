@@ -18,7 +18,7 @@
       }
     ]
   },
-  "[js]": {
+  "[javascript]": {
     "dim.rules": [
       {
         "pattern": "announce\\(.*?\\);",
