@@ -6,7 +6,7 @@ import * as models from "./models";
 export class EditorDecorator {
   private editor: vscode.TextEditor;
   private config: models.Config;
-  private configManager: cm.ConfigManager;
+  private configManager: cm.Cache;
   private filename: string;
   private logger: vscode.OutputChannel;
   private matches: Map<models.Rule, vscode.Range[]> | undefined;
@@ -17,7 +17,7 @@ export class EditorDecorator {
   private lastUpdateTimestamp: number;
   private timeoutForScheduler: NodeJS.Timeout | undefined;
 
-  constructor(editor: vscode.TextEditor, cm: cm.ConfigManager, enabled: boolean, logger: vscode.OutputChannel) {
+  constructor(editor: vscode.TextEditor, cm: cm.Cache, enabled: boolean, logger: vscode.OutputChannel) {
     this.editor = editor;
     this.configManager = cm;
     this.logger = logger;
