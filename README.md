@@ -1,7 +1,5 @@
 # dim
 
-<img alt="extension icon" src="media/icon.png" width="256">
-
 Define rules to reduce opacity of repeating parts of code to make the main logic pop. Great for dimming Go's `if err != nil { return fmt.Errorf(...) }` error wrapping blocks and JavaScript's `console.log` calls.
 
 ## Preview
