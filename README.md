@@ -1,7 +1,5 @@
 # dim
 
-<img alt="extension icon" src="media/icon.png" width="256">
-
 Define rules to reduce opacity of repeating parts of code to make the main logic pop. Great for dimming Go's `if err != nil { return fmt.Errorf(...) }` error wrapping blocks and JavaScript's `console.log` calls.
 
 ## Preview
@@ -43,46 +41,42 @@ Dim designed to work with high performance even in lower end machines.
 
 ## Usage
 
-```json
+```jsonc
 {
   "[go]": {
     "dim.rules": [
+      // Dim Go's error wrapping blocks to "mid" tier.
       {
         "pattern": "if err != nil {.*?}",
         "flags": "gs",
-        "opacity": "mid"
+        "opacity": "mid",
       },
-      {
-        // advanced version that forgives nested blocks and whitespaces
-        "pattern": "if\\s+err != nil\\s*{(?:(?:[^{}]|\\n)*{(?:[^}]|\\n)*})?(?:[^}]|\\n)*}",
-        "flags": "gs",
-        "opacity": "mid"
-      }
-    ]
+    ],
   },
-  "[js]": {
+  "[javascript]": {
     "dim.rules": [
+      // Dim the console.log calls including the args.
       {
-        "pattern": "announce\\(.*\\);?"
+        "pattern": "console\\.log\\(.*?\\)",
       },
-      {
-        "pattern": "logger\\.verbose\\([^\\n]*\\);?"
-      }
-    ]
+    ],
   },
   "dim.rules": [
+    // Dim the comment lines
     {
-      "pattern": "//.*", // comment lines
-      "opacity": "max"
-    }
+      "pattern": "//.*",
+      "opacity": "max",
+    },
   ],
   "dim.defaultFlags": "g",
   "dim.defaultOpacityTier": "min",
   "dim.valueForMinTier": 0.2,
   "dim.valueForMidTier": 0.3,
-  "dim.valueForMaxTier": 0.4
+  "dim.valueForMaxTier": 0.4,
 }
 ```
+
+Patterns that match optional nested parentheses, branches and multi line comment groups increase the user experience dramatically. See [the test configuration](https://github.com/ufukty/dim/blob/main/test/.vscode/settings.json) for examples. They are not included here because they might be overwhelming at first sight.
 
 ## Suggestions
 

@@ -6,7 +6,7 @@ import * as models from "./models";
 export class EditorDecorator {
   private editor: vscode.TextEditor;
   private config: models.Config;
-  private configManager: cm.ConfigManager;
+  private configManager: cm.Cache;
   private filename: string;
   private logger: vscode.OutputChannel;
   private matches: Map<models.Rule, vscode.Range[]> | undefined;
@@ -17,21 +17,16 @@ export class EditorDecorator {
   private lastUpdateTimestamp: number;
   private timeoutForScheduler: NodeJS.Timeout | undefined;
 
-  constructor(editor: vscode.TextEditor, cm: cm.ConfigManager, enabled: boolean, logger: vscode.OutputChannel) {
+  constructor(editor: vscode.TextEditor, cm: cm.Cache, enabled: boolean, logger: vscode.OutputChannel) {
     this.editor = editor;
     this.configManager = cm;
     this.logger = logger;
     this.enabled = enabled;
     this.inFocus = true;
-
-    const _filename = editor.document.fileName.split("/").pop();
-    if (_filename) this.filename = _filename;
-    else this.filename = "";
-
+    this.filename = editor.document.fileName.split("/").pop() ?? "";
     this.lastUpdateTimestamp = 0;
-
     this.logger.appendLine(`${this.filename}: constructor (enabled: ${enabled})`);
-    this.config = this.configManager.readConfig(this.editor);
+    this.config = this.configManager.for(this.editor);
     this.withConfig();
   }
 
@@ -110,22 +105,10 @@ export class EditorDecorator {
   private mergeIntersecting(queue: vscode.Range[]): vscode.Range[] {
     if (queue.length <= 1) return queue;
     const sorted = queue.sort((a, b) => {
-      // no overlap: aa-bb
-      if (a.end.isBeforeOrEqual(b.start)) {
-        return -1;
-      }
-      // no overlap: bb-aa
-      if (b.end.isBeforeOrEqual(a.start)) {
-        return 1;
-      }
-      // partial overlap: ab-ab
-      if (a.start.isBeforeOrEqual(b.start)) {
-        return -1;
-      }
-      // partial overlap: ba-ba
-      if (b.start.isBeforeOrEqual(a.start)) {
-        return 1;
-      }
+      if (a.end.isBeforeOrEqual(b.start)) return -1; //   no overlap:      aabb
+      if (b.end.isBeforeOrEqual(a.start)) return 1; //    no overlap:      bbaa
+      if (a.start.isBeforeOrEqual(b.start)) return -1; // partial overlap: abab
+      if (b.start.isBeforeOrEqual(a.start)) return 1; //  partial overlap: baba
       return 0;
     });
     const merged = [] as vscode.Range[];
@@ -232,7 +215,7 @@ export class EditorDecorator {
 
   configChange() {
     this.logger.appendLine(`${this.filename}: configuration change`);
-    this.config = this.configManager.readConfig(this.editor);
+    this.config = this.configManager.for(this.editor);
     this.matches = undefined;
     this.withConfig();
     this.schedule();
