@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+// lorem ipsum dolor sit amet,
+// consectetur multi line comment
 func Test(t *testing.T) {
 	_, err := os.Create("")
 	if err != nil {
