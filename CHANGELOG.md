@@ -1,10 +1,15 @@
 # Change Log
 
-## NEXT VERSION
+## 4.0.0
+
+Includes couple very small changes and one breaking change.
 
 **Changes**
 
-- The way the language-specific rules are processed is changed. The previous method which was checking the rules under the `[file-extension]` setting objects is replaced with the native API based method. Some old rules might need an update, but most are expected to keep working. For example the `[js]` block which is previously honored by Dim, now needs to be updated to `[javascript]` or the rules under it will be ignored.
+- **Breaking:** Language specific rule sections now use language identifiers instead of file extensions. Rename keys like `[js]` to `[javascript]`. Use code completion to find the correct identifier for target language. ([#7](https://github.com/ufukty/dim/issues/7), [#39](https://github.com/ufukty/dim/issues/39))
+- Fixed one rare case where the config cache invalidation is missed. ([#51](https://github.com/ufukty/dim/issues/51))
+- Improved invalid config prompts. ([#52](https://github.com/ufukty/dim/issues/52))
+- Better code structure on reading, compiling and caching config that should not affect the use.
 
 ## 3.2.2
 
