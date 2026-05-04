@@ -60,7 +60,7 @@ Dim designed to work with high performance even in lower end machines.
       }
     ]
   },
-  "[js]": {
+  "[javascript]": {
     "dim.rules": [
       {
         "pattern": "announce\\(.*\\);?"
