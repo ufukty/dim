@@ -21,11 +21,8 @@
   "[javascript]": {
     "dim.rules": [
       {
-        "pattern": "announce\\(.*?\\);",
+        "pattern": "(?:announce|logger\\.\\w+)\\([^\\)]*(?:\\([^\\)]*\\))?[^\\)]*\\);", // allows 2-level nesting of parentheses
         "flags": "gs"
-      },
-      {
-        "pattern": "logger\\.[A-Za-z]+\\(.*\\);?"
       }
     ]
   },
@@ -41,7 +38,8 @@
   "dim.rules": [
     {
       "opacity": "max",
-      "pattern": "//.*" // comment lines
+      "flags": "gs",
+      "pattern": "//[^\\n]*(?:\\n\\s*//[^\\n]*)*" // comment groups
     }
   ],
   "dim.valueForMaxTier": 0.4,
