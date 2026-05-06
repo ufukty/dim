@@ -4,7 +4,7 @@
 
 **Changed**
 
-- Rewrote the README.
+- Rewrote the README and CHANGELOG.
 
 ## 4.0.0
 
