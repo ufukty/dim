@@ -17,19 +17,19 @@ Dim is many things but not dim.
 
 Dim is configured using regular expressions. Adopt it quickly and build up over time.
 
-<img src="./media/familiar.gif" width="400">
+<img src="https://github.com/ufukty/dim/raw/main/media/familiar.gif" width="400">
 
 ### Restrained
 
 Dim doesn't get in the way when user wants to work on details.
 
-<img src="./media/restrained.gif" width="400" >
+<img src="https://github.com/ufukty/dim/raw/main/media/restrained.gif" width="400" >
 
 ### Respectful
 
 During thorough readings Dim can be disabled per document. See also [Toggling with Keyboard](#toggling-dim-with-keyboard).
 
-<img src="./media/respectful.gif" width="400">
+<img src="https://github.com/ufukty/dim/raw/main/media/respectful.gif" width="400">
 
 ### Polyglot
 
@@ -86,13 +86,13 @@ Dim is designed for speed.
 
 Dim doesn't run on scroll, so you can peek fast.
 
-<img src="./media/scroll.gif" width="400">
+<img src="https://github.com/ufukty/dim/raw/main/media/scroll.gif" width="400">
 
 ### Remembering
 
 Dim caches the compiled RegExes for faster refreshes after selection and content changes as well as switching tabs.
 
-<img src="./media/caching.gif" width="400">
+<img src="https://github.com/ufukty/dim/raw/main/media/caching.gif" width="400">
 
 ### Mindful
 
@@ -102,19 +102,19 @@ Where some competitors iterate lines one-by-one looking for `<start>` and `<end>
 
 Dim preserves the unaffected decorations from the previous cycle to reduce flicker.
 
-<img src="./media/flicker.gif" width="400">
+<img src="https://github.com/ufukty/dim/raw/main/media/flicker.gif" width="400">
 
 ### Attentive
 
 Dim hooks into lifecycle events. It runs after each document reveal, content or config change, and selection change, balancing responsiveness and performance.
 
-<img src="./media/lifecycle.gif" width="400">
+<img src="https://github.com/ufukty/dim/raw/main/media/lifecycle.gif" width="400">
 
 ### Tunable
 
 Dim can be adjusted to react faster and more frequently to user events as the hardware allows.
 
-<img src="./media/adjustable.gif" width="400">
+<img src="https://github.com/ufukty/dim/raw/main/media/adjustable.gif" width="400">
 
 ### Lightweight
 
