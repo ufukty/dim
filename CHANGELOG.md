@@ -1,149 +1,207 @@
 # Change Log
 
+## 4.0.1
+
+**Changed**
+
+- Rewrote the README and CHANGELOG.
+
 ## 4.0.0
 
-Includes couple very small changes and one breaking change.
+**Breaking**
 
-**Changes**
+- Language-specific rule sections now use language identifiers instead of file extensions. Rename keys like `[js]` to `[javascript]`. Use code completion to find the correct identifier for the target language. ([#7](https://github.com/ufukty/dim/issues/7), [#39](https://github.com/ufukty/dim/issues/39))
 
-- **Breaking:** Language specific rule sections now use language identifiers instead of file extensions. Rename keys like `[js]` to `[javascript]`. Use code completion to find the correct identifier for target language. ([#7](https://github.com/ufukty/dim/issues/7), [#39](https://github.com/ufukty/dim/issues/39))
-- Fixed one rare case where the config cache invalidation is missed. ([#51](https://github.com/ufukty/dim/issues/51))
+**Changed**
+
 - Improved invalid config prompts. ([#52](https://github.com/ufukty/dim/issues/52))
-- Better code structure on reading, compiling and caching config that should not affect the use.
+- Restructured the code for reading, compiling and caching config; should not affect usage.
+
+**Fixed**
+
+- Fixed a rare case where config cache invalidation was missed. ([#51](https://github.com/ufukty/dim/issues/51))
 
 ## 3.2.2
 
-The package size is reduced to about 200KB.
+**Changed**
+
+- Reduced the package size to about 200KB.
 
 ## 3.2.1
 
-Minor performance improvement.
+**Changed**
+
+- Minor performance improvement.
 
 ## 3.2.0
 
-Includes some changes that should not affect the use.
+**Added**
 
-**New**
+- Opened [Dim Discussions](https://github.com/ufukty/dim/discussions). Report bugs, suggest features and ask questions.
 
-- [Dim Discussions](https://github.com/ufukty/dim/discussions) are now open. Report bugs, suggest features and ask questions.
+**Changed**
 
-**Minor changes**
+- Raised the minimum required version of Code to 1.99 (March 2025).
 
-- Raises the minimum version of Code required to 1.99 (March 2025).
-- Removes the settings previously deprecated at Dim v3 (March 2025).
-- Drops the only dependency left; Dim is now zero-dep.
+**Removed**
+
+- Removed the settings previously deprecated in Dim v3 (March 2025).
+- Dropped the only remaining dependency; Dim is now zero-dep.
 
 ## 3.1.9
 
-- Updates dependencies with security patches.
-- Adds second preview gif to readme.
+**Changed**
+
+- Updated dependencies with security patches.
+- Added a second preview gif to the README.
 
 ## 3.1.8
 
-- Fixes toggling Dim back to on doesn't work.
+**Fixed**
+
+- Fixed toggling Dim back on not working.
 
 ## 3.1.7
 
-- Fixes passing selected areas feature causing user to mis important decoration updates while updating the config in another tab aside. The issue were degrading the user experience for experimenting on new regex rules. Now, Dim respects carets only when the editor is active.
+**Fixed**
+
+- Fixed the "respect carets" feature causing missed decoration updates when the config was edited in another tab. The issue was degrading the experience of experimenting with new regex rules. Dim now respects carets only when the editor is active.
 
 ## 3.1.6
 
-- Fixes Dim miscalculating the merged range for rules match intersecting parts of code.
+**Fixed**
+
+- Fixed Dim miscalculating the merged range when rule matches intersected.
 
 ## 3.1.5
 
-**Performance improvement**
+**Changed**
 
-- This release significantly reduces the possibility of flickering issue to occur which were best noticable when cursor is moved through chunks of code to rapidly select/deselect different matches.
+- Significantly reduced flickering, most noticeable when the cursor moved through chunks of code rapidly selecting and deselecting different matches.
 
 ## 3.1.4
 
-- Reverts the marketplace page styling of extension to lighter colors.
-- Minor changes in whitespaces in changelog.
+**Changed**
+
+- Reverted the marketplace page styling to lighter colors.
+- Minor whitespace changes in the changelog.
 
 ## 3.1.3
 
-- Removes some presentation related content from the installation.
-- Adjusts the marketplace page styling of extension.
+**Changed**
+
+- Adjusted the marketplace page styling.
+
+**Removed**
+
+- Removed some presentation-related content from the extension package.
 
 ## 3.1.2
 
-- Fixes dim trying to keep using cached matches even when they become outdated, if the change happened when the editor is out of focus, which is the case when user use another editor (tab) to edit config.
+**Fixed**
+
+- Fixed Dim continuing to use cached matches even when they had become outdated, in cases where the change happened while the editor was out of focus (e.g. when the user edited the config in another tab).
 
 ## 3.1.1
 
-**Performance improvement**
+**Changed**
 
-- Further increases the responsiveness of Dim by caching the regex matches to use on consecutive selection change updates.
+- Further improved responsiveness by caching regex matches for use across consecutive selection-change updates.
 
 ## 3.1.0
 
-**New**
+**Added**
 
-- Dim now respects carets! Means that Dim won't dim those areas that you are actively working on, or looking to. Technically speaking; whenever a pattern matching area intersects with any of the selected portions of the document Dim will pass that match without dimming it. On top of that, multiple selections are respected too. Just try "Select All Occurances of Find Match" command on any of the dimmed areas to see its effect.
-- Dim now lets you to adjust the update period. You can select the best value between your caret moving pace and the hardware performance. Lower values are better for usability but might cause perf ormance issues on lower end hardware.
+- Dim now respects carets. Areas the user is actively working on or looking at are no longer dimmed.
+- Added an option to adjust the update period.
 
 ## 3.0.2
 
-- Fixes decorations are not applied on the last match of every pattern due to the mishandled looping on merging intersecting matches.
+**Fixed**
+
+- Fixed decorations not being applied on the last match of every pattern, due to mishandled looping when merging intersecting matches.
 
 ## 3.0.1
 
-- New logo
+**Changed**
+
+- New logo.
 
 ## 3.0.0
 
-Biggest change since the previous version. Please read the readme for more.
+Biggest change since the previous version. Please read the README for more.
 
-**New**
+**Breaking**
 
-- Full support to regex patterns.
-- Set regex flag defaults for workspace and override it per rule.
+- `rule`, `start` and `end` are no longer supported. Migrate rules to use the `pattern` property. This requires no value alterations in most cases. One exception is when different flags are used, such as `s` for block dimming. For block dimming, use a `"pattern"` value of `"<start>.*<end>"` instead.
 
-**Performance improvements**
+**Added**
 
-- Switches to standard regex matching from previous line-by-line scanning which contributes a lot to overall performance and stability.
-- Thighter lifecycle management for reusing text editor instances and migrating from one to another for same document.
-- More checks against infinite loops.
-- Merging intersection regions for avoiding applying same decoration multiple times at one part.
+- Added full support for regex patterns.
+- Added regex flag defaults for the workspace, overridable per rule.
 
-**Breaking changes**
+**Changed**
 
-- `rule`, `start` and `end` are no longer supported. Migrate your rules to use `pattern` property. Which requires no additional value alterations most of the time. One exception is when you use different flags such as `s` for block dimming. Also for block dimming, use `"pattern"` value of `"<start>.*<end>"` instead.
+- Switched to standard regex matching from the previous line-by-line scanning, contributing significantly to overall performance and stability.
+- Tighter lifecycle management for reusing text editor instances and migrating between them for the same document.
+- Added more guards against infinite loops.
+- Merged intersecting match regions to avoid applying the same decoration multiple times.
 
 ## 2.1.3
 
-- This version is only for updating the changelog, oops. Please read the log for previous version.
+**Fixed**
+
+- Fixed changelog miss 2.1.2.
 
 ## 2.1.2
 
-- Fixes the persistency issue of toggling feature. Now Dim should remember the last state after user returns to the same document after switching tabs.
+**Fixed**
+
+- Fixed the persistence issue with the toggle feature. Dim now remembers the last state when the user returns to a document after switching tabs.
 
 ## 2.1.1
 
-- Fixes an issue leads enabling/disabling Dim for current editor becoming unavailable for the editor open before extension gets activated
+**Fixed**
+
+- Fixed an issue where enabling, disabling or toggling Dim for the current editor became unavailable for editors opened before the extension activated.
 
 ## 2.1.0
 
-- new commands for users to enable, disable or toggle Dim for current editor. [Issue](https://github.com/ufukty/dim/issues/2#issuecomment-1932602845)
+**Added**
+
+- Added new commands to enable, disable or toggle Dim for the current editor. ([Issue](https://github.com/ufukty/dim/issues/2#issuecomment-1932602845))
 
 ## 2.0.0
 
-- addresses performance issues
-- improves reaction time to editor changes
-- alters configuration schema
-  - `startRule` and `endRule` renamed as `start` and `end`
-  - `opacityTier` renamed as `opacity`
+**Breaking**
+
+- Altered the configuration schema:
+  - `startRule` and `endRule` renamed to `start` and `end`.
+  - `opacityTier` renamed to `opacity`.
+
+**Changed**
+
+- Addressed performance issues.
+- Improved reaction time to editor changes.
 
 ## 1.0.2
 
-- Fix: Misleading examples in readme
+**Fixed**
+
+- Fixed misleading examples in the README.
 
 ## 1.0.1
 
-- Fix: Scan range calculation.
-- Icon has changed with different style and resolution
+**Changed**
+
+- Updated the icon with a different style and resolution.
+
+**Fixed**
+
+- Fixed scan range calculation.
 
 ## 1.0.0
 
-- Initial release
+**Added**
+
+- Initial release.
