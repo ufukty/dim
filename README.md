@@ -82,35 +82,35 @@ Dim checks for brace balance (`{` `}`) inside matches to prevent eye irritation 
 
 Dim is designed for speed.
 
-### Peek fast
+### Fluid
 
 Dim doesn't run on scroll, so you can peek fast.
 
 <img src="./media/scroll.gif" width="400">
 
-### Caching compiled RegExes
+### Remembering
 
 Dim caches the compiled RegExes for faster refreshes after selection and content changes as well as switching tabs.
 
 <img src="./media/caching.gif" width="400">
 
-### One pass per rule
+### Mindful
 
 Where some competitors iterate lines one-by-one looking for `<start>` and `<end>` tokens, Dim runs each rule against the full-text.
 
-### Reduced flicker
+### Steady
 
 Dim preserves the unaffected decorations from the previous cycle to reduce flicker.
 
 <img src="./media/flicker.gif" width="400">
 
-### Robust lifecycle tracking
+### Attentive
 
-Dim runs after each document reveal, content and config change, and selection change, balancing responsiveness and performance.
+Dim hooks into lifecycle events. It runs after each document reveal, content or config change, and selection change, balancing responsiveness and performance.
 
 <img src="./media/lifecycle.gif" width="400">
 
-### Adjustable
+### Tunable
 
 Dim can be adjusted to react faster and more frequently to user events as the hardware allows.
 
