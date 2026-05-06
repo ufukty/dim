@@ -2,80 +2,57 @@
 
 Focus on the main logic easier with dimming down the details.
 
-**Properties**
-
-- Simple to customize
-- Fast to run
-- Small to download
-
-**Features**
-
-- Regular expressions
-- Lines or blocks
-- Document toggling
-- Language-specific rules
+- Familiar
+- Customizable
+- Non-invasive
+- Polyglot
+- Responsive
+- Lightweight
 
 ## Features
 
-### Working with Dim
+Dim is many things but not dim.
 
-The extension doesn't dim the areas where the user is actively working on.
+### Familiar
 
-<img alt="A screen recording of Visual Studio Code editor while the cursor is moved to show dimming is disabled whereever the user selects" src="https://github.com/ufukty/dim/raw/main/media/carets.sepsol.gif" width="668" >
+Dim is configured using regular expressions. Adopt quickly and build up over time.
 
-### Toggle for document
+<img src="./media/familiar.gif" width="400">
 
-Dim can be temporarily turned off for a document.
+### Restrained
 
-Use the command palette or assign `dim.toggleDimForCurrentEditor` to a keyboard shortcut.
+Dim doesn't get in the way when user want to work on details.
 
-<img alt="Dim on Go code and toggling feature" src="https://github.com/ufukty/dim/raw/main/media/toggling.gif" width="668" >
+<img src="./media/restrained.gif" width="400" >
 
-### Unapologetically RegEx
+### Respectful
 
-Some find RegEx cluttered. Some flexible. You can always start simple and improve the rules over time.
+During the thorough readings Dim can be disabled for document. See also [Toggling with Keyboard](#toggling-dim-with-keyboard).
 
-For example, this lil' one combines lookarounds and single line mode with a "strange" pattern to dim the conditional branches of If statements without the condition expression's itself, and allows one level of nesting with additional parentheses and braces. [Regex101](https://regex101.com/?regex=%28%3F%3C%3D%28%3F%3Aelse%7Cif+%5C%28%5B%5E%28%29%5D*%28%3F%3A%5C%28%5B%5E%28%29%5D*%5C%29%5B%5E%28%29%5D*%29*%5C%29%29+%7B%29%5B%5E%7B%7D%5D*%28%3F%3A%7B%5B%5E%7D%5D*%7D%5B%5E%7B%7D%5D*%29*%28%3F%3D%7D%29&testString=if+%28condition%29+%7B%0A++.%0A%7D+else+if+%28expression%28%29%29+%7B%0A++%7B%7D%0A%7Delse+%7B%0A++%7B%7D+%7B%7D%0A%7D&flags=gs&flavor=javascript&delimiter=%2F)
+<img src="./media/respectful.gif" width="400">
+
+### Polyglot
+
+Dim accepts language-specific rules as well.
 
 ```jsonc
 {
-  "[typescript]": {
+  "[javascript]": {
     "dim.rules": [
-      {
-        "pattern": "(?<=(?:else|if \\([^()]*(?:\\([^()]*\\)[^()]*)*\\)) {)[^{}]*(?:{[^}]*}[^{}]*)*(?=})",
-        "flags": "gs",
-      },
+      { 
+        "pattern": "console\\.log\\(.*?\\)"
+      }
     ],
   },
 }
 ```
 
-### Language-specific rules
+### Organized
 
-Can't use the same markers for all languages?
-
-Dim accepts language-specific rules and combines with the rules at root.
+Set defaults for RegEx flags and the opacity tier at root. All rules inherit unless override.
 
 ```jsonc
 {
-  "[javascript]": {
-    "dim.rules": [{ "pattern": "console\\.log\\(.*?\\)" }],
-  },
-  "dim.rules": [{ "pattern": "TODO: .*" }],
-}
-```
-
-### Style consistency with tiers
-
-Maintaining the consistency of opacity values across rules while tweaking them is easy. Assign an opacity tier per-rule among `min`, `mid` and `max` and set the exact opacity value at root. Rules also inherit the default tier set at the root.
-
-```jsonc
-{
-  "dim.rules": [
-    { "pattern": "FIXME: .*", "opacity": "max" }
-    { "pattern": "TODO: .*", "opacity": "mid" }
-    { "pattern": "DONE: .*" } // "min"
-  ],
   "dim.defaultOpacityTier": "min",
   "dim.valueForMinTier": 0.2,
   "dim.valueForMidTier": 0.3,
@@ -83,29 +60,61 @@ Maintaining the consistency of opacity values across rules while tweaking them i
 }
 ```
 
-### Preventing accidentals (Experimental)
+### Consistent
 
-Dim prevents decoration of big chunks in case of a rule accidentally matches incomplete code with checking if the braces are balanced that otherwise would irritate.
+Rules accept opacity tiers instead of direct values. Tweak defaults and they'll be applied everywhere.
 
-## Performance features
+```jsonc
+{
+  "dim.rules": [
+    { "pattern": "FIXME: .*", "opacity": "max" }
+    { "pattern": "TODO: .*", "opacity": "mid" }
+    { "pattern": "DONE: .*" } // "min"
+  ]
+}
+```
+
+### Forgiving
+
+Dim checks for the brace balance (`{` `}`) inside matches to prevent eye irritation and performance problems that would be caused by incomplete sections of code cause a rule to match with the next section's ending. (Experimental)
+
+## Performance
 
 Dim is designed for speed.
 
 ### Peek fast
 
-Instead of scroll events, Dim runs after the document reveal and content changes.
+Dim doesn't run at scroll; so you can peek fast.
+
+<img src="./media/scroll.gif" width="400">
 
 ### Caching compiled RegExes
 
-Dim caches the compiled RegExes for faster iterations which are correctly invalidated when the Dim config change.
+Dim caches the compiled RegExes for faster refreshes after selection and content changes as well as switching tabs.
 
-### One-pass match
+<img src="./media/caching.gif" width="400">
 
-Instead of iterating lines one-by-one and matching both the start and end tokens individually Dim runs each rule against the full-text.
+### One pass per rule
+
+Instead of some competitors iterating lines one-by-one and looking for the `<start>` and `<end>` tokens Dim runs each rule against the full-text.
+
+### Reduced flicker
+
+Dim preserves the unaffected decorations from previous cycle to reduce flicker.
+
+<img src="./media/flicker.gif" width="400">
+
+### Robust lifecycle tracking
+
+Dim runs after each document reveal, content and config changes as well as selection changes to balance responsiveness and performance.
+
+<img src="./media/lifecycle.gif" width="400">
 
 ### Adjustable
 
 Dim can be adjusted to react faster and more frequently to user events as the hardware allows.
+
+<img src="./media/adjustable.gif" width="400">
 
 ### Lightweight
 
@@ -150,19 +159,51 @@ Dim is a zero dependency, bundled extension that activates around `5ms`.
 
 ## Suggestions
 
-- Escape patterns with backslashes as in the previous examples.
+### Use code completion
 
-- Patterns allow nested scopes increase the user experience dramatically. See [the test configuration](https://github.com/ufukty/dim/blob/main/test/.vscode/settings.json) for more examples.
+Package file contains the configuration schema. Use code completion for configuation details.
 
-- Single line `s` RegEx mode for matching blocks. ([MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags), [StackOverflow](https://stackoverflow.com/questions/918806/difference-between-regular-expression-modifiers-or-flags-m-and-s)).
+### Escaping RegExes inside JSON
 
-- Toggle using keyboard:
-  ```json
-  {
-    "key": "alt+cmd+h",
-    "command": "dim.toggleDimForCurrentEditor"
-  }
-  ```
+Escape patterns with backslashes as shown in the examples.
+
+### Start simple
+
+Some find RegEx cluttered. Some find it familiar and capable. If that's not you, just start simple and improve the rules over time.
+
+### Nested scopes
+
+Patterns allow nested scopes increase the user experience dramatically. See [the test configuration](https://github.com/ufukty/dim/blob/main/test/.vscode/settings.json) for more examples.
+
+For example, this lil' one combines lookarounds and single line mode with a "strange" pattern to dim the conditional branches of If statements without the condition expression's itself, and allows one level of nesting with additional parentheses and braces. ([Regex101](https://regex101.com/?regex=%28%3F%3C%3D%28%3F%3Aelse%7Cif+%5C%28%5B%5E%28%29%5D*%28%3F%3A%5C%28%5B%5E%28%29%5D*%5C%29%5B%5E%28%29%5D*%29*%5C%29%29+%7B%29%5B%5E%7B%7D%5D*%28%3F%3A%7B%5B%5E%7D%5D*%7D%5B%5E%7B%7D%5D*%29*%28%3F%3D%7D%29&testString=if+%28condition%29+%7B%0A++.%0A%7D+else+if+%28expression%28%29%29+%7B%0A++%7B%7D%0A%7Delse+%7B%0A++%7B%7D+%7B%7D%0A%7D&flags=gs&flavor=javascript&delimiter=%2F))
+
+```jsonc
+{
+  "[typescript]": {
+    "dim.rules": [
+      {
+        "pattern": "(?<=(?:else|if \\([^()]*(?:\\([^()]*\\)[^()]*)*\\)) {)[^{}]*(?:{[^}]*}[^{}]*)*(?=})",
+        "flags": "gs",
+      },
+    ],
+  },
+}
+```
+
+### Matching blocks
+
+Use the RegEx's single line `s` mode for matching blocks. ([MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags), [StackOverflow](https://stackoverflow.com/questions/918806/difference-between-regular-expression-modifiers-or-flags-m-and-s))
+
+### Toggling Dim with keyboard
+
+Create a keyboard binding. Open the command palette and find: `Preferences: Open Keyboard Shortcuts (JSON)`. Then add a new entry.
+
+```json
+{
+  "key": "alt+cmd+h",
+  "command": "dim.toggleDimForCurrentEditor"
+}
+```
 
 ## Discussions
 
