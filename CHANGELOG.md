@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.0.1
+
+**Changes**
+
+- Rewrites the README.
+
 ## 4.0.0
 
 Includes couple very small changes and one breaking change.
