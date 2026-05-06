@@ -15,19 +15,19 @@ Dim is many things but not dim.
 
 ### Familiar
 
-Dim is configured using regular expressions. Adopt quickly and build up over time.
+Dim is configured using regular expressions. Adopt it quickly and build up over time.
 
 <img src="./media/familiar.gif" width="400">
 
 ### Restrained
 
-Dim doesn't get in the way when user want to work on details.
+Dim doesn't get in the way when user wants to work on details.
 
 <img src="./media/restrained.gif" width="400" >
 
 ### Respectful
 
-During the thorough readings Dim can be disabled for document. See also [Toggling with Keyboard](#toggling-dim-with-keyboard).
+During thorough readings Dim can be disabled per document. See also [Toggling with Keyboard](#toggling-dim-with-keyboard).
 
 <img src="./media/respectful.gif" width="400">
 
@@ -49,7 +49,7 @@ Dim accepts language-specific rules as well.
 
 ### Organized
 
-Set defaults for RegEx flags and the opacity tier at root. All rules inherit unless override.
+Set defaults for RegEx flags and the opacity tier at root. All rules inherit them unless override.
 
 ```jsonc
 {
@@ -76,7 +76,7 @@ Rules accept opacity tiers instead of direct values. Tweak defaults and they'll 
 
 ### Forgiving
 
-Dim checks for the brace balance (`{` `}`) inside matches to prevent eye irritation and performance problems that would be caused by incomplete sections of code cause a rule to match with the next section's ending. (Experimental)
+Dim checks for brace balance (`{` `}`) inside matches to prevent eye irritation and performance problems that would arise when incomplete sections of code cause a rule to match into the next section's ending. (Experimental)
 
 ## Performance
 
@@ -84,7 +84,7 @@ Dim is designed for speed.
 
 ### Peek fast
 
-Dim doesn't run at scroll; so you can peek fast.
+Dim doesn't run on scroll, so you can peek fast.
 
 <img src="./media/scroll.gif" width="400">
 
@@ -96,17 +96,17 @@ Dim caches the compiled RegExes for faster refreshes after selection and content
 
 ### One pass per rule
 
-Instead of some competitors iterating lines one-by-one and looking for the `<start>` and `<end>` tokens Dim runs each rule against the full-text.
+Where some competitors iterate lines one-by-one looking for `<start>` and `<end>` tokens, Dim runs each rule against the full-text.
 
 ### Reduced flicker
 
-Dim preserves the unaffected decorations from previous cycle to reduce flicker.
+Dim preserves the unaffected decorations from the previous cycle to reduce flicker.
 
 <img src="./media/flicker.gif" width="400">
 
 ### Robust lifecycle tracking
 
-Dim runs after each document reveal, content and config changes as well as selection changes to balance responsiveness and performance.
+Dim runs after each document reveal, content and config change, and selection change, balancing responsiveness and performance.
 
 <img src="./media/lifecycle.gif" width="400">
 
@@ -118,7 +118,7 @@ Dim can be adjusted to react faster and more frequently to user events as the ha
 
 ### Lightweight
 
-Dim is a zero dependency, bundled extension that activates around `5ms`.
+Dim is a zero-dependency, bundled extension that activates in around `5ms`.
 
 ## Example configuration
 
@@ -161,7 +161,7 @@ Dim is a zero dependency, bundled extension that activates around `5ms`.
 
 ### Use code completion
 
-Package file contains the configuration schema. Use code completion for configuation details.
+Package file contains the configuration schema. Use code completion for configuration details.
 
 ### Escaping RegExes inside JSON
 
@@ -173,9 +173,9 @@ Some find RegEx cluttered. Some find it familiar and capable. If that's not you,
 
 ### Nested scopes
 
-Patterns allow nested scopes increase the user experience dramatically. See [the test configuration](https://github.com/ufukty/dim/blob/main/test/.vscode/settings.json) for more examples.
+Patterns that allow nested scopes improve the user experience noticeably. See [the test configuration](https://github.com/ufukty/dim/blob/main/test/.vscode/settings.json) for more examples.
 
-For example, this lil' one combines lookarounds and single line mode with a "strange" pattern to dim the conditional branches of If statements without the condition expression's itself, and allows one level of nesting with additional parentheses and braces. ([Regex101](https://regex101.com/?regex=%28%3F%3C%3D%28%3F%3Aelse%7Cif+%5C%28%5B%5E%28%29%5D*%28%3F%3A%5C%28%5B%5E%28%29%5D*%5C%29%5B%5E%28%29%5D*%29*%5C%29%29+%7B%29%5B%5E%7B%7D%5D*%28%3F%3A%7B%5B%5E%7D%5D*%7D%5B%5E%7B%7D%5D*%29*%28%3F%3D%7D%29&testString=if+%28condition%29+%7B%0A++.%0A%7D+else+if+%28expression%28%29%29+%7B%0A++%7B%7D%0A%7Delse+%7B%0A++%7B%7D+%7B%7D%0A%7D&flags=gs&flavor=javascript&delimiter=%2F))
+For example, this lil' one combines lookarounds and single line mode with a "strange" pattern to dim the conditional branches of if statements without the condition expression itself, and allows one level of nesting with additional parentheses and braces. ([Regex101](https://regex101.com/?regex=%28%3F%3C%3D%28%3F%3Aelse%7Cif+%5C%28%5B%5E%28%29%5D*%28%3F%3A%5C%28%5B%5E%28%29%5D*%5C%29%5B%5E%28%29%5D*%29*%5C%29%29+%7B%29%5B%5E%7B%7D%5D*%28%3F%3A%7B%5B%5E%7D%5D*%7D%5B%5E%7B%7D%5D*%29*%28%3F%3D%7D%29&testString=if+%28condition%29+%7B%0A++.%0A%7D+else+if+%28expression%28%29%29+%7B%0A++%7B%7D%0A%7Delse+%7B%0A++%7B%7D+%7B%7D%0A%7D&flags=gs&flavor=javascript&delimiter=%2F))
 
 ```jsonc
 {
@@ -192,7 +192,7 @@ For example, this lil' one combines lookarounds and single line mode with a "str
 
 ### Matching blocks
 
-Use the RegEx's single line `s` mode for matching blocks. ([MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags), [StackOverflow](https://stackoverflow.com/questions/918806/difference-between-regular-expression-modifiers-or-flags-m-and-s))
+Use RegEx's single-line `s` mode for matching blocks. ([MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags), [StackOverflow](https://stackoverflow.com/questions/918806/difference-between-regular-expression-modifiers-or-flags-m-and-s))
 
 ### Toggling Dim with keyboard
 
