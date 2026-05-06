@@ -1,6 +1,6 @@
 # Dim
 
-Focus on the main logic easier with dimming down the details.
+Focus on the main logic more easily by dimming the details.
 
 - Familiar
 - Customizable
@@ -39,9 +39,9 @@ Dim accepts language-specific rules as well.
 {
   "[javascript]": {
     "dim.rules": [
-      { 
-        "pattern": "console\\.log\\(.*?\\)"
-      }
+      {
+        "pattern": "console\\.log\\(.*?\\)",
+      },
     ],
   },
 }
