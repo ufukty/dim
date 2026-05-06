@@ -109,7 +109,7 @@ Dim can be adjusted to react faster and more frequently to user events as the ha
 
 ### Lightweight
 
-Dim is a zero dependency, bundled extension. It activates around `2ms` and weights around `200KB`. For comparison Prettier takes around `100ms` and Git takes `20ms` in the same system.
+Dim is a zero dependency, bundled extension that activates around `5ms`.
 
 ## Example configuration
 
