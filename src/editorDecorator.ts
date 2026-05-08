@@ -117,6 +117,7 @@ export class EditorDecorator {
 
   private mergeIntersecting(queue: vscode.Range[]): vscode.Range[] {
     if (queue.length <= 1) return queue;
+    this.logger.appendLine(`${now()} editorDecorator: merging ${queue.length} matches...`);
     const sorted = queue.sort((a, b) => {
       if (a.end.isBeforeOrEqual(b.start)) return -1; //   no overlap:      aabb
       if (b.end.isBeforeOrEqual(a.start)) return 1; //    no overlap:      bbaa
@@ -127,22 +128,13 @@ export class EditorDecorator {
     const merged = [] as vscode.Range[];
     let merging = sorted[0];
     for (let i = 1; i < sorted.length; i++) {
-      if (sorted[i].intersection(merging)) {
-        let m = merging;
-        const before = sprintRange(m);
-        m = sorted[i];
-        const after = sprintRange(m);
-        merging = merging.union(sorted[i]);
-        const mergd = sprintRange(merging);
-        this.logger.appendLine(
-          `${now()} editorDecorator: ${this.filename}: merging ${before} with ${after} to ${mergd}`,
-        );
-      } else {
+      if (!sorted[i].intersection(merging)) {
         merged.push(merging);
         merging = sorted[i];
       }
     }
     merged.push(merging);
+    this.logger.appendLine(`${now()} editorDecorator: merged to ${merged.length} matches`);
     return merged;
   }
 
