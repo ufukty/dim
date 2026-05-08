@@ -2,6 +2,10 @@ import * as vscode from "vscode";
 import { EditorDecorator } from "./editorDecorator";
 import { Cache } from "./configManager";
 
+function now(): string {
+  return new Date().toISOString();
+}
+
 class ExtensionLifecycleController {
   decorators: Map<vscode.TextEditor, EditorDecorator>;
   logger: vscode.OutputChannel;
@@ -13,7 +17,7 @@ class ExtensionLifecycleController {
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
     this.logger = vscode.window.createOutputChannel("dim");
-    this.logger.appendLine("init");
+    this.logger.appendLine(`${now()} extension: init`);
     this.decorators = new Map();
     this.config = new Cache(this.logger);
     this.documentState = new Map<string, boolean>();
@@ -83,7 +87,7 @@ class ExtensionLifecycleController {
         event.document.uri.path === this.activeEditor.document.uri.path &&
         event.document.uri.scheme === "file"
       ) {
-        this.logger.appendLine("onDidChangeTextDocument");
+        this.logger.appendLine(`${now()} extension: onDidChangeTextDocument`);
         this.decorators.get(this.activeEditor)?.contentChange();
       }
     } catch (e) {

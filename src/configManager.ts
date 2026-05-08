@@ -2,6 +2,10 @@ import * as vscode from "vscode";
 import * as config from "./config";
 import * as models from "./models";
 
+function now(): string {
+  return new Date().toISOString();
+}
+
 type ScopeId = string;
 
 class Scope {
@@ -94,7 +98,7 @@ class Compiler {
 
   compile(scope: Scope): models.Config {
     try {
-      this.logger.appendLine(`config.Compiler: compiling user config for ${scope}`);
+      this.logger.appendLine(`${now()} config.Compiler: compiling user config for ${scope}`);
       const raw = this.reader.read(scope);
       const rules = this.rules(raw);
       return {
@@ -124,7 +128,7 @@ export class Cache {
   for(editor: vscode.TextEditor): models.Config {
     try {
       const scope = new Scope(editor);
-      this.logger.appendLine(`config.Manager: requested user config for ${scope}`);
+      this.logger.appendLine(`${now()} config.Manager: requested user config for ${scope}`);
       const i = scope.internalize();
       let c = this.cache.get(i);
       if (!c) {
@@ -138,7 +142,7 @@ export class Cache {
   }
 
   invalidate() {
-    this.logger.appendLine("config.Manager: invalidating cache");
+    this.logger.appendLine(`${now()} config.Manager: invalidating cache`);
     this.cache.clear();
   }
 }
