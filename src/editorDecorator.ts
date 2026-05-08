@@ -1,7 +1,14 @@
 import * as vscode from "vscode";
-import * as utils from "./utilities";
 import * as cm from "./configManager";
 import * as models from "./models";
+
+export function sprintPos(pos: vscode.Position): string {
+  return `${pos.line + 1}:${pos.character + 1}`;
+}
+
+export function sprintRange(range: vscode.Range): string {
+  return `[${sprintPos(range.start)}, ${sprintPos(range.end)}]`;
+}
 
 export class EditorDecorator {
   private editor: vscode.TextEditor;
@@ -76,7 +83,7 @@ export class EditorDecorator {
       const end = start + match[0].length;
       const range = new vscode.Range(this.editor.document.positionAt(start), this.editor.document.positionAt(end));
       if (this.doBracesMatch(text, start, end)) {
-        this.logger.appendLine(`${this.filename}: scanning for: ${rule.regex}: found: ${utils.SprintRange(range)}`);
+        this.logger.appendLine(`${this.filename}: scanning for: ${rule.regex}: found: ${sprintRange(range)}`);
         ranges.push(range);
       }
     });
@@ -87,7 +94,7 @@ export class EditorDecorator {
     const range = this.editor.document.validateRange(
       new vscode.Range(new vscode.Position(0, 0), new vscode.Position(2000, 0)),
     );
-    this.logger.appendLine(`${this.filename}: scanning lines: ${utils.SprintRange(range)}`);
+    this.logger.appendLine(`${this.filename}: scanning lines: ${sprintRange(range)}`);
     this.matches = new Map() as Map<models.Rule, vscode.Range[]>;
     for (const rule of this.config.rules) {
       this.matches.set(rule, this.scanForRule(range, rule));
@@ -116,11 +123,11 @@ export class EditorDecorator {
     for (let i = 1; i < sorted.length; i++) {
       if (sorted[i].intersection(merging)) {
         let m = merging;
-        const before = utils.SprintRange(m);
+        const before = sprintRange(m);
         m = sorted[i];
-        const after = utils.SprintRange(m);
+        const after = sprintRange(m);
         merging = merging.union(sorted[i]);
-        const mergd = utils.SprintRange(merging);
+        const mergd = sprintRange(merging);
         this.logger.appendLine(`${this.filename}: merging ${before} with ${after} to ${mergd}`);
       } else {
         merged.push(merging);
