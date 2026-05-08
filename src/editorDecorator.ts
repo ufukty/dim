@@ -36,9 +36,13 @@ export class EditorDecorator {
     this.inFocus = true;
     this.filename = editor.document.fileName.split("/").pop() ?? "";
     this.lastUpdateTimestamp = 0;
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: constructor (enabled: ${enabled})`);
+    this.log(`constructor (enabled: ${enabled})`);
     this.config = this.configManager.for(this.editor);
     this.withConfig();
+  }
+
+  private log(message: string) {
+    this.logger.appendLine(`${now()} editorDecorator(${this.filename}): ${message}`);
   }
 
   private withConfig() {
@@ -78,7 +82,7 @@ export class EditorDecorator {
   }
 
   private scanForRule(range: vscode.Range, rule: models.Rule): vscode.Range[] {
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: scanning for: ${rule.regex}`);
+    this.log(`scanning for: ${rule.regex}...`);
     const ranges: vscode.Range[] = [];
     const text = this.editor.document.getText(range);
     Array.from(text.matchAll(rule.regex)).forEach((match) => {
@@ -86,13 +90,9 @@ export class EditorDecorator {
       const start = match.index;
       const end = start + match[0].length;
       const range = new vscode.Range(this.editor.document.positionAt(start), this.editor.document.positionAt(end));
-      if (this.doBracesMatch(text, start, end)) {
-        this.logger.appendLine(
-          `${now()} editorDecorator: ${this.filename}: scanning for: ${rule.regex}: found: ${sprintRange(range)}`,
-        );
-        ranges.push(range);
-      }
+      if (this.doBracesMatch(text, start, end)) ranges.push(range);
     });
+    this.log(`found: ${ranges.map(sprintRange).join(", ")}`);
     return ranges;
   }
 
@@ -100,7 +100,7 @@ export class EditorDecorator {
     const range = this.editor.document.validateRange(
       new vscode.Range(new vscode.Position(0, 0), new vscode.Position(2000, 0)),
     );
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: scanning lines: ${sprintRange(range)}`);
+    this.log(`scanning lines: ${sprintRange(range)}`);
     this.matches = new Map() as Map<models.Rule, vscode.Range[]>;
     for (const rule of this.config.rules) {
       this.matches.set(rule, this.scanForRule(range, rule));
@@ -108,7 +108,7 @@ export class EditorDecorator {
   }
 
   private disposeLastDecorations() {
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: disposing previous decorations`);
+    this.log(`disposing previous decorations`);
     if (!this.decoTypes) return;
     this.editor.setDecorations(this.decoTypes.max, []);
     this.editor.setDecorations(this.decoTypes.mid, []);
@@ -117,7 +117,7 @@ export class EditorDecorator {
 
   private mergeIntersecting(queue: vscode.Range[]): vscode.Range[] {
     if (queue.length <= 1) return queue;
-    this.logger.appendLine(`${now()} editorDecorator: merging ${queue.length} matches...`);
+    this.log(`merging ${queue.length} matches...`);
     const sorted = queue.sort((a, b) => {
       if (a.end.isBeforeOrEqual(b.start)) return -1; //   no overlap:      aabb
       if (b.end.isBeforeOrEqual(a.start)) return 1; //    no overlap:      bbaa
@@ -134,7 +134,7 @@ export class EditorDecorator {
       }
     }
     merged.push(merging);
-    this.logger.appendLine(`${now()} editorDecorator: merged to ${merged.length} matches`);
+    this.log(`merged to ${merged.length}`);
     return merged;
   }
 
@@ -171,18 +171,16 @@ export class EditorDecorator {
   }
 
   private decorateEditor() {
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: decorating...`);
+    this.log(`decorating...`);
     const start = Date.now();
     if (!this.matches) this.scanForRules();
     this.applyNewDecorations();
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: decorated (${Date.now() - start}ms)`);
+    this.log(`decorated (${Date.now() - start}ms)`);
   }
 
   private schedule() {
     if (!this.enabled) {
-      this.logger.appendLine(
-        `${now()} editorDecorator: ${this.filename}: skipping update because Dim is disabled for this editor`,
-      );
+      this.log(`skipping update because Dim is disabled for this editor`);
       return;
     }
     const period = this.config.updatePeriod;
@@ -201,29 +199,29 @@ export class EditorDecorator {
   }
 
   blur() {
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: blur`);
+    this.log(`blur`);
     this.inFocus = false;
   }
 
   focus() {
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: focus`);
+    this.log(`focus`);
     this.inFocus = true;
     this.schedule();
   }
 
   contentChange() {
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: content change`);
+    this.log(`content change`);
     this.matches = undefined;
     this.schedule();
   }
 
   selectionChange() {
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: selection change`);
+    this.log(`selection change`);
     this.schedule();
   }
 
   configChange() {
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: configuration change`);
+    this.log(`configuration change`);
     this.config = this.configManager.for(this.editor);
     this.matches = undefined;
     this.withConfig();
@@ -231,14 +229,14 @@ export class EditorDecorator {
   }
 
   enable() {
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: enabling...`);
+    this.log(`enabling...`);
     this.enabled = true;
     this.matches = undefined;
     this.schedule();
   }
 
   disable() {
-    this.logger.appendLine(`${now()} editorDecorator: ${this.filename}: disabling...`);
+    this.log(`disabling...`);
     this.enabled = false;
     this.disposeLastDecorations();
   }
