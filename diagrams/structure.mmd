@@ -1,0 +1,20 @@
+block
+
+columns 3
+
+space:2 ConfigReader
+space:3
+space:2 ConfigCompiler
+space:3
+EditorDecorator space ConfigCache
+space:3
+LifecycleCtrl:3
+space:3
+ExtensionHost:3
+
+ConfigCompiler--"Scope"-->ConfigReader
+ConfigCache--"Scope"-->ConfigCompiler
+LifecycleCtrl--"Invalidate"-->ConfigCache
+LifecycleCtrl--"Event, Command"-->EditorDecorator
+ExtensionHost--"Events, Commands"-->LifecycleCtrl
+EditorDecorator--"Scope"-->ConfigCache
