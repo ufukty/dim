@@ -12,10 +12,8 @@ class ExtensionLifecycleController {
   activeEditor: vscode.TextEditor | undefined;
   config: Cache;
   documentState: Map<string, boolean>; // <editor.document.uri: boolean>
-  context: vscode.ExtensionContext;
 
   constructor(context: vscode.ExtensionContext) {
-    this.context = context;
     this.logger = vscode.window.createOutputChannel("dim");
     this.logger.appendLine(`${now()} extension: init`);
     this.decorators = new Map();
