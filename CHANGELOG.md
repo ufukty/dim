@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.0.2
+
+**Changed**
+
+- Refined the logging for granularity and reach. ([#60](https://github.com/ufukty/dim/issues/60))
+
 ## 4.0.1
 
 **Changed**

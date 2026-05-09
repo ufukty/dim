@@ -2,6 +2,10 @@ import * as vscode from "vscode";
 import { EditorDecorator } from "./editorDecorator";
 import { Cache } from "./configManager";
 
+function now(): string {
+  return new Date().toISOString();
+}
+
 class ExtensionLifecycleController {
   decorators: Map<vscode.TextEditor, EditorDecorator>;
   logger: vscode.OutputChannel;
@@ -13,7 +17,7 @@ class ExtensionLifecycleController {
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
     this.logger = vscode.window.createOutputChannel("dim");
-    this.logger.appendLine("init");
+    this.logger.appendLine(`${now()} extension: init`);
     this.decorators = new Map();
     this.config = new Cache(this.logger);
     this.documentState = new Map<string, boolean>();
@@ -52,6 +56,7 @@ class ExtensionLifecycleController {
         this.activeEditor = undefined;
         return;
       }
+      this.logger.appendLine(`${now()} extension: onDidChangeActiveTextEditor: ${editor?.document?.uri?.toString()}`);
 
       if (this.activeEditor && editor === this.activeEditor) return;
 
@@ -83,7 +88,7 @@ class ExtensionLifecycleController {
         event.document.uri.path === this.activeEditor.document.uri.path &&
         event.document.uri.scheme === "file"
       ) {
-        this.logger.appendLine("onDidChangeTextDocument");
+        this.logger.appendLine(`${now()} extension: onDidChangeTextDocument: ${event?.reason}`);
         this.decorators.get(this.activeEditor)?.contentChange();
       }
     } catch (e) {
@@ -92,6 +97,7 @@ class ExtensionLifecycleController {
   }
 
   onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
+    this.logger.appendLine(`${now()} extension: onDidChangeConfiguration: ${e?.affectsConfiguration}`);
     try {
       if (e.affectsConfiguration("dim")) {
         this.config.invalidate();
@@ -105,6 +111,7 @@ class ExtensionLifecycleController {
   }
 
   onCommandReceiveDisableDimForCurrentEditor() {
+    this.logger.appendLine(`${now()} extension: disableDimForCurrentEditor`);
     try {
       if (this.activeEditor) {
         const ad = this.decorators.get(this.activeEditor);
@@ -122,6 +129,7 @@ class ExtensionLifecycleController {
   }
 
   onCommandReceiveEnableDimForCurrentEditor() {
+    this.logger.appendLine(`${now()} extension: enableDimForCurrentEditor`);
     try {
       if (this.activeEditor) {
         const ad = this.decorators.get(this.activeEditor);
@@ -136,6 +144,7 @@ class ExtensionLifecycleController {
   }
 
   onCommandReceiveToggleDimForCurrentEditor() {
+    this.logger.appendLine(`${now()} extension: toggleDimForCurrentEditor`);
     try {
       if (!this.activeEditor) return;
       const ad = this.decorators.get(this.activeEditor);
@@ -151,6 +160,7 @@ class ExtensionLifecycleController {
   onDidChangeTextEditorSelection(event: vscode.TextEditorSelectionChangeEvent) {
     try {
       if (this.activeEditor && this.activeEditor === event.textEditor) {
+        this.logger.appendLine(`${now()} extension: change selections: ${event?.kind}/${event?.selections?.length}`);
         this.decorators.get(this.activeEditor)?.selectionChange();
       }
     } catch (e) {
@@ -159,6 +169,7 @@ class ExtensionLifecycleController {
   }
 
   destroy() {
+    this.logger.appendLine(`${now()} extension: destroy`);
     try {
       for (const editor of vscode.window.visibleTextEditors) {
         this.decorators.get(editor)?.disable();
