@@ -21,5 +21,3 @@ A Dim user-config may contain many RegExes, so compiled results are cached. The 
 <img srcset="./diagrams/config-cache@2x.png 2x">
 
 Cache keys may shift as VS Code returns different `TextEditor` instances for the same "tab" when the user switches between them.
-
-Tracking tabs through short-lived TextEditor handles.
