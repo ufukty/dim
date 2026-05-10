@@ -5,6 +5,7 @@
 **/*.ts
 **/eslint.config.mjs
 **/tsconfig.json
+diagrams/**
 esbuild.mjs
 media/**
 node_modules/**
