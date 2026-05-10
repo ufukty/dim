@@ -1,6 +1,6 @@
 # Contributing
 
-For the users, [Dim GitHub Discussions](https://github.com/ufukty/dim/discussions) is the best medium for sharing bug reports, suggestions and questions.
+If you'd like to contribute, the best way right now is to open a bug report, suggestion, or question on [Dim GitHub Discussions](https://github.com/ufukty/dim/discussions). PRs and issues aren't being accepted from users at this stage.
 
 ## Internals
 
