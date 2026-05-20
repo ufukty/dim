@@ -27,3 +27,12 @@ A Dim user-config may contain many RegExes, so compiled results are cached. The 
 </picture>
 
 Cache keys may shift as VS Code returns different `TextEditor` instances for the same "tab" when the user switches between them.
+
+### Matched ranges cache
+
+Document controller caches the matched ranges which allows editor controller readjust decorations to selections faster.
+
+<picture>
+  <source srcset="./diagrams/ranges-cache@2x.png 2x">
+  <img srcset="./diagrams/ranges-cache@2x.png 2x">
+</picture>
