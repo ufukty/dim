@@ -6,15 +6,21 @@ space:2 ConfigReader
 space:3
 space:2 ConfigCompiler
 space:3
-EditorDecorator space ConfigCache
+space:2 ConfigCache
 space:3
-LifecycleCtrl:3
+space DocumentC space
+space:3
+EditorC space:2 
+space:3
+LifecycleC:3
 space:3
 ExtensionHost:3
 
 ConfigCompiler--"Scope"-->ConfigReader
 ConfigCache--"Scope"-->ConfigCompiler
-LifecycleCtrl--"Invalidate"-->ConfigCache
-LifecycleCtrl--"Event, Command"-->EditorDecorator
-ExtensionHost--"Events, Commands"-->LifecycleCtrl
-EditorDecorator--"Scope"-->ConfigCache
+LifecycleC--"Invalidate"-->ConfigCache
+LifecycleC--"Doc events"-->DocumentC
+LifecycleC--"UI events"-->EditorC
+ExtensionHost--"Events, Commands"-->LifecycleC
+EditorC--"URI"-->DocumentC
+DocumentC--"Scope"-->ConfigCache
