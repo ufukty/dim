@@ -8,18 +8,18 @@ Dim's code may not be straightforward to follow, as it employs several optimizat
 
 ### Overview
 
-The extension starts with the lifecycle controller. It is responsible for routing user events received from VS Code to the correct units. Units include the compiled user-config cache and individual editor decorators. Events include changes in the config, active and visible editors, and selections.
+The extension starts with the lifecycle controller which is responsible for routing user events to correct units. Units include the editor and document controllers and the compiled user-config cache. Events include changes in the config, active and visible editors, and selections.
 
 <picture>
   <source srcset="./diagrams/structure@2x.png 2x">
   <img srcset="./diagrams/structure@2x.png 2x">
 </picture>
 
-An editor decorator instance is responsible for a single `TextEditor` instance. It holds the UI state, including the per-document toggle and the ranges decorated at the previous iteration.
+The editor controller instance is responsible for a single `TextEditor` instance and holds the UI state, including the per-document toggle and the ranges decorated at the previous iteration. The document controller executes the effective patterns for documents, returns ranges and caches.
 
 ### Compiled user-config cache
 
-A Dim user-config may contain many RegExes, so compiled results are cached. The compiled config is sensitive to the scope of `TextEditor`. That's a shallow handle VS Code uses to represent a tab's session. Cache invalidation is triggered by the Extensions API event `onDidChangeConfiguration`.
+A Dim user-config may contain many RegExes, so compiled results are cached. The compiled config is sensitive to the scope of `TextEditor`.
 
 <picture>
   <source srcset="./diagrams/config-cache@2x.png 2x">
