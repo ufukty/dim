@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import { EditorDecorator } from "./editorDecorator";
+import { DocumentController } from "./documents";
+import { EditorController, EditorDecorator } from "./editorDecorator";
 import { Cache } from "./configManager";
 
 function now(): string {
@@ -13,12 +14,17 @@ class ExtensionLifecycleController {
   config: Cache;
   documentState: Map<string, boolean>; // <editor.document.uri: boolean>
 
+  private editors: Map<vscode.TextEditor, EditorController>;
+  private documents: Map<string, DocumentController>;
+
   constructor(context: vscode.ExtensionContext) {
     this.logger = vscode.window.createOutputChannel("dim");
     this.logger.appendLine(`${now()} extension: init`);
     this.decorators = new Map();
     this.config = new Cache(this.logger);
     this.documentState = new Map<string, boolean>();
+    this.documents = new Map<string, DocumentController>();
+    this.editors = new Map<vscode.TextEditor, EditorController>();
 
     /* prettier-ignore */
     context.subscriptions.push(
@@ -115,9 +121,6 @@ class ExtensionLifecycleController {
         const ad = this.decorators.get(this.activeEditor);
         if (ad) {
           ad.disable();
-          // needs to store toggle state separately as vscode doesn't necessarily
-          // reuse the same instance of TextEditor for same document when user
-          // returns after switching tabs
           this.documentState.set(this.activeEditor.document.uri.toString(false), ad.isEnabled());
         }
       }
