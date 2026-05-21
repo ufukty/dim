@@ -12,9 +12,9 @@ class Scope {
   uri: vscode.Uri;
   languageId: string;
 
-  constructor(editor: vscode.TextEditor) {
-    this.uri = editor.document.uri;
-    this.languageId = editor.document.languageId;
+  constructor(document: vscode.TextDocument) {
+    this.uri = document.uri;
+    this.languageId = document.languageId;
   }
 
   toString(): string {
@@ -125,9 +125,9 @@ export class Cache {
     this.logger = l;
   }
 
-  for(editor: vscode.TextEditor): models.Config {
+  for(document: vscode.TextDocument): models.Config {
     try {
-      const scope = new Scope(editor);
+      const scope = new Scope(document);
       this.logger.appendLine(`${now()} config.Manager: requested user config for ${scope}`);
       const i = scope.internalize();
       let c = this.cache.get(i);
