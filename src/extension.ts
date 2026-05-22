@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { DocumentController } from "./documents";
-import { EditorController, Controller } from "./editors";
+import * as editors from "./editors";
 import { Cache } from "./configManager";
 
 function now(): string {
@@ -8,13 +8,13 @@ function now(): string {
 }
 
 class ExtensionLifecycleController {
-  decorators: Map<vscode.TextEditor, Controller>;
+  decorators: Map<vscode.TextEditor, editors.Controller>;
   logger: vscode.OutputChannel;
   activeEditor: vscode.TextEditor | undefined;
   config: Cache;
   documentState: Map<string, boolean>; // <editor.document.uri: boolean>
 
-  private editors: Map<vscode.TextEditor, EditorController>;
+  private editors: Map<vscode.TextEditor, editors.Controller>;
   private documents: Map<string, DocumentController>;
 
   constructor(context: vscode.ExtensionContext) {
@@ -24,7 +24,7 @@ class ExtensionLifecycleController {
     this.config = new Cache(this.logger);
     this.documentState = new Map<string, boolean>();
     this.documents = new Map<string, DocumentController>();
-    this.editors = new Map<vscode.TextEditor, EditorController>();
+    this.editors = new Map<vscode.TextEditor, editors.Controller>();
 
     /* prettier-ignore */
     context.subscriptions.push(
@@ -75,7 +75,7 @@ class ExtensionLifecycleController {
           if (enabled === undefined) {
             enabled = true;
           }
-          d = new Controller(this.activeEditor, this.config, enabled, this.logger);
+          d = new editors.Controller(this.activeEditor, this.config, enabled, this.logger);
           this.decorators.set(this.activeEditor, d);
         }
         d.focus();
