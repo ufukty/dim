@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { DocumentController } from "./documents";
-import { EditorController, EditorDecorator } from "./editor";
+import { EditorController, Controller } from "./editor";
 import { Cache } from "./configManager";
 
 function now(): string {
@@ -8,7 +8,7 @@ function now(): string {
 }
 
 class ExtensionLifecycleController {
-  decorators: Map<vscode.TextEditor, EditorDecorator>;
+  decorators: Map<vscode.TextEditor, Controller>;
   logger: vscode.OutputChannel;
   activeEditor: vscode.TextEditor | undefined;
   config: Cache;
@@ -75,7 +75,7 @@ class ExtensionLifecycleController {
           if (enabled === undefined) {
             enabled = true;
           }
-          d = new EditorDecorator(this.activeEditor, this.config, enabled, this.logger);
+          d = new Controller(this.activeEditor, this.config, enabled, this.logger);
           this.decorators.set(this.activeEditor, d);
         }
         d.focus();

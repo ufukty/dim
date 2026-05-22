@@ -35,7 +35,7 @@ function styles(config: models.Config): models.DecorationTypes {
 
 const tiers = [config.Opacity.Min, config.Opacity.Mid, config.Opacity.Max];
 
-export class EditorDecorator {
+export class Controller {
   private editor: vscode.TextEditor;
   private config: cm.Cache;
   private filename: string;
@@ -79,7 +79,7 @@ export class EditorDecorator {
     this.editor.setDecorations(this.decoTypes.mid, []);
     this.editor.setDecorations(this.decoTypes.min, []);
   }
-  
+
   private withConfig() {
     if (this.decoTypes) this.disposeLastDecorations();
     this.decoTypes = styles(this.config.for(this.editor.document));
