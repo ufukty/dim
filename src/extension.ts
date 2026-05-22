@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as documents from "./documents";
 import * as editors from "./editors";
-import { Cache } from "./configManager";
+import * as cm from "./configManager";
 
 function now(): string {
   return new Date().toISOString();
@@ -11,7 +11,7 @@ class ExtensionLifecycleController {
   decorators: Map<vscode.TextEditor, editors.Controller>;
   logger: vscode.OutputChannel;
   activeEditor: vscode.TextEditor | undefined;
-  config: Cache;
+  config: cm.Cache;
   documentState: Map<string, boolean>; // <editor.document.uri: boolean>
 
   private editors: Map<vscode.TextEditor, editors.Controller>;
@@ -21,7 +21,7 @@ class ExtensionLifecycleController {
     this.logger = vscode.window.createOutputChannel("dim");
     this.logger.appendLine(`${now()} extension: init`);
     this.decorators = new Map();
-    this.config = new Cache(this.logger);
+    this.config = new cm.Cache(this.logger);
     this.documentState = new Map<string, boolean>();
     this.documents = new Map<string, documents.Controller>();
     this.editors = new Map<vscode.TextEditor, editors.Controller>();
