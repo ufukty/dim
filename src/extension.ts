@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { DocumentController } from "./documents";
+import * as documents from "./documents";
 import * as editors from "./editors";
 import { Cache } from "./configManager";
 
@@ -15,7 +15,7 @@ class ExtensionLifecycleController {
   documentState: Map<string, boolean>; // <editor.document.uri: boolean>
 
   private editors: Map<vscode.TextEditor, editors.Controller>;
-  private documents: Map<string, DocumentController>;
+  private documents: Map<string, documents.Controller>;
 
   constructor(context: vscode.ExtensionContext) {
     this.logger = vscode.window.createOutputChannel("dim");
@@ -23,7 +23,7 @@ class ExtensionLifecycleController {
     this.decorators = new Map();
     this.config = new Cache(this.logger);
     this.documentState = new Map<string, boolean>();
-    this.documents = new Map<string, DocumentController>();
+    this.documents = new Map<string, documents.Controller>();
     this.editors = new Map<vscode.TextEditor, editors.Controller>();
 
     /* prettier-ignore */

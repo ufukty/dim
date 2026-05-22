@@ -23,7 +23,7 @@ function braceBalance(text: string, start: number, end: number): boolean {
   return balance === 0;
 }
 
-export class DocumentController {
+export class Controller {
   private matches: Map<models.Rule, vscode.Range[]> | undefined;
   private logger: vscode.OutputChannel;
   private document: vscode.TextDocument;

@@ -47,11 +47,11 @@ export class Controller {
   private lastUpdateTimestamp: number;
   private timeoutForScheduler: NodeJS.Timeout | undefined;
 
-  private document: documents.DocumentController;
+  private document: documents.Controller;
 
   constructor(
     editor: vscode.TextEditor,
-    doc: documents.DocumentController,
+    doc: documents.Controller,
     config: cm.Cache,
     enabled: boolean,
     logger: vscode.OutputChannel,
