@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { DocumentController } from "./documents";
-import { EditorController, Controller } from "./editor";
+import { EditorController, Controller } from "./editors";
 import { Cache } from "./configManager";
 
 function now(): string {
