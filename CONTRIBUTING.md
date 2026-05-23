@@ -19,7 +19,7 @@ The extension starts with the lifecycle controller which is responsible for rout
 
 The extension tracks state using document and editor controllers for both the individual "TextDocument"s and their "TextEditor"s. Editor controllers hold UI-related state, including the ranges from previous iteration. The document controller is responsible of executing the effective RegEx patterns and providing them to editor controllers from cache.
 
-The per-document toggle state is stored above both inside the lifecycle controller.
+The per-document toggle state is stored above both, inside the lifecycle controller.
 
 ### Editor controller lifecycle
 
