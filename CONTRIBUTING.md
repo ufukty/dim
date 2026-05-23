@@ -15,7 +15,15 @@ The extension starts with the lifecycle controller which is responsible for rout
   <img srcset="./diagrams/structure@2x.png 2x">
 </picture>
 
-The editor controller instance is responsible for a single `TextEditor` instance and holds the UI state, including the per-document toggle and the ranges decorated at the previous iteration. The document controller executes the effective patterns for documents, returns ranges and caches.
+### Editor and document controllers
+
+The extension tracks state using document and editor controllers for both the individual "TextDocument"s and their "TextEditor"s. Editor controllers hold UI-related state, including the ranges from previous iteration. The document controller is responsible of executing the effective RegEx patterns and providing them to editor controllers from cache.
+
+The per-document toggle state is stored above both inside the lifecycle controller.
+
+### Editor controller lifecycle
+
+The editor controllers might be unexpectedly short-lived. They are created and destroyed with editors appear and disappear.
 
 ### Compiled user-config cache
 
