@@ -7,40 +7,53 @@ function now(): string {
   return new Date().toISOString();
 }
 
-class ExtensionLifecycleController {
-  decorators: Map<vscode.TextEditor, editors.Controller>;
-  logger: vscode.OutputChannel;
-  activeEditor: vscode.TextEditor | undefined;
-  config: cm.Cache;
-  documentState: Map<string, boolean>; // <editor.document.uri: boolean>
+function isFile(te: vscode.TextEditor | undefined): boolean {
+  return (
+    te !== undefined && te.document.uri.scheme === "file" && te.document.uri.path.split("/").pop() !== "settings.json"
+  );
+}
 
-  private editors: Map<vscode.TextEditor, editors.Controller>;
+function isConfig(te: vscode.TextEditor | undefined): boolean {
+  return (
+    te !== undefined && te.document.uri.scheme === "file" && te.document.uri.path.split("/").pop() === "settings.json"
+  );
+}
+
+class ExtensionLifecycleController {
+  private config: cm.Cache;
   private documents: Map<string, documents.Controller>;
+  private documentState: Map<string, boolean>; // per-doc toggle
+  private editors: Map<vscode.TextEditor, editors.Controller>;
+  private logger: vscode.OutputChannel;
 
   constructor(context: vscode.ExtensionContext) {
     this.logger = vscode.window.createOutputChannel("dim");
-    this.logger.appendLine(`${now()} extension: init`);
-    this.decorators = new Map();
+    this.log(`init`);
+
     this.config = new cm.Cache(this.logger);
-    this.documentState = new Map<string, boolean>();
-    this.documents = new Map<string, documents.Controller>();
-    this.editors = new Map<vscode.TextEditor, editors.Controller>();
+    this.documents = new Map();
+    this.documentState = new Map();
+    this.editors = new Map();
 
     /* prettier-ignore */
     context.subscriptions.push(
       vscode.commands.registerCommand("dim.disableDimForCurrentEditor", this.onCommandReceiveDisableDimForCurrentEditor, this),
       vscode.commands.registerCommand("dim.enableDimForCurrentEditor", this.onCommandReceiveEnableDimForCurrentEditor, this),
       vscode.commands.registerCommand("dim.toggleDimForCurrentEditor", this.onCommandReceiveToggleDimForCurrentEditor, this),
-      vscode.window.onDidChangeActiveTextEditor(this.onDidChangeActiveTextEditor, this),
+      
+      vscode.window.onDidChangeVisibleTextEditors(this.onDidChangeVisibleTextEditors, this),
+      
       vscode.window.onDidChangeTextEditorSelection(this.onDidChangeTextEditorSelection, this),
+      
       vscode.workspace.onDidChangeConfiguration(this.onDidChangeConfiguration, this),
+
+      vscode.workspace.onDidOpenTextDocument(this.onDidOpenTextDocument, this),
       vscode.workspace.onDidChangeTextDocument(this.onDidChangeTextDocument, this),
+      vscode.workspace.onDidCloseTextDocument(this.onDidCloseTextDocument, this),
     );
 
-    vscode.window.visibleTextEditors.forEach(this.onDidChangeActiveTextEditor, this);
-
-    if (vscode.window.activeTextEditor) {
-      this.activeEditor = vscode.window.activeTextEditor;
+    for (const te of vscode.window.visibleTextEditors) {
+      this.onDidAppearTextEditor(te);
     }
   }
 
@@ -48,37 +61,63 @@ class ExtensionLifecycleController {
     vscode.window.showWarningMessage(`Dim: ${e}`);
   }
 
-  onDidChangeActiveTextEditor(editor: vscode.TextEditor | undefined) {
+  log(message: string) {
+    this.logger.appendLine(`${now()} extension: ${message}`);
+  }
+
+  onDidOpenTextDocument(td: vscode.TextDocument) {
+    const dc = new documents.Controller(this.logger, td, this.config);
+    this.documents.set(td.uri.toString(), dc);
+  }
+
+  onDidAppearTextEditor(te: vscode.TextEditor) {
+    const td = this.documents.get(te.document.uri.toString());
+    if (!td) {
+      this.log("expected its document before editor");
+      return;
+    }
+    const ec = new editors.Controller(te, td, this.config, true, this.logger);
+    this.editors.set(te, ec);
+  }
+
+  onDidDisappearTextEditor(te: vscode.TextEditor) {
+    this.editors.delete(te);
+  }
+
+  onDidAppearConfigEditor() {
+    this.log("config editor appeared. the extension will dim selected areas");
+    for (const [, ec] of this.editors) {
+      ec.startConfigSession();
+    }
+  }
+
+  onDidDisappearConfigEditor() {
+    this.log("config editor appeared. the extension will ignore selected areas");
+    for (const [, ec] of this.editors) {
+      ec.endConfigSession();
+    }
+  }
+
+  onDidChangeVisibleTextEditors(tes: readonly vscode.TextEditor[]) {
     try {
-      if (this.activeEditor) this.decorators.get(this.activeEditor)?.blur();
-
-      if (
-        !editor ||
-        editor.document.uri.scheme !== "file" ||
-        editor.document.uri.path.split("/").pop() === "settings.json"
-      ) {
-        this.activeEditor = undefined;
-        return;
-      }
-      this.logger.appendLine(`${now()} extension: onDidChangeActiveTextEditor: ${editor?.document?.uri?.toString()}`);
-
-      if (this.activeEditor && editor === this.activeEditor) return;
-
-      // first register change, then return; to ignore onDidChangeTextDocument that will be fired on Output panel
-      this.activeEditor = editor;
-
-      if (this.activeEditor) {
-        let d = this.decorators.get(this.activeEditor);
-        if (!d) {
-          const uri = this.activeEditor.document.uri.toString(false);
-          let enabled = this.documentState.get(uri);
-          if (enabled === undefined) {
-            enabled = true;
+      for (const te of tes) {
+        if (!this.editors.has(te)) {
+          if (isFile(te)) {
+            this.onDidAppearTextEditor(te);
+          } else if (isConfig(te)) {
+            this.onDidAppearConfigEditor();
           }
-          d = new editors.Controller(this.activeEditor, this.config, enabled, this.logger);
-          this.decorators.set(this.activeEditor, d);
         }
-        d.focus();
+      }
+      const next = new Set(tes);
+      for (const [te] of this.editors) {
+        if (!next.has(te)) {
+          if (isFile(te)) {
+            this.onDidDisappearTextEditor(te);
+          } else if (isConfig(te)) {
+            this.onDidDisappearConfigEditor();
+          }
+        }
       }
     } catch (e) {
       this.prompt(e);
@@ -88,25 +127,29 @@ class ExtensionLifecycleController {
   onDidChangeTextDocument(event: vscode.TextDocumentChangeEvent) {
     try {
       if (
-        this.activeEditor &&
-        event.document.uri.path === this.activeEditor.document.uri.path &&
+        vscode.window.activeTextEditor &&
+        event.document.uri.path === vscode.window.activeTextEditor.document.uri.path &&
         event.document.uri.scheme === "file"
       ) {
-        this.logger.appendLine(`${now()} extension: onDidChangeTextDocument: ${event?.reason}`);
-        this.decorators.get(this.activeEditor)?.contentChange();
+        this.log(`onDidChangeTextDocument: ${event?.reason}`);
+        this.editors.get(vscode.window.activeTextEditor)?.contentChange();
       }
     } catch (e) {
       this.prompt(e);
     }
   }
 
+  onDidCloseTextDocument(doc: vscode.TextDocument) {
+    this.documents.delete(doc.uri.toString());
+  }
+
   onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
-    this.logger.appendLine(`${now()} extension: onDidChangeConfiguration: ${e?.affectsConfiguration}`);
+    this.log(`onDidChangeConfiguration: ${e?.affectsConfiguration}`);
     try {
       if (e.affectsConfiguration("dim")) {
         this.config.invalidate();
         vscode.window.visibleTextEditors.forEach((editor) => {
-          this.decorators.get(editor)?.configChange();
+          this.editors.get(editor)?.configChange();
         });
       }
     } catch (e) {
@@ -115,13 +158,13 @@ class ExtensionLifecycleController {
   }
 
   onCommandReceiveDisableDimForCurrentEditor() {
-    this.logger.appendLine(`${now()} extension: disableDimForCurrentEditor`);
+    this.log(`disableDimForCurrentEditor`);
     try {
-      if (this.activeEditor) {
-        const ad = this.decorators.get(this.activeEditor);
+      if (vscode.window.activeTextEditor) {
+        const ad = this.editors.get(vscode.window.activeTextEditor);
         if (ad) {
           ad.disable();
-          this.documentState.set(this.activeEditor.document.uri.toString(false), ad.isEnabled());
+          this.documentState.set(vscode.window.activeTextEditor.document.uri.toString(false), ad.isEnabled());
         }
       }
     } catch (e) {
@@ -130,13 +173,13 @@ class ExtensionLifecycleController {
   }
 
   onCommandReceiveEnableDimForCurrentEditor() {
-    this.logger.appendLine(`${now()} extension: enableDimForCurrentEditor`);
+    this.log(`enableDimForCurrentEditor`);
     try {
-      if (this.activeEditor) {
-        const ad = this.decorators.get(this.activeEditor);
+      if (vscode.window.activeTextEditor) {
+        const ad = this.editors.get(vscode.window.activeTextEditor);
         if (ad) {
           ad.enable();
-          this.documentState.set(this.activeEditor.document.uri.toString(false), ad.isEnabled()); // read comment above
+          this.documentState.set(vscode.window.activeTextEditor.document.uri.toString(false), ad.isEnabled()); // read comment above
         }
       }
     } catch (e) {
@@ -145,13 +188,13 @@ class ExtensionLifecycleController {
   }
 
   onCommandReceiveToggleDimForCurrentEditor() {
-    this.logger.appendLine(`${now()} extension: toggleDimForCurrentEditor`);
+    this.log(`toggleDimForCurrentEditor`);
     try {
-      if (!this.activeEditor) return;
-      const ad = this.decorators.get(this.activeEditor);
+      if (!vscode.window.activeTextEditor) return;
+      const ad = this.editors.get(vscode.window.activeTextEditor);
       if (ad) {
         ad.toggle();
-        this.documentState.set(this.activeEditor.document.uri.toString(false), ad.isEnabled()); // read comment above
+        this.documentState.set(vscode.window.activeTextEditor.document.uri.toString(false), ad.isEnabled()); // read comment above
       }
     } catch (e) {
       this.prompt(e);
@@ -160,9 +203,9 @@ class ExtensionLifecycleController {
 
   onDidChangeTextEditorSelection(event: vscode.TextEditorSelectionChangeEvent) {
     try {
-      if (this.activeEditor && this.activeEditor === event.textEditor) {
-        this.logger.appendLine(`${now()} extension: change selections: ${event?.kind}/${event?.selections?.length}`);
-        this.decorators.get(this.activeEditor)?.selectionChange();
+      if (vscode.window.activeTextEditor && vscode.window.activeTextEditor === event.textEditor) {
+        this.log(`change selections: ${event?.kind}/${event?.selections?.length}`);
+        this.editors.get(vscode.window.activeTextEditor)?.selectionChange();
       }
     } catch (e) {
       this.prompt(e);
@@ -170,10 +213,10 @@ class ExtensionLifecycleController {
   }
 
   destroy() {
-    this.logger.appendLine(`${now()} extension: destroy`);
+    this.log(`destroy`);
     try {
       for (const editor of vscode.window.visibleTextEditors) {
-        this.decorators.get(editor)?.disable();
+        this.editors.get(editor)?.disable();
       }
     } catch (e) {
       this.prompt(e);

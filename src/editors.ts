@@ -16,7 +16,7 @@ export function sprintRange(range: vscode.Range): string {
   return `[${sprintPos(range.start)}, ${sprintPos(range.end)}]`;
 }
 
-function styles(config: models.Config): models.DecorationTypes {
+function decorationTypes(config: models.Config): models.DecorationTypes {
   return {
     "max": vscode.window.createTextEditorDecorationType({
       "opacity": config.valueForMaxTier.toString(),
@@ -42,29 +42,23 @@ export class Controller {
   private logger: vscode.OutputChannel;
   private decoTypes: models.DecorationTypes | undefined;
   private enabled: boolean;
-  private inFocus: boolean;
+  private inSessionForConfigEdit: boolean; // don't pass selected areas
 
   private lastUpdateTimestamp: number;
   private timeoutForScheduler: NodeJS.Timeout | undefined;
 
   private document: documents.Controller;
 
-  constructor(
-    editor: vscode.TextEditor,
-    doc: documents.Controller,
-    config: cm.Cache,
-    enabled: boolean,
-    logger: vscode.OutputChannel,
-  ) {
-    this.editor = editor;
-    this.config = config;
-    this.logger = logger;
-    this.enabled = enabled;
-    this.document = doc;
-    this.inFocus = true;
-    this.filename = editor.document.fileName.split("/").pop() ?? "";
+  constructor(te: vscode.TextEditor, dc: documents.Controller, cc: cm.Cache, e: boolean, l: vscode.OutputChannel) {
+    this.editor = te;
+    this.config = cc;
+    this.logger = l;
+    this.enabled = e;
+    this.document = dc;
+    this.inSessionForConfigEdit = true;
+    this.filename = te.document.fileName.split("/").pop() ?? "";
     this.lastUpdateTimestamp = 0;
-    this.log(`constructor (enabled: ${enabled})`);
+    this.log(`constructor (enabled: ${e})`);
     this.withConfig();
   }
 
@@ -82,11 +76,10 @@ export class Controller {
 
   private withConfig() {
     if (this.decoTypes) this.disposeLastDecorations();
-    this.decoTypes = styles(this.config.for(this.editor.document));
+    this.decoTypes = decorationTypes(this.config.for(this.editor.document));
   }
 
   private isInOneOfSelectedAreas(range: vscode.Range): boolean {
-    if (!this.inFocus) return false;
     if (!this.editor.selections) return false;
     for (const selection of this.editor.selections) {
       if (selection.intersection(range)) return true;
@@ -131,7 +124,9 @@ export class Controller {
   private decorateTier(op: config.Opacity) {
     let matches = this.matchesFor(op);
     matches = this.mergeIntersecting(matches);
-    matches = matches.filter((range) => !this.isInOneOfSelectedAreas(range));
+    if (!this.inSessionForConfigEdit) {
+      matches = matches.filter((range) => !this.isInOneOfSelectedAreas(range));
+    }
     this.editor.setDecorations(this.decoTypes.max, matches);
   }
 
@@ -164,17 +159,6 @@ export class Controller {
         this.timeoutForScheduler = undefined;
       }, waitTime);
     }
-  }
-
-  blur() {
-    this.log(`blur`);
-    this.inFocus = false;
-  }
-
-  focus() {
-    this.log(`focus`);
-    this.inFocus = true;
-    this.schedule();
   }
 
   contentChange() {
@@ -212,5 +196,15 @@ export class Controller {
 
   isEnabled() {
     return this.enabled;
+  }
+
+  startConfigSession() {
+    this.log("started to ignore selected areas during config edit");
+    this.inSessionForConfigEdit = true;
+  }
+
+  endConfigSession() {
+    this.log("ended to ignore selected areas during config edit");
+    this.inSessionForConfigEdit = true;
   }
 }
