@@ -18,6 +18,7 @@ class LifecycleController {
   private documentState: Map<string, boolean>; // per-doc toggle
   private editors: Map<vscode.TextEditor, editors.Controller>;
   private logger: vscode.OutputChannel;
+  private editingConfig: boolean;
 
   constructor(context: vscode.ExtensionContext) {
     this.logger = vscode.window.createOutputChannel("dim", "log");
@@ -27,6 +28,7 @@ class LifecycleController {
     this.documents = new Map();
     this.documentState = new Map();
     this.editors = new Map();
+    this.editingConfig = false;
 
     context.subscriptions.push(
       vscode.commands.registerCommand("dim.disableDimForCurrentEditor", this.disableForDocument, this),
@@ -48,7 +50,9 @@ class LifecycleController {
     }
 
     for (const te of vscode.window.visibleTextEditors) {
-      this.editorAppeared(te);
+      if (isFile(te)) {
+        this.editorAppeared(te);
+      }
     }
   }
 
@@ -123,8 +127,6 @@ class LifecycleController {
         if (!this.editors.has(te)) {
           if (isFile(te)) {
             this.editorAppeared(te);
-          } else if (isConfig(te)) {
-            this.configEditorAppeared();
           }
         }
       }
@@ -133,20 +135,23 @@ class LifecycleController {
         if (!next.has(te)) {
           if (isFile(te)) {
             this.editorDisappeared(te);
-          } else if (isConfig(te)) {
-            this.configEditorDisappeared();
           }
         }
       }
+      let editingConfig = false;
+      for (const te of tes) if (isConfig(te)) editingConfig = true;
+      if (editingConfig && !this.editingConfig) this.configEditorAppeared();
+      else if (!editingConfig && editingConfig) this.configEditorDisappeared();
+      this.editingConfig = editingConfig;
     } catch (e) {
       this.prompt(e);
     }
   }
 
   configChanged(e: vscode.ConfigurationChangeEvent) {
-    this.log(`event received: configuration change: ${e?.affectsConfiguration}`);
     try {
       if (e.affectsConfiguration("dim")) {
+        this.log(`event received: extension configuration change`);
         this.config.invalidate();
         vscode.window.visibleTextEditors.forEach((editor) => {
           this.editors.get(editor)?.configChange();
@@ -161,11 +166,13 @@ class LifecycleController {
     this.log(`event received: disable Dim for current editor`);
     try {
       if (vscode.window.activeTextEditor) {
-        const ad = this.editors.get(vscode.window.activeTextEditor);
-        if (ad) {
-          ad.disable();
-          this.documentState.set(vscode.window.activeTextEditor.document.uri.toString(false), ad.isEnabled());
+        const uri = vscode.window.activeTextEditor.document.uri;
+        for (const [te, ec] of this.editors) {
+          if (te.document.uri === uri) {
+            ec.disable();
+          }
         }
+        this.documentState.set(uri.toString(), false);
       }
     } catch (e) {
       this.prompt(e);
@@ -176,11 +183,13 @@ class LifecycleController {
     this.log(`event received: enable Dim for current editor`);
     try {
       if (vscode.window.activeTextEditor) {
-        const ad = this.editors.get(vscode.window.activeTextEditor);
-        if (ad) {
-          ad.enable();
-          this.documentState.set(vscode.window.activeTextEditor.document.uri.toString(false), ad.isEnabled()); // read comment above
+        const uri = vscode.window.activeTextEditor.document.uri;
+        for (const [te, ec] of this.editors) {
+          if (te.document.uri === uri) {
+            ec.enable();
+          }
         }
+        this.documentState.set(uri.toString(), true);
       }
     } catch (e) {
       this.prompt(e);
@@ -190,11 +199,17 @@ class LifecycleController {
   toggleForDocument() {
     this.log(`event received: toggle Dim for current editor`);
     try {
-      if (!vscode.window.activeTextEditor) return;
-      const ad = this.editors.get(vscode.window.activeTextEditor);
-      if (ad) {
-        ad.toggle();
-        this.documentState.set(vscode.window.activeTextEditor.document.uri.toString(false), ad.isEnabled()); // read comment above
+      if (vscode.window.activeTextEditor) {
+        const uri = vscode.window.activeTextEditor.document.uri;
+        const state = this.documentState.get(uri.toString()) ?? true;
+        const next = !state;
+        for (const [te, ec] of this.editors) {
+          if (te.document.uri === uri) {
+            if (next) ec.enable();
+            else ec.disable();
+          }
+        }
+        this.documentState.set(uri.toString(), next);
       }
     } catch (e) {
       this.prompt(e);
@@ -204,7 +219,7 @@ class LifecycleController {
   selectionsChanged(event: vscode.TextEditorSelectionChangeEvent) {
     try {
       if (vscode.window.activeTextEditor && vscode.window.activeTextEditor === event.textEditor) {
-        this.log(`change selections: ${event?.kind}/${event?.selections?.length}`);
+        this.log(`event received: selections changed`);
         this.editors.get(vscode.window.activeTextEditor)?.selectionChange();
       }
     } catch (e) {

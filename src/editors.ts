@@ -143,24 +143,21 @@ export class Controller {
   disable() {
     this.log(`disabling...`);
     this.enabled = false;
-  }
-
-  toggle() {
-    if (this.enabled) this.disable();
-    else this.enable();
-  }
-
-  isEnabled() {
-    return this.enabled;
+    const config = this.config.for(this.editor.document);
+    this.editor.setDecorations(config.decoTypes.max, []);
+    this.editor.setDecorations(config.decoTypes.mid, []);
+    this.editor.setDecorations(config.decoTypes.min, []);
   }
 
   startConfigSession() {
     this.log("started to ignore selected areas during config edit");
     this.inSessionForConfigEdit = true;
+    this.schedule();
   }
 
   endConfigSession() {
     this.log("ended to ignore selected areas during config edit");
     this.inSessionForConfigEdit = false;
+    this.schedule();
   }
 }
