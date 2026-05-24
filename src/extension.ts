@@ -103,6 +103,7 @@ class LifecycleController {
   }
 
   onDidChangeVisibleTextEditors(tes: readonly vscode.TextEditor[]) {
+    this.log("event received: visible editors changed");
     try {
       for (const te of tes) {
         if (!this.editors.has(te)) {
@@ -148,7 +149,7 @@ class LifecycleController {
   }
 
   onDidChangeConfiguration(e: vscode.ConfigurationChangeEvent) {
-    this.log(`onDidChangeConfiguration: ${e?.affectsConfiguration}`);
+    this.log(`event received: configuration change: ${e?.affectsConfiguration}`);
     try {
       if (e.affectsConfiguration("dim")) {
         this.config.invalidate();
@@ -162,7 +163,7 @@ class LifecycleController {
   }
 
   onCommandReceiveDisableDimForCurrentEditor() {
-    this.log(`disableDimForCurrentEditor`);
+    this.log(`event received: disable Dim for current editor`);
     try {
       if (vscode.window.activeTextEditor) {
         const ad = this.editors.get(vscode.window.activeTextEditor);
@@ -177,7 +178,7 @@ class LifecycleController {
   }
 
   onCommandReceiveEnableDimForCurrentEditor() {
-    this.log(`enableDimForCurrentEditor`);
+    this.log(`event received: enable Dim for current editor`);
     try {
       if (vscode.window.activeTextEditor) {
         const ad = this.editors.get(vscode.window.activeTextEditor);
@@ -192,7 +193,7 @@ class LifecycleController {
   }
 
   onCommandReceiveToggleDimForCurrentEditor() {
-    this.log(`toggleDimForCurrentEditor`);
+    this.log(`event received: toggle Dim for current editor`);
     try {
       if (!vscode.window.activeTextEditor) return;
       const ad = this.editors.get(vscode.window.activeTextEditor);
