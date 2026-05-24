@@ -145,7 +145,7 @@ class LifecycleController {
       let editingConfig = false;
       for (const te of tes) if (isConfig(te)) editingConfig = true;
       if (editingConfig && !this.editingConfig) this.configEditorAppeared();
-      else if (!editingConfig && editingConfig) this.configEditorDisappeared();
+      else if (!editingConfig && this.editingConfig) this.configEditorDisappeared();
       this.editingConfig = editingConfig;
     } catch (e) {
       this.prompt(e);
