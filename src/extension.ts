@@ -65,14 +65,18 @@ class LifecycleController {
   }
 
   documentOpened(td: vscode.TextDocument) {
-    this.log(`event received: document opened: ${filename(td.uri)}`);
-    const dc = new documents.Controller(this.logger, td, this.config);
-    this.documents.set(td.uri.toString(), dc);
+    if (td.uri.scheme === "file" && filename(td.uri) !== "settings.json") {
+      this.log(`event received: document opened: ${filename(td.uri)}`);
+      const dc = new documents.Controller(this.logger, td, this.config);
+      this.documents.set(td.uri.toString(), dc);
+    }
   }
 
   documentClosed(td: vscode.TextDocument) {
-    this.log(`event received: document closed: ${filename(td.uri)}`);
-    this.documents.delete(td.uri.toString());
+    if (td.uri.scheme === "file" && filename(td.uri) !== "settings.json") {
+      this.log(`event received: document closed: ${filename(td.uri)}`);
+      this.documents.delete(td.uri.toString());
+    }
   }
 
   documentContentChanged(event: vscode.TextDocumentChangeEvent) {
