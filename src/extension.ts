@@ -52,6 +52,10 @@ class LifecycleController {
       vscode.workspace.onDidCloseTextDocument(this.onDidCloseTextDocument, this),
     );
 
+    for (const td of vscode.workspace.textDocuments) {
+      this.onDidOpenTextDocument(td);
+    }
+
     for (const te of vscode.window.visibleTextEditors) {
       this.onDidAppearTextEditor(te);
     }
