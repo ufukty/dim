@@ -35,7 +35,6 @@ class LifecycleController {
     this.documentState = new Map();
     this.editors = new Map();
 
-    /* prettier-ignore */
     context.subscriptions.push(
       vscode.commands.registerCommand("dim.disableDimForCurrentEditor", this.disableForDocument, this),
       vscode.commands.registerCommand("dim.enableDimForCurrentEditor", this.enableForDocument, this),
