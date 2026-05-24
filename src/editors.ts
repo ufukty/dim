@@ -18,18 +18,9 @@ export function sprintRange(range: vscode.Range): string {
 
 function decorationTypes(config: models.Config): models.DecorationTypes {
   return {
-    "max": vscode.window.createTextEditorDecorationType({
-      "opacity": config.valueForMaxTier.toString(),
-      "isWholeLine": false,
-    }),
-    "mid": vscode.window.createTextEditorDecorationType({
-      "opacity": config.valueForMidTier.toString(),
-      "isWholeLine": false,
-    }),
-    "min": vscode.window.createTextEditorDecorationType({
-      "opacity": config.valueForMinTier.toString(),
-      "isWholeLine": false,
-    }),
+    "max": vscode.window.createTextEditorDecorationType({ "opacity": config.valueForMaxTier.toString() }),
+    "mid": vscode.window.createTextEditorDecorationType({ "opacity": config.valueForMidTier.toString() }),
+    "min": vscode.window.createTextEditorDecorationType({ "opacity": config.valueForMinTier.toString() }),
   };
 }
 
