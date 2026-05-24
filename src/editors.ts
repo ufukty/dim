@@ -8,14 +8,6 @@ function now(): string {
   return new Date().toISOString();
 }
 
-export function sprintPos(pos: vscode.Position): string {
-  return `${pos.line + 1}:${pos.character + 1}`;
-}
-
-export function sprintRange(range: vscode.Range): string {
-  return `[${sprintPos(range.start)}, ${sprintPos(range.end)}]`;
-}
-
 const tiers = [config.Opacity.Min, config.Opacity.Mid, config.Opacity.Max];
 
 export class Controller {
