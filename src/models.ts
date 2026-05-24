@@ -1,12 +1,6 @@
 import * as vscode from "vscode";
 import * as config from "./config";
 
-export interface PerDecorationQueue {
-  "max": vscode.Range[];
-  "mid": vscode.Range[];
-  "min": vscode.Range[];
-}
-
 export interface DecorationTypes {
   "max": vscode.TextEditorDecorationType;
   "mid": vscode.TextEditorDecorationType;
