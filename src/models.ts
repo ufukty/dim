@@ -15,8 +15,6 @@ export interface Rule {
 
 export interface Config {
   rules: Rule[];
-  valueForMaxTier: number;
-  valueForMidTier: number;
-  valueForMinTier: number;
+  decoTypes: DecorationTypes;
   updatePeriod: number;
 }

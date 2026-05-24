@@ -16,14 +16,6 @@ export function sprintRange(range: vscode.Range): string {
   return `[${sprintPos(range.start)}, ${sprintPos(range.end)}]`;
 }
 
-function decorationTypes(config: models.Config): models.DecorationTypes {
-  return {
-    "max": vscode.window.createTextEditorDecorationType({ "opacity": config.valueForMaxTier.toString() }),
-    "mid": vscode.window.createTextEditorDecorationType({ "opacity": config.valueForMidTier.toString() }),
-    "min": vscode.window.createTextEditorDecorationType({ "opacity": config.valueForMinTier.toString() }),
-  };
-}
-
 const tiers = [config.Opacity.Min, config.Opacity.Mid, config.Opacity.Max];
 
 export class Controller {
@@ -31,8 +23,7 @@ export class Controller {
   private config: cm.Cache;
   private filename: string;
   private logger: vscode.OutputChannel;
-  private decoTypes: models.DecorationTypes | undefined;
-  private enabled: boolean;
+  private enabled: boolean; // local proxy for per-doc toggle
   private inSessionForConfigEdit: boolean; // don't pass selected areas
 
   private lastUpdateTimestamp: number;
@@ -50,24 +41,10 @@ export class Controller {
     this.filename = te.document.fileName.split("/").pop() ?? "";
     this.lastUpdateTimestamp = 0;
     this.log(`constructor (enabled: ${e})`);
-    this.withConfig();
   }
 
   private log(message: string) {
-    this.logger.appendLine(`${now()} editorDecorator(${this.filename}): ${message}`);
-  }
-
-  private disposeLastDecorations() {
-    this.log(`disposing previous decorations`);
-    if (!this.decoTypes) return;
-    this.editor.setDecorations(this.decoTypes.max, []);
-    this.editor.setDecorations(this.decoTypes.mid, []);
-    this.editor.setDecorations(this.decoTypes.min, []);
-  }
-
-  private withConfig() {
-    if (this.decoTypes) this.disposeLastDecorations();
-    this.decoTypes = decorationTypes(this.config.for(this.editor.document));
+    this.logger.appendLine(`${now()} editor(${this.filename}): ${message}`);
   }
 
   private isInOneOfSelectedAreas(range: vscode.Range): boolean {
@@ -112,21 +89,22 @@ export class Controller {
     return merged;
   }
 
-  private decorateTier(op: config.Opacity) {
+  private decorateTier(config: models.Config, op: config.Opacity) {
     let matches = this.matchesFor(op);
     matches = this.mergeIntersecting(matches);
     if (!this.inSessionForConfigEdit) {
       matches = matches.filter((range) => !this.isInOneOfSelectedAreas(range));
     }
-    this.editor.setDecorations(this.decoTypes.max, matches);
+    this.editor.setDecorations(config.decoTypes.max, matches);
   }
 
   private decorate() {
     this.log(`decorating...`);
     const start = Date.now();
 
+    const config = this.config.for(this.editor.document);
     for (const op of tiers) {
-      this.decorateTier(op);
+      this.decorateTier(config, op);
     }
 
     this.log(`decorated (${Date.now() - start}ms)`);
@@ -164,7 +142,6 @@ export class Controller {
 
   configChange() {
     this.log(`configuration change`);
-    this.withConfig();
     this.schedule();
   }
 
@@ -177,7 +154,6 @@ export class Controller {
   disable() {
     this.log(`disabling...`);
     this.enabled = false;
-    this.disposeLastDecorations();
   }
 
   toggle() {
@@ -196,6 +172,6 @@ export class Controller {
 
   endConfigSession() {
     this.log("ended to ignore selected areas during config edit");
-    this.inSessionForConfigEdit = true;
+    this.inSessionForConfigEdit = false;
   }
 }

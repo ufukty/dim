@@ -56,21 +56,26 @@ export class Controller {
     return ranges;
   }
 
-  private rules() {
+  private rules(): Map<models.Rule, vscode.Range[]> {
     const range = this.document.validateRange(
       new vscode.Range(new vscode.Position(0, 0), new vscode.Position(2000, 0)),
     );
     this.log(`scanning lines: ${sprintRange(range)}`);
-    this.matches = new Map();
+    const matches = new Map<models.Rule, vscode.Range[]>();
     for (const rule of this.config.for(this.document).rules) {
-      this.matches.set(rule, this.rule(range, rule));
+      matches.set(rule, this.rule(range, rule));
     }
+    return matches;
   }
 
   get(): Map<models.Rule, vscode.Range[]> {
-    if (this.matches) return this.matches;
+    if (!this.matches) {
+      this.matches = this.rules();
+    }
     return this.matches;
   }
 
-  invalidate();
+  invalidate() {
+    this.matches = undefined;
+  }
 }

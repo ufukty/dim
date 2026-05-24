@@ -96,17 +96,22 @@ class Compiler {
     return rules;
   }
 
+  private decoTypes(raw: config.File): models.DecorationTypes {
+    return {
+      max: vscode.window.createTextEditorDecorationType({ "opacity": raw.valueForMaxTier.toString() }),
+      mid: vscode.window.createTextEditorDecorationType({ "opacity": raw.valueForMidTier.toString() }),
+      min: vscode.window.createTextEditorDecorationType({ "opacity": raw.valueForMinTier.toString() }),
+    };
+  }
+
   compile(scope: Scope): models.Config {
     try {
       this.logger.appendLine(`${now()} config.Compiler: compiling user config for ${scope}`);
       const raw = this.reader.read(scope);
-      const rules = this.rules(raw);
       return {
-        rules: rules,
+        rules: this.rules(raw),
         updatePeriod: raw.updatePeriod,
-        valueForMaxTier: raw.valueForMaxTier,
-        valueForMidTier: raw.valueForMidTier,
-        valueForMinTier: raw.valueForMinTier,
+        decoTypes: this.decoTypes(raw),
       } satisfies models.Config;
     } catch (e) {
       throw typeof e === "string" ? `compile for ${scope}: ${e}` : e;
@@ -142,6 +147,14 @@ export class Cache {
       return c;
     } catch (e) {
       throw typeof e === "string" ? `for: ${e}` : e;
+    }
+  }
+
+  private disposeDecoTypes() {
+    for (const [, config] of this.cache) {
+      config.decoTypes.max.dispose();
+      config.decoTypes.mid.dispose();
+      config.decoTypes.min.dispose();
     }
   }
 
