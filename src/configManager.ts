@@ -125,10 +125,14 @@ export class Cache {
     this.logger = l;
   }
 
+  private log(message: string) {
+    this.logger.appendLine(`${now()} config.Cache: ${message}`);
+  }
+
   for(document: vscode.TextDocument): models.Config {
     try {
       const scope = new Scope(document);
-      this.logger.appendLine(`${now()} config.Manager: requested user config for ${scope}`);
+      this.log(`requested compiled config for ${scope}`);
       const i = scope.internalize();
       let c = this.cache.get(i);
       if (!c) {
@@ -142,7 +146,8 @@ export class Cache {
   }
 
   invalidate() {
-    this.logger.appendLine(`${now()} config.Manager: invalidating cache`);
+    this.log(`invalidate`);
+    this.disposeDecoTypes();
     this.cache.clear();
   }
 }
