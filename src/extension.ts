@@ -19,7 +19,7 @@ function isConfig(te: vscode.TextEditor | undefined): boolean {
   );
 }
 
-class ExtensionLifecycleController {
+class LifecycleController {
   private config: cm.Cache;
   private documents: Map<string, documents.Controller>;
   private documentState: Map<string, boolean>; // per-doc toggle
@@ -224,10 +224,10 @@ class ExtensionLifecycleController {
   }
 }
 
-let c: ExtensionLifecycleController;
+let c: LifecycleController;
 
 export function activate(context: vscode.ExtensionContext) {
-  c = new ExtensionLifecycleController(context);
+  c = new LifecycleController(context);
 }
 
 export function deactivate() {
