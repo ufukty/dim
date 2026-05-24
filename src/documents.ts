@@ -1,10 +1,7 @@
 import * as vscode from "vscode";
 import * as cm from "./configManager";
 import * as models from "./models";
-
-function now(): string {
-  return new Date().toISOString();
-}
+import { filename, now } from "./utils";
 
 export function sprintPos(pos: vscode.Position): string {
   return `${pos.line + 1}:${pos.character + 1}`;
@@ -37,7 +34,7 @@ export class Controller {
   }
 
   private log(message: string) {
-    this.logger.appendLine(`${now()} document(${this.document.uri}): ${message}`);
+    this.logger.appendLine(`${now()} document(${filename(this.document.uri)}): ${message}`);
   }
 
   private rule(range: vscode.Range, rule: models.Rule): vscode.Range[] {

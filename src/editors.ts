@@ -3,10 +3,7 @@ import * as cm from "./configManager";
 import * as models from "./models";
 import * as config from "./config";
 import * as documents from "./documents";
-
-function now(): string {
-  return new Date().toISOString();
-}
+import { filename, now } from "./utils";
 
 const tiers = [config.Opacity.Min, config.Opacity.Mid, config.Opacity.Max];
 
@@ -30,7 +27,7 @@ export class Controller {
     this.enabled = e;
     this.document = dc;
     this.inSessionForConfigEdit = true;
-    this.filename = te.document.fileName.split("/").pop() ?? "";
+    this.filename = filename(te.document.uri);
     this.lastUpdateTimestamp = 0;
     this.log(`constructor (enabled: ${e})`);
   }

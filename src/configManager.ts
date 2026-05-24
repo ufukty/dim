@@ -1,10 +1,7 @@
 import * as vscode from "vscode";
 import * as config from "./config";
 import * as models from "./models";
-
-function now(): string {
-  return new Date().toISOString();
-}
+import { filename, now } from "./utils";
 
 type ScopeId = string;
 
@@ -18,7 +15,7 @@ class Scope {
   }
 
   toString(): string {
-    return `${this.uri.toString()} (${this.languageId})`;
+    return `${filename(this.uri)} (${this.languageId})`;
   }
 
   internalize(): ScopeId {

@@ -2,21 +2,14 @@ import * as vscode from "vscode";
 import * as documents from "./documents";
 import * as editors from "./editors";
 import * as cm from "./configManager";
-
-function now(): string {
-  return new Date().toISOString();
-}
-
-function filename(td: vscode.TextDocument): string {
-  return td.uri.path.split("/").pop() ?? "";
-}
+import { filename, now } from "./utils";
 
 function isFile(te: vscode.TextEditor | undefined): boolean {
-  return te !== undefined && te.document.uri.scheme === "file" && filename(te.document) !== "settings.json";
+  return te !== undefined && te.document.uri.scheme === "file" && filename(te.document.uri) !== "settings.json";
 }
 
 function isConfig(te: vscode.TextEditor | undefined): boolean {
-  return te !== undefined && te.document.uri.scheme === "file" && filename(te.document) === "settings.json";
+  return te !== undefined && te.document.uri.scheme === "file" && filename(te.document.uri) === "settings.json";
 }
 
 class LifecycleController {
@@ -68,13 +61,13 @@ class LifecycleController {
   }
 
   documentOpened(td: vscode.TextDocument) {
-    this.log(`event received: document opened: ${filename(td)}`);
+    this.log(`event received: document opened: ${filename(td.uri)}`);
     const dc = new documents.Controller(this.logger, td, this.config);
     this.documents.set(td.uri.toString(), dc);
   }
 
   documentClosed(td: vscode.TextDocument) {
-    this.log(`event received: document closed: ${filename(td)}`);
+    this.log(`event received: document closed: ${filename(td.uri)}`);
     this.documents.delete(td.uri.toString());
   }
 
@@ -94,7 +87,7 @@ class LifecycleController {
   }
 
   editorAppeared(te: vscode.TextEditor) {
-    this.log(`event received: editor appeared: ${filename(te.document)}`);
+    this.log(`event received: editor appeared: ${filename(te.document.uri)}`);
     const td = this.documents.get(te.document.uri.toString());
     if (!td) {
       this.log("expected its document before editor");
@@ -105,7 +98,7 @@ class LifecycleController {
   }
 
   editorDisappeared(te: vscode.TextEditor) {
-    this.log(`event received: editor disappeared: ${filename(te.document)}`);
+    this.log(`event received: editor disappeared: ${filename(te.document.uri)}`);
     this.editors.delete(te);
   }
 
