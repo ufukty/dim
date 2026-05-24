@@ -39,11 +39,10 @@ class LifecycleController {
       vscode.commands.registerCommand("dim.disableDimForCurrentEditor", this.disableForDocument, this),
       vscode.commands.registerCommand("dim.enableDimForCurrentEditor", this.enableForDocument, this),
       vscode.commands.registerCommand("dim.toggleDimForCurrentEditor", this.toggleForDocument, this),
-      
+
       vscode.window.onDidChangeVisibleTextEditors(this.visibleEditorsChanged, this),
-      
       vscode.window.onDidChangeTextEditorSelection(this.selectionsChanged, this),
-      
+
       vscode.workspace.onDidChangeConfiguration(this.configChanged, this),
 
       vscode.workspace.onDidOpenTextDocument(this.documentOpened, this),
@@ -69,12 +68,14 @@ class LifecycleController {
   }
 
   documentOpened(td: vscode.TextDocument) {
+    this.log(`event received: document opened: ${td.uri.toString()}`);
     const dc = new documents.Controller(this.logger, td, this.config);
     this.documents.set(td.uri.toString(), dc);
   }
 
-  documentClosed(doc: vscode.TextDocument) {
-    this.documents.delete(doc.uri.toString());
+  documentClosed(td: vscode.TextDocument) {
+    this.log(`event received: document closed: ${td.uri.toString()}`);
+    this.documents.delete(td.uri.toString());
   }
 
   documentContentChanged(event: vscode.TextDocumentChangeEvent) {
@@ -84,7 +85,7 @@ class LifecycleController {
         event.document.uri.path === vscode.window.activeTextEditor.document.uri.path &&
         event.document.uri.scheme === "file"
       ) {
-        this.log(`onDidChangeTextDocument: ${event?.reason}`);
+        this.log(`event received: document content changed`);
         this.editors.get(vscode.window.activeTextEditor)?.contentChange();
       }
     } catch (e) {
@@ -93,6 +94,7 @@ class LifecycleController {
   }
 
   editorAppeared(te: vscode.TextEditor) {
+    this.log(`event received: editor appeared: ${te.document.uri.toString()}`);
     const td = this.documents.get(te.document.uri.toString());
     if (!td) {
       this.log("expected its document before editor");
@@ -103,6 +105,7 @@ class LifecycleController {
   }
 
   editorDisappeared(te: vscode.TextEditor) {
+    this.log(`event received: editor disappeared: ${te.document.uri.toString()}`);
     this.editors.delete(te);
   }
 
