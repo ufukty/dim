@@ -7,16 +7,16 @@ function now(): string {
   return new Date().toISOString();
 }
 
+function filename(td: vscode.TextDocument): string {
+  return td.uri.path.split("/").pop() ?? "";
+}
+
 function isFile(te: vscode.TextEditor | undefined): boolean {
-  return (
-    te !== undefined && te.document.uri.scheme === "file" && te.document.uri.path.split("/").pop() !== "settings.json"
-  );
+  return te !== undefined && te.document.uri.scheme === "file" && filename(te.document) !== "settings.json";
 }
 
 function isConfig(te: vscode.TextEditor | undefined): boolean {
-  return (
-    te !== undefined && te.document.uri.scheme === "file" && te.document.uri.path.split("/").pop() === "settings.json"
-  );
+  return te !== undefined && te.document.uri.scheme === "file" && filename(te.document) === "settings.json";
 }
 
 class LifecycleController {
@@ -27,7 +27,7 @@ class LifecycleController {
   private logger: vscode.OutputChannel;
 
   constructor(context: vscode.ExtensionContext) {
-    this.logger = vscode.window.createOutputChannel("dim");
+    this.logger = vscode.window.createOutputChannel("dim", "log");
     this.log(`init`);
 
     this.config = new cm.Cache(this.logger);
@@ -64,17 +64,17 @@ class LifecycleController {
   }
 
   log(message: string) {
-    this.logger.appendLine(`${now()} extension: ${message}`);
+    this.logger.appendLine(`${now()} [info] extension: ${message}`);
   }
 
   documentOpened(td: vscode.TextDocument) {
-    this.log(`event received: document opened: ${td.uri.toString()}`);
+    this.log(`event received: document opened: ${filename(td)}`);
     const dc = new documents.Controller(this.logger, td, this.config);
     this.documents.set(td.uri.toString(), dc);
   }
 
   documentClosed(td: vscode.TextDocument) {
-    this.log(`event received: document closed: ${td.uri.toString()}`);
+    this.log(`event received: document closed: ${filename(td)}`);
     this.documents.delete(td.uri.toString());
   }
 
@@ -94,7 +94,7 @@ class LifecycleController {
   }
 
   editorAppeared(te: vscode.TextEditor) {
-    this.log(`event received: editor appeared: ${te.document.uri.toString()}`);
+    this.log(`event received: editor appeared: ${filename(te.document)}`);
     const td = this.documents.get(te.document.uri.toString());
     if (!td) {
       this.log("expected its document before editor");
@@ -105,7 +105,7 @@ class LifecycleController {
   }
 
   editorDisappeared(te: vscode.TextEditor) {
-    this.log(`event received: editor disappeared: ${te.document.uri.toString()}`);
+    this.log(`event received: editor disappeared: ${filename(te.document)}`);
     this.editors.delete(te);
   }
 
