@@ -49,11 +49,7 @@ class LifecycleController {
       this.documentOpened(td);
     }
 
-    for (const te of vscode.window.visibleTextEditors) {
-      if (isFile(te)) {
-        this.editorAppeared(te);
-      }
-    }
+    this.visibleEditorsChanged(vscode.window.visibleTextEditors);
   }
 
   prompt(e: unknown) {
