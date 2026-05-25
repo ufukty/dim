@@ -13,7 +13,7 @@ function isForFile(te: vscode.TextEditor | undefined): boolean {
 }
 
 function isConfig(td: vscode.TextDocument): boolean {
-  return td.uri.scheme === "file" && filename(td.uri) === "settings.json";
+  return td.uri.scheme === "vscode-userdata" && filename(td.uri) === "settings.json";
 }
 
 function isForConfig(te: vscode.TextEditor | undefined): boolean {
@@ -115,14 +115,14 @@ class LifecycleController {
   }
 
   configEditorAppeared() {
-    this.log("config editor appeared. the extension will dim selected areas");
+    this.log("config editor appeared. the extension will pause on skipping selected areas");
     for (const [, ec] of this.editors) {
       ec.startConfigSession();
     }
   }
 
   configEditorDisappeared() {
-    this.log("config editor appeared. the extension will ignore selected areas");
+    this.log("config editor disappeared. the extension will continue to skip selected areas");
     for (const [, ec] of this.editors) {
       ec.endConfigSession();
     }
