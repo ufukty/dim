@@ -4,12 +4,20 @@ import * as editors from "./editors";
 import * as cm from "./configManager";
 import { filename, now } from "./utils";
 
-function isFile(te: vscode.TextEditor | undefined): boolean {
-  return te !== undefined && te.document.uri.scheme === "file" && filename(te.document.uri) !== "settings.json";
+function isFile(td: vscode.TextDocument): boolean {
+  return td.uri.scheme === "file" && filename(td.uri) !== "settings.json";
 }
 
-function isConfig(te: vscode.TextEditor | undefined): boolean {
-  return te !== undefined && te.document.uri.scheme === "file" && filename(te.document.uri) === "settings.json";
+function isForFile(te: vscode.TextEditor | undefined): boolean {
+  return te !== undefined && isFile(te.document);
+}
+
+function isConfig(td: vscode.TextDocument): boolean {
+  return td.uri.scheme === "file" && filename(td.uri) === "settings.json";
+}
+
+function isForConfig(te: vscode.TextEditor | undefined): boolean {
+  return te !== undefined && isConfig(te.document);
 }
 
 class LifecycleController {
@@ -61,7 +69,7 @@ class LifecycleController {
   }
 
   documentOpened(td: vscode.TextDocument) {
-    if (td.uri.scheme === "file" && filename(td.uri) !== "settings.json") {
+    if (isFile(td)) {
       this.log(`event received: document opened: ${filename(td.uri)}`);
       const dc = new documents.Controller(this.logger, td, this.config);
       this.documents.set(td.uri.toString(), dc);
@@ -69,7 +77,7 @@ class LifecycleController {
   }
 
   documentClosed(td: vscode.TextDocument) {
-    if (td.uri.scheme === "file" && filename(td.uri) !== "settings.json") {
+    if (isFile(td)) {
       this.log(`event received: document closed: ${filename(td.uri)}`);
       this.documents.delete(td.uri.toString());
     }
@@ -121,28 +129,29 @@ class LifecycleController {
   }
 
   visibleEditorsChanged(tes: readonly vscode.TextEditor[]) {
-    this.log("event received: visible editors changed");
     try {
-      for (const te of tes) {
-        if (!this.editors.has(te)) {
-          if (isFile(te)) {
+      const appeared = tes.filter((te) => !this.editors.has(te));
+      const next = new Set(tes);
+      const disappeared = Array.from(this.editors.keys()).filter((te) => !next.has(te));
+      if (appeared.length > 0 || disappeared.length > 0) {
+        this.log("event received: visible editors changed");
+        for (const te of appeared) {
+          if (isForFile(te)) {
             this.editorAppeared(te);
           }
         }
-      }
-      const next = new Set(tes);
-      for (const [te] of this.editors) {
-        if (!next.has(te)) {
-          if (isFile(te)) {
+        for (const te of disappeared) {
+          if (isForFile(te)) {
             this.editorDisappeared(te);
           }
         }
+
+        const editingConfig = tes.some((te) => isForConfig(te));
+        this.log(`editingConfig: ${editingConfig}`);
+        if (editingConfig && !this.editingConfig) this.configEditorAppeared();
+        else if (!editingConfig && this.editingConfig) this.configEditorDisappeared();
+        this.editingConfig = editingConfig;
       }
-      let editingConfig = false;
-      for (const te of tes) if (isConfig(te)) editingConfig = true;
-      if (editingConfig && !this.editingConfig) this.configEditorAppeared();
-      else if (!editingConfig && this.editingConfig) this.configEditorDisappeared();
-      this.editingConfig = editingConfig;
     } catch (e) {
       this.prompt(e);
     }
@@ -218,9 +227,9 @@ class LifecycleController {
 
   selectionsChanged(event: vscode.TextEditorSelectionChangeEvent) {
     try {
-      if (vscode.window.activeTextEditor && vscode.window.activeTextEditor === event.textEditor) {
+      if (isForFile(event.textEditor)) {
         this.log(`event received: selections changed`);
-        this.editors.get(vscode.window.activeTextEditor)?.selectionChange();
+        this.editors.get(event.textEditor)?.selectionChange();
       }
     } catch (e) {
       this.prompt(e);
