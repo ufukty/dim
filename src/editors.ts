@@ -84,7 +84,7 @@ export class Controller {
     if (!this.inSessionForConfigEdit) {
       matches = matches.filter((range) => !this.isInOneOfSelectedAreas(range));
     }
-    this.editor.setDecorations(config.decoTypes.max, matches);
+    this.editor.setDecorations(config.decoTypes[op], matches);
   }
 
   private decorate() {
