@@ -7,7 +7,6 @@ export interface DecorationTypes {
   min: vscode.TextEditorDecorationType;
 }
 
-/* Compiled version of {@link config.Rule}. */
 export interface Rule {
   regex: RegExp;
   opacity: config.Opacity;
