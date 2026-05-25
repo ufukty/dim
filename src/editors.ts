@@ -26,7 +26,7 @@ export class Controller {
     this.logger = l;
     this.enabled = e;
     this.document = dc;
-    this.inSessionForConfigEdit = true;
+    this.inSessionForConfigEdit = false;
     this.filename = filename(te.document.uri);
     this.lastUpdateTimestamp = 0;
     this.log(`constructor (enabled: ${e})`);
