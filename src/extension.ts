@@ -57,7 +57,7 @@ class LifecycleController {
   }
 
   log(message: string) {
-    this.logger.appendLine(`${now()} [info] extension: ${message}`);
+    this.logger.appendLine(`${now()} extension: ${message}`);
   }
 
   documentOpened(td: vscode.TextDocument) {
