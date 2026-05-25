@@ -85,13 +85,20 @@ class LifecycleController {
 
   documentContentChanged(event: vscode.TextDocumentChangeEvent) {
     try {
-      if (
-        vscode.window.activeTextEditor &&
-        event.document.uri.path === vscode.window.activeTextEditor.document.uri.path &&
-        event.document.uri.scheme === "file"
-      ) {
+      if (vscode.window.activeTextEditor && isFile(event.document)) {
         this.log(`event received: document content changed`);
-        this.editors.get(vscode.window.activeTextEditor)?.contentChange();
+        const uri = vscode.window.activeTextEditor.document.uri;
+        const dc = this.documents.get(uri.toString());
+        if (!dc) {
+          this.log("expected controller for the document whose contents is changed");
+          return;
+        }
+        dc.invalidate();
+        for (const [te, ec] of this.editors) {
+          if (te.document.uri === uri) {
+            ec.contentChange();
+          }
+        }
       }
     } catch (e) {
       this.prompt(e);
