@@ -112,7 +112,8 @@ class LifecycleController {
       this.log("expected its document before editor");
       return;
     }
-    const ec = new editors.Controller(te, td, this.config, true, this.logger);
+    const enabled = this.documentState.get(te.document.uri.toString()) ?? true;
+    const ec = new editors.Controller(te, td, this.config, enabled, this.logger);
     this.editors.set(te, ec);
   }
 
