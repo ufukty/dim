@@ -170,9 +170,9 @@ class LifecycleController {
       if (e.affectsConfiguration("dim")) {
         this.log(`event received: extension configuration change`);
         this.config.invalidate();
-        vscode.window.visibleTextEditors.forEach((editor) => {
-          this.editors.get(editor)?.configChange();
-        });
+        for (const [, ec] of this.editors) {
+          ec.configChange();
+        }
       }
     } catch (e) {
       this.prompt(e);
