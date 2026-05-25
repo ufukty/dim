@@ -30,6 +30,7 @@ export class Controller {
     this.filename = filename(te.document.uri);
     this.lastUpdateTimestamp = 0;
     this.log(`constructor (enabled: ${e})`);
+    this.schedule();
   }
 
   private log(message: string) {
