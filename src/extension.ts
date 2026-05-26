@@ -253,9 +253,10 @@ class LifecycleController {
   destroy() {
     this.log(`destroy`);
     try {
-      for (const editor of vscode.window.visibleTextEditors) {
-        this.editors.get(editor)?.disable();
+      for (const [, ec] of this.editors) {
+        ec.disable();
       }
+      this.config.invalidate();
     } catch (e) {
       this.prompt(e);
     }
