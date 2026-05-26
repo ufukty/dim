@@ -232,7 +232,7 @@ class LifecycleController {
             ec.enable();
           }
         }
-        this.documentState.set(uri.toString(), true);
+        this.documentState.delete(uri.toString());
       }
     } catch (e) {
       this.prompt(e);
@@ -252,7 +252,8 @@ class LifecycleController {
             else ec.disable();
           }
         }
-        this.documentState.set(uri.toString(), next);
+        if (next) this.documentState.delete(uri.toString());
+        else this.documentState.set(uri.toString(), false);
       }
     } catch (e) {
       this.prompt(e);
