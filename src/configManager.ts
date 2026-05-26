@@ -1,10 +1,7 @@
 import * as vscode from "vscode";
 import * as config from "./config";
 import * as models from "./models";
-
-function now(): string {
-  return new Date().toISOString();
-}
+import { filename, now } from "./utils";
 
 type ScopeId = string;
 
@@ -12,13 +9,13 @@ class Scope {
   uri: vscode.Uri;
   languageId: string;
 
-  constructor(editor: vscode.TextEditor) {
-    this.uri = editor.document.uri;
-    this.languageId = editor.document.languageId;
+  constructor(document: vscode.TextDocument) {
+    this.uri = document.uri;
+    this.languageId = document.languageId;
   }
 
   toString(): string {
-    return `${this.uri.toString()} (${this.languageId})`;
+    return `${filename(this.uri)} (${this.languageId})`;
   }
 
   internalize(): ScopeId {
@@ -96,17 +93,22 @@ class Compiler {
     return rules;
   }
 
+  private decoTypes(raw: config.File): models.DecorationTypes {
+    return {
+      max: vscode.window.createTextEditorDecorationType({ "opacity": raw.valueForMaxTier.toString() }),
+      mid: vscode.window.createTextEditorDecorationType({ "opacity": raw.valueForMidTier.toString() }),
+      min: vscode.window.createTextEditorDecorationType({ "opacity": raw.valueForMinTier.toString() }),
+    };
+  }
+
   compile(scope: Scope): models.Config {
     try {
       this.logger.appendLine(`${now()} config.Compiler: compiling user config for ${scope}`);
       const raw = this.reader.read(scope);
-      const rules = this.rules(raw);
       return {
-        rules: rules,
+        rules: this.rules(raw),
         updatePeriod: raw.updatePeriod,
-        valueForMaxTier: raw.valueForMaxTier,
-        valueForMidTier: raw.valueForMidTier,
-        valueForMinTier: raw.valueForMinTier,
+        decoTypes: this.decoTypes(raw),
       } satisfies models.Config;
     } catch (e) {
       throw typeof e === "string" ? `compile for ${scope}: ${e}` : e;
@@ -125,10 +127,14 @@ export class Cache {
     this.logger = l;
   }
 
-  for(editor: vscode.TextEditor): models.Config {
+  private log(message: string) {
+    this.logger.appendLine(`${now()} config.Cache: ${message}`);
+  }
+
+  for(document: vscode.TextDocument): models.Config {
     try {
-      const scope = new Scope(editor);
-      this.logger.appendLine(`${now()} config.Manager: requested user config for ${scope}`);
+      const scope = new Scope(document);
+      this.log(`requested compiled config for ${scope}`);
       const i = scope.internalize();
       let c = this.cache.get(i);
       if (!c) {
@@ -141,8 +147,17 @@ export class Cache {
     }
   }
 
+  private disposeDecoTypes() {
+    for (const [, config] of this.cache) {
+      config.decoTypes.max.dispose();
+      config.decoTypes.mid.dispose();
+      config.decoTypes.min.dispose();
+    }
+  }
+
   invalidate() {
-    this.logger.appendLine(`${now()} config.Manager: invalidating cache`);
+    this.log(`invalidate`);
+    this.disposeDecoTypes();
     this.cache.clear();
   }
 }

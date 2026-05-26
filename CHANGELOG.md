@@ -1,5 +1,19 @@
 # Change Log
 
+## 4.1.0
+
+**Changed**
+
+- Changed to use editor presence to pause passing selected areas during config edit.
+
+**Fixed**
+
+- Fixed the document toggle delay on split editors. ([#72](https://github.com/ufukty/dim/issues/72))
+- Fixed the old decoration types are not disposed after config change. ([#71](https://github.com/ufukty/dim/issues/71))
+- Fixed the split editors are not updated on content change. ([#69](https://github.com/ufukty/dim/issues/69))
+- Fixed the extension miss the language mode change. ([#68](https://github.com/ufukty/dim/issues/68))
+- Fixed the patterns are executed redundantly for each split editor. ([#66](https://github.com/ufukty/dim/issues/66))
+
 ## 4.0.2
 
 **Changed**
