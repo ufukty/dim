@@ -70,6 +70,10 @@ class LifecycleController {
     this.logger.appendLine(`${now()} extension: ${message}`);
   }
 
+  error(message: string) {
+    this.logger.appendLine(`${now()} [error] extension: ${message}`);
+  }
+
   documentOpened(td: vscode.TextDocument) {
     if (isFile(td)) {
       this.log(`event received: document opened: ${filename(td.uri)}`);
@@ -92,7 +96,7 @@ class LifecycleController {
         const uri = vscode.window.activeTextEditor.document.uri;
         const dc = this.documents.get(uri.toString());
         if (!dc) {
-          this.log("expected controller for the document whose contents is changed");
+          this.error("expected controller for the document whose contents is changed");
           return;
         }
         dc.invalidate();
