@@ -180,6 +180,9 @@ class LifecycleController {
       if (e.affectsConfiguration("dim")) {
         this.log(`event received: extension configuration change`);
         this.config.invalidate();
+        for (const [, dc] of this.documents) {
+          dc.invalidate();
+        }
         for (const [, ec] of this.editors) {
           ec.configChange();
         }
