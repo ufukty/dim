@@ -3,16 +3,21 @@ import * as cm from "./configManager";
 import * as models from "./models";
 import * as config from "./config";
 import * as documents from "./documents";
-import { filename, now } from "./utils";
+import { now } from "./utils";
 
 const tiers = [config.Opacity.Min, config.Opacity.Mid, config.Opacity.Max];
+
+export interface Options {
+  enabled: boolean;
+  logname: string;
+}
 
 export class Controller {
   private editor: vscode.TextEditor;
   private config: cm.Cache;
-  private filename: string;
   private logger: vscode.OutputChannel;
   private enabled: boolean; // local proxy for per-doc toggle
+  private logname: string;
   private inSessionForConfigEdit: boolean; // don't pass selected areas
 
   private lastUpdateTimestamp: number;
@@ -20,21 +25,21 @@ export class Controller {
 
   private document: documents.Controller;
 
-  constructor(te: vscode.TextEditor, dc: documents.Controller, cc: cm.Cache, e: boolean, l: vscode.OutputChannel) {
+  constructor(te: vscode.TextEditor, dc: documents.Controller, cc: cm.Cache, opts: Options, l: vscode.OutputChannel) {
     this.editor = te;
     this.config = cc;
     this.logger = l;
-    this.enabled = e;
+    this.enabled = opts.enabled;
+    this.logname = opts.logname;
     this.document = dc;
     this.inSessionForConfigEdit = false;
-    this.filename = filename(te.document.uri);
     this.lastUpdateTimestamp = 0;
-    this.log(`constructor (enabled: ${e})`);
+    this.log(`constructor (enabled: ${opts.enabled})`);
     this.schedule();
   }
 
   private log(message: string) {
-    this.logger.appendLine(`${now()} editor(${this.filename}): ${message}`);
+    this.logger.appendLine(`${now()} editor(${this.logname}): ${message}`);
   }
 
   private isInOneOfSelectedAreas(range: vscode.Range): boolean {

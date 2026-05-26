@@ -25,6 +25,7 @@ class LifecycleController {
   private documents: Map<string, documents.Controller>;
   private documentState: Map<string, boolean>; // per-doc toggle
   private editors: Map<vscode.TextEditor, editors.Controller>;
+  private editorCount: number;
   private logger: vscode.OutputChannel;
   private editingConfig: boolean;
 
@@ -37,6 +38,7 @@ class LifecycleController {
     this.documentState = new Map();
     this.editors = new Map();
     this.editingConfig = false;
+    this.editorCount = 0;
 
     context.subscriptions.push(
       vscode.commands.registerCommand("dim.disableDimForCurrentEditor", this.disableForDocument, this),
@@ -113,7 +115,11 @@ class LifecycleController {
       return;
     }
     const enabled = this.documentState.get(te.document.uri.toString()) ?? true;
-    const ec = new editors.Controller(te, td, this.config, enabled, this.logger);
+    const opts = <editors.Options>{
+      enabled: enabled,
+      logname: `${this.editorCount++}/${filename(te.document.uri)}`,
+    };
+    const ec = new editors.Controller(te, td, this.config, opts, this.logger);
     this.editors.set(te, ec);
   }
 
