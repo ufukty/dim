@@ -53,6 +53,8 @@ class LifecycleController {
       vscode.workspace.onDidOpenTextDocument(this.documentOpened, this),
       vscode.workspace.onDidChangeTextDocument(this.documentContentChanged, this),
       vscode.workspace.onDidCloseTextDocument(this.documentClosed, this),
+
+      vscode.workspace.onDidRenameFiles(this.documentRenamed, this),
     );
 
     for (const td of vscode.workspace.textDocuments) {
@@ -79,6 +81,17 @@ class LifecycleController {
       this.log(`event received: document opened: ${filename(td.uri)}`);
       const dc = new documents.Controller(this.logger, td, this.config);
       this.documents.set(td.uri.toString(), dc);
+    }
+  }
+
+  documentRenamed(e: vscode.FileRenameEvent) {
+    for (const file of e.files) {
+      const [prev, next] = [file.oldUri.toString(), file.newUri.toString()];
+      const state = this.documentState.get(prev) ?? true;
+      if (state !== undefined) {
+        this.documentState.delete(prev);
+        if (!state) this.documentState.set(next, false);
+      }
     }
   }
 
