@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.2.0
+
+**Added**
+
+- Added the `max` rule config property to prevent accidental matches. ([#65](https://github.com/ufukty/dim/issues/65))
+
 ## 4.1.1
 
 **Fixed**
