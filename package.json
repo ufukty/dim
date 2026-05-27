@@ -34,6 +34,12 @@
           "scope": "window",
           "type": "string"
         },
+        "dim.defaultMax": {
+          "default": 0,
+          "description": "The default value for maximum number of characters a rule can match. Longer matches will be ignored. Use zero to disable.",
+          "scope": "window",
+          "type": "number"
+        },
         "dim.defaultOpacityTier": {
           "default": "mid",
           "description": "The default opacity will be assumed for rules that doesn't specify. Overridable in rules.",
@@ -54,6 +60,10 @@
                 "default": "g",
                 "description": "Flag suffix that will be used for generating the regex for given pattern. Dim sets \"g\" flag by default which matches all instances (rather than the first) of pattern. Consider adding \"s\" for block dimming rules which makes the dot match with newlines. Don't use a separator between flags. Eg. \"gs\"",
                 "type": "string"
+              },
+              "max": {
+                "description": "The maximum number of characters a rule can match. Longer matches will be ignored. Use zero to disable.",
+                "type": "number"
               },
               "opacity": {
                 "enum": [
