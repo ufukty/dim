@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.1.1
+
+**Fixed**
+
+- Fixed losing the toggle state on file rename. ([#73](https://github.com/ufukty/dim/issues/73))
+
 ## 4.1.0
 
 **Changed**
