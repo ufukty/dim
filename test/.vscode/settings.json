@@ -22,7 +22,8 @@
     "dim.rules": [
       {
         "pattern": "(?:announce|logger\\.\\w+)\\([^\\)]*(?:\\([^\\)]*\\))?[^\\)]*\\);", // allows 2-level nesting of parentheses
-        "flags": "gs"
+        "flags": "gs",
+        "max": 0
       }
     ]
   },
@@ -45,5 +46,6 @@
   "dim.valueForMaxTier": 0.4,
   "dim.valueForMidTier": 0.3,
   "dim.valueForMinTier": 0.2,
-  "dim.updatePeriod": 10
+  "dim.updatePeriod": 10,
+  "dim.defaultMax": 50
 }
