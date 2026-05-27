@@ -10,6 +10,7 @@ export interface DecorationTypes {
 export interface Rule {
   regex: RegExp;
   opacity: config.Opacity;
+  max: number;
 }
 
 export interface Config {

@@ -45,6 +45,7 @@ export class Controller {
       if (!match.index || !match[0]) continue;
       const start = match.index;
       const end = match.index + match[0].length;
+      if (rule.max > 0 && end - start > rule.max) continue;
       if (braceBalance(text, start, end)) {
         ranges.push(new vscode.Range(this.document.positionAt(start), this.document.positionAt(end)));
       }

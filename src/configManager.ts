@@ -60,6 +60,7 @@ class Reader {
       return {
         defaultFlags: wc.get<string>("defaultFlags", "g"),
         defaultOpacityTier: wc.get<config.Opacity>("defaultOpacityTier", config.Opacity.Mid),
+        defaultMax: wc.get<number>("defaultMax", 0),
         rules: this.concatRuleLayers(wc),
         updatePeriod: wc.get<number>("updatePeriod", 500),
         valueForMaxTier: wc.get<number>("valueForMaxTier", 0.75),
@@ -88,6 +89,7 @@ class Compiler {
       rules.push({
         regex: new RegExp(rule.pattern, rule.flags ?? raw.defaultFlags),
         opacity: rule.opacity ? config.toOpacity(rule.opacity) : raw.defaultOpacityTier,
+        max: rule.max ?? raw.defaultMax,
       });
     }
     return rules;
