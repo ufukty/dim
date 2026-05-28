@@ -28,6 +28,7 @@ export interface Rule {
   flags: string | undefined;
   opacity: string | undefined;
   pattern: string;
+  max: number;
 }
 
 export function assertRule(value: unknown): asserts value is Rule {
@@ -58,6 +59,7 @@ export function assertRuleArray(value: unknown): asserts value is Rule[] {
 
 export interface File {
   defaultFlags: string;
+  defaultMax: number;
   defaultOpacityTier: Opacity;
   rules: Rule[];
   valueForMaxTier: number;
