@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.2.1
+
+**Fixed**
+
+- Fixed that the ignoring matches that overlap with selected areas doesn't pause during editing the workspace config.
+
 ## 4.2.0
 
 **Added**
