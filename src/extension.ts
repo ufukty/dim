@@ -12,8 +12,24 @@ function isForFile(te: vscode.TextEditor | undefined): boolean {
   return te !== undefined && isFile(te.document);
 }
 
+function isUserConfig(uri: vscode.Uri): boolean {
+  return uri.scheme === "vscode-userdata" && filename(uri) === "settings.json";
+}
+
+function isWorkspaceConfig(uri: vscode.Uri): boolean {
+  if (uri.scheme !== "file") {
+    return false;
+  }
+  const workspaceRoot = vscode.workspace.getWorkspaceFolder(uri);
+  if (workspaceRoot === undefined) {
+    return false;
+  }
+  const workspaceConfig = vscode.Uri.joinPath(workspaceRoot.uri, ".vscode", "settings.json");
+  return uri.toString() === workspaceConfig.toString();
+}
+
 function isConfig(td: vscode.TextDocument): boolean {
-  return td.uri.scheme === "vscode-userdata" && filename(td.uri) === "settings.json";
+  return isUserConfig(td.uri) || isWorkspaceConfig(td.uri);
 }
 
 function isForConfig(te: vscode.TextEditor | undefined): boolean {
