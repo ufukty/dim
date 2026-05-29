@@ -161,5 +161,5 @@
     "test": "npx vitest run",
     "vscode:prepublish": "npx tsc --noEmit && npx eslint src && node esbuild.mjs --production"
   },
-  "version": "4.2.0"
+  "version": "4.2.1"
 }
